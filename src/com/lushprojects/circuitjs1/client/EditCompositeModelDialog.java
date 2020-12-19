@@ -61,10 +61,11 @@ public class EditCompositeModelDialog extends DialogBox implements MouseDownHand
 	Context2d context;
 	CustomCompositeModel model;
 	
+	public String defaultName;
+	
 	void setModel(CustomCompositeModel m) { model = m; }
 	
         boolean createModel() {
-            HashSet<Integer> nodeSet = new HashSet<Integer>();
             model = CirSim.theSim.getCircuitAsComposite();
             if (model == null)
         	return false;
@@ -72,6 +73,12 @@ public class EditCompositeModelDialog extends DialogBox implements MouseDownHand
         	Window.alert(CirSim.LS("Device has no external inputs/outputs!"));
         	return false;
             }
+            return loadModel(model);
+        }
+        
+        boolean loadModel(CustomCompositeModel m) {
+            model = m;
+            HashSet<Integer> nodeSet = new HashSet<Integer>();
             Collections.sort(model.extList, new Comparator<ExtListEntry>() {
         	public int compare(ExtListEntry a, ExtListEntry b) {
         	    return a.name.toLowerCase().compareTo(b.name.toLowerCase());
@@ -129,7 +136,8 @@ public class EditCompositeModelDialog extends DialogBox implements MouseDownHand
 		    vp.add(new Label(CirSim.LS("Model Name")));
 		    modelNameTextBox = new TextBox();
 		    vp.add(modelNameTextBox);
-//		    modelNameTextBox.setText(model.name);
+		    if (defaultName != null)
+			modelNameTextBox.setText(defaultName);
 		}
 		
 		HorizontalPanel hp = new HorizontalPanel();

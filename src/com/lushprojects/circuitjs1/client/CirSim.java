@@ -409,6 +409,8 @@ MouseOutHandler, MouseWheelHandler {
 	  fileMenuBar.addItem(exportAsTextItem);
 	  fileMenuBar.addItem(iconMenuItem("export", "Export As Image...", new MyCommand("file","exportasimage")));
 	  fileMenuBar.addItem(iconMenuItem("microchip", "Create Subcircuit...", new MyCommand("file","createsubcircuit")));
+	  MenuItem importFromSpiceItem = iconMenuItem("microchip", "Import Subcircuit From Spice...", new MyCommand("file","importfromspice"));
+	  fileMenuBar.addItem(importFromSpiceItem);
 	  fileMenuBar.addItem(iconMenuItem("magic", "Find DC Operating Point", new MyCommand("file", "dcanalysis")));
 	  recoverItem = iconMenuItem("back-in-time", "Recover Auto-Save", new MyCommand("file","recover"));
 	  recoverItem.setEnabled(recovery != null);
@@ -2724,6 +2726,8 @@ MouseOutHandler, MouseWheelHandler {
     	if (item=="importfromtext") {
     		dialogShowing = new ImportFromTextDialog(this);
     	}
+    	if (item=="importfromspice")
+		dialogShowing = new ImportFromSpiceDialog(this);
     	if (item=="importfromdropbox") {
     		importFromDropboxDialog = new ImportFromDropboxDialog(this);
     	}
