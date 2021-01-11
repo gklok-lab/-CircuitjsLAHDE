@@ -130,6 +130,7 @@ public class EditCompositeModelDialog extends DialogBox implements MouseDownHand
 		chip = new CustomCompositeChipElm(50, 50);
 		chip.x2 = 200;
 		chip.y2 = 50;
+		selectedPin = -1;
 		createPinsFromModel();
 		
 		if (model.name == null) {
@@ -274,7 +275,6 @@ public class EditCompositeModelDialog extends DialogBox implements MouseDownHand
 	}
 
 	public void onMouseUp(MouseUpEvent event) {
-	    // TODO Auto-generated method stub
 	    dragging = false;
 	}
 
@@ -314,8 +314,11 @@ public class EditCompositeModelDialog extends DialogBox implements MouseDownHand
 	}
 
 	public void onMouseDown(MouseDownEvent event) {
-	    // TODO Auto-generated method stub
 	    dragging = true;
 	}
 
+	public void show() {
+	    super.show();
+	    drawChip();
+	}
 }
