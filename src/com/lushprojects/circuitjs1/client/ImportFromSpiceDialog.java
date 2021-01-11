@@ -85,6 +85,7 @@ TextArea outputArea;
 	class TransistorModel {
 	    int pnp;
 	    double beta;
+	    double cjc, cje;
 	}
 	
 	class VoltageSource {
@@ -145,6 +146,10 @@ TextArea outputArea;
 				    double bf = parseNumber(s.substring(3));
 				    tm.beta = bf;
 				}
+				if (s.startsWith("cje="))
+				    tm.cje = parseNumber(s.substring(4));
+				if (s.startsWith("cjc="))
+				    tm.cjc = parseNumber(s.substring(4));
 			    }
 			    output("found transistor model " + name);
 			    transistorModels.put(name, tm);
@@ -275,6 +280,20 @@ TextArea outputArea;
 			String n3 = st.nextToken();
 			String mod = st.nextToken();
 			TransistorModel tm = transistorModels.get(mod);
+			if (tm.cje > 0) {
+			    // add capacitor for base-emitter junction
+			    elmDump += "CapacitorElm " + findNode(n2) + " " + findNode(n3) + "\r";
+			    if (dump.length() > 0)
+				dump += " ";
+			    dump += CustomLogicModel.escape("0 " + tm.cje + " 0 0");
+			}
+			if (tm.cjc > 0) {
+			    // add capacitor for base-collector junction
+			    elmDump += "CapacitorElm " + findNode(n2) + " " + findNode(n1) + "\r";
+			    if (dump.length() > 0)
+				dump += " ";
+			    dump += CustomLogicModel.escape("0 " + tm.cjc + " 0 0");
+			}
 			elmDump += "TransistorElm " + findNode(n2) + " "+ findNode(n1) + " " + findNode(n3) + " " + "\r";
 			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta;
 		    } else if (c == 'v') {
