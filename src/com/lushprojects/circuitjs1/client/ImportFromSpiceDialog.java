@@ -206,7 +206,7 @@ TextArea outputArea;
 			    nodes.add(n);
 		    }
 		    if (c == 'f' || c == 'h')
-			voltageSourcesToSuppress.add(st.nextToken());
+			voltageSourcesToSuppress.add(st.nextToken().toLowerCase());
 		} catch (Exception e) {
 		    output("exception when parsing line: " + line);
 		    CirSim.debugger();
@@ -278,7 +278,8 @@ TextArea outputArea;
 			elmDump += "TransistorElm " + findNode(n2) + " "+ findNode(n1) + " " + findNode(n3) + " " + "\r";
 			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta;
 		    } else if (c == 'v') {
-			// don't want or need to write this out if it's used for a current-controlled source
+			// don't want to write this out if it's used for a current-controlled source.
+			// not necessary and causes the source to not work.
 			if (voltageSourcesToSuppress.contains(first))
 			    continue;
 			String n1 = st.nextToken();
