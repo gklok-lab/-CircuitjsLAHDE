@@ -118,7 +118,7 @@ TextArea outputArea;
 		BetterStringTokenizer st = new BetterStringTokenizer(line, " \t\f()");
 		if (!st.hasMoreTokens())
 		    continue;
-		String first = st.nextToken().toLowerCase();
+		String first = st.nextToken();
 		if (first.startsWith("*"))
 		    continue;
 		try {
@@ -146,7 +146,7 @@ TextArea outputArea;
 			    tm.pnp = (type.equalsIgnoreCase("pnp")) ? -1 : 1;
 			    tm.beta = 100;
 			    while (st.hasMoreTokens()) {
-				String s = st.nextToken().toLowerCase();
+				String s = st.nextToken();
 				if (s.startsWith("bf=")) {
 				    double bf = parseNumber(s.substring(3));
 				    tm.beta = bf;
@@ -162,7 +162,7 @@ TextArea outputArea;
 			if (type.equalsIgnoreCase("d")) {
 			    DiodeModel dm = DiodeModel.getModelWithName(subcircuitName + "-" + name);
 			    while (st.hasMoreTokens()) {
-				String s = st.nextToken().toLowerCase();
+				String s = st.nextToken();
 				if (s.startsWith("is="))
 				    dm.saturationCurrent = parseNumber(s.substring(3));
 				else if (s.startsWith("rs="))
@@ -216,7 +216,7 @@ TextArea outputArea;
 			    nodes.add(n);
 		    }
 		    if (c == 'f' || c == 'h')
-			voltageSourcesToSuppress.add(st.nextToken().toLowerCase());
+			voltageSourcesToSuppress.add(st.nextToken());
 		} catch (Exception e) {
 		    output("exception when parsing line: " + line);
 		    CirSim.debugger();
@@ -234,7 +234,7 @@ TextArea outputArea;
 		BetterStringTokenizer st = new BetterStringTokenizer(line, " \t\f");
 		if (!st.hasMoreTokens())
 		    continue;
-		String first = st.nextToken().toLowerCase();
+		String first = st.nextToken();
 		if (first.startsWith("*"))
 		    continue;
 		try {
@@ -323,7 +323,7 @@ TextArea outputArea;
 		    } else if (c == 'h') {
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
-			String vcontrol = st.nextToken().toLowerCase();
+			String vcontrol = st.nextToken();
 			double mult = parseNumber(st.nextToken());
 			// find voltage source used to sense current and get its nodes
 			VoltageSource vs = voltageSources.get(vcontrol);
@@ -332,7 +332,7 @@ TextArea outputArea;
 		    } else if (c == 'f') {
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
-			String vcontrol = st.nextToken().toLowerCase();
+			String vcontrol = st.nextToken();
 			double mult = parseNumber(st.nextToken());
 			VoltageSource vs = voltageSources.get(vcontrol);
 			// swap n1 and n2 because positive current flows from C- to C+
@@ -376,12 +376,20 @@ TextArea outputArea;
 	    String outn1 = st.nextToken();
 	    String outn2 = st.nextToken();
 	    st.setDelimiters("*+=/(,) ");
+	    skipToken(st, "i");
+	    parseControlledSourceExpr(st, outn2, outn1);
+	}
+	
+	void parseControlledSourceExpr(BetterStringTokenizer st, String outn1, String outn2) throws Exception {
 	    Vector<String> inputs = new Vector<String>();
 	    String expr = "";
-	    skipToken(st, "i");
 	    skipToken(st, "=");
 	    while (st.hasMoreTokens()) {
 		String s = st.nextToken();
+		if (s == "{")
+		    continue;
+		if (s == "}")
+		    break;
 		if (s == "v") {
 		    skipToken(st, "(");
 		    String n1 = st.nextToken();
@@ -406,7 +414,7 @@ TextArea outputArea;
 	    int i;
 	    for (i = 0; i != inputs.size(); i++)
 		elmDump += " " + findNode(inputs.get(i));
-	    elmDump += " " + findNode(outn2) + " " + findNode(outn1) + "\r";
+	    elmDump += " " + findNode(outn1) + " " + findNode(outn2) + "\r";
 	    ldump = "0 " + inputs.size() + " " + expr;
 	}
 	
@@ -423,8 +431,14 @@ TextArea outputArea;
 		n1 = n2;
 		n2 = x;
 	    }
+	    st.setDelimiters(" =");
 	    String n3 = st.nextToken();
-	    if (!n3.toLowerCase().startsWith("poly")) {
+	    if (n3.equals("value")) {
+		st.setDelimiters(" ={}()+-*/,");
+		parseControlledSourceExpr(st, n1, n2);
+		return;
+	    }
+	    if (!n3.startsWith("poly")) {
 		// simple linear controlled source with two control inputs
 		String n4 = st.nextToken();
 		double mult = parseNumber(st.nextToken());
