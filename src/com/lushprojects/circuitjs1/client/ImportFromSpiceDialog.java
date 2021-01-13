@@ -94,6 +94,11 @@ TextArea outputArea;
 
 	String elmDump, ldump;
 	
+	void skipToken(BetterStringTokenizer st, String tok) throws Exception {
+	    if (!st.nextToken().equals(tok))
+		throw new Exception();
+	}
+	
 	void parseCircuit() {
 	    String text = textArea.getText();
 	    StringTokenizer lineSt = new StringTokenizer(text, "\n\r");
@@ -110,7 +115,7 @@ TextArea outputArea;
 	    // first pass, get a list of models and nodes
 	    while (lineSt.hasMoreTokens()) {
 		String line = lineSt.nextToken();
-		StringTokenizer st = new StringTokenizer(line, " \t\f()");
+		BetterStringTokenizer st = new BetterStringTokenizer(line, " \t\f()");
 		if (!st.hasMoreTokens())
 		    continue;
 		String first = st.nextToken().toLowerCase();
@@ -173,7 +178,7 @@ TextArea outputArea;
 		    elements.add(first);
 		    int nodeCount = 0;
 		    char c = first.charAt(0);
-		    if ("cdfhirv".indexOf(c) >= 0)
+		    if ("bcdfhirv".indexOf(c) >= 0)
 			nodeCount = 2;
 		    else if ("q".indexOf(c) >= 0)
 			nodeCount = 3;
@@ -226,7 +231,7 @@ TextArea outputArea;
 	    String dump = "";
 	    while (lineSt.hasMoreTokens()) {
 		String line = lineSt.nextToken();
-		StringTokenizer st = new StringTokenizer(line, " \t\f");
+		BetterStringTokenizer st = new BetterStringTokenizer(line, " \t\f");
 		if (!st.hasMoreTokens())
 		    continue;
 		String first = st.nextToken().toLowerCase();
@@ -313,6 +318,8 @@ TextArea outputArea;
 			parseControlledSource("VCVSElm", st);
 		    } else if (c == 'g') {
 			parseControlledSource("VCCSElm", st);
+		    } else if (c == 'b') {
+			parseBSource(st);
 		    } else if (c == 'h') {
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
@@ -365,7 +372,49 @@ TextArea outputArea;
 	    dlg.show();
 	}
 	
-	void parseControlledSource(String cls, StringTokenizer st) throws Exception {
+	void parseBSource(BetterStringTokenizer st) throws Exception {
+	    String outn1 = st.nextToken();
+	    String outn2 = st.nextToken();
+	    st.setDelimiters("*+=/(,) ");
+	    Vector<String> inputs = new Vector<String>();
+	    String expr = "";
+	    skipToken(st, "i");
+	    skipToken(st, "=");
+	    while (st.hasMoreTokens()) {
+		String s = st.nextToken();
+		if (s == "v") {
+		    skipToken(st, "(");
+		    String n1 = st.nextToken();
+		    int inct = inputs.size();
+		    inputs.add(n1);
+		    String n2 = null;
+		    String s2 = st.nextToken();
+		    if (s2.equals(",")) {
+			n2 = st.nextToken();
+			s2 = st.nextToken();
+			inputs.add(n2);
+			expr += "(" + getLetter(inct) + "-" + getLetter(inct+1) + ")";
+		    } else
+			expr += getLetter(inct);
+		    if (!s2.equals(")"))
+			throw new Exception();
+		    output("nodes " + n1 + " and " + n2);
+		} else
+		    expr += s;
+	    }
+	    elmDump += "VCCSElm";
+	    int i;
+	    for (i = 0; i != inputs.size(); i++)
+		elmDump += " " + findNode(inputs.get(i));
+	    elmDump += " " + findNode(outn2) + " " + findNode(outn1) + "\r";
+	    ldump = "0 " + inputs.size() + " " + expr;
+	}
+	
+	String getLetter(int ch) {
+	    return Character.toString((char)('a'+ch));
+	}
+	
+	void parseControlledSource(String cls, BetterStringTokenizer st) throws Exception {
 	    String n1 = st.nextToken();
 	    String n2 = st.nextToken();
 	    // swap output nodes for current sources because current flows the opposite way
@@ -399,8 +448,7 @@ TextArea outputArea;
 		StringTokenizer st2 = new StringTokenizer(st.nextToken(), "(),");
 		String na = st2.nextToken();
 		inputs[inputCount] = na;
-		inputExprs[i] = Character.toString((char)('a'+inputCount));
-		inputCount++;
+		inputExprs[i] = getLetter(inputCount++);
 		if (st2.hasMoreTokens()) {
 		    String nb = st2.nextToken();
 		    if (!nb.equals("0")) {
