@@ -251,7 +251,8 @@ TextArea outputArea;
 			String n2 = st.nextToken();
 			double cap = parseNumber(st.nextToken());
 			elmDump += "CapacitorElm " + findNode(n1) + " "+ findNode(n2) + "\r";
-			ldump = "0 " + cap + " 0 0";
+			// add FLAG_BACK_EULER because that is probably the most appropriate setting for spice models
+			ldump = "2 " + cap + " 0 0";
 		    } else if (c == 'r') {
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
@@ -377,10 +378,10 @@ TextArea outputArea;
 	    String outn2 = st.nextToken();
 	    st.setDelimiters("*+=/(,) ");
 	    skipToken(st, "i");
-	    parseControlledSourceExpr(st, outn2, outn1);
+	    parseControlledSourceExpr(st, "VCCSElm", outn2, outn1);
 	}
 	
-	void parseControlledSourceExpr(BetterStringTokenizer st, String outn1, String outn2) throws Exception {
+	void parseControlledSourceExpr(BetterStringTokenizer st, String cls, String outn1, String outn2) throws Exception {
 	    Vector<String> inputs = new Vector<String>();
 	    String expr = "";
 	    skipToken(st, "=");
@@ -410,7 +411,7 @@ TextArea outputArea;
 		} else
 		    expr += s;
 	    }
-	    elmDump += "VCCSElm";
+	    elmDump += cls;
 	    int i;
 	    for (i = 0; i != inputs.size(); i++)
 		elmDump += " " + findNode(inputs.get(i));
@@ -435,7 +436,7 @@ TextArea outputArea;
 	    String n3 = st.nextToken();
 	    if (n3.equals("value")) {
 		st.setDelimiters(" ={}()+-*/,");
-		parseControlledSourceExpr(st, n1, n2);
+		parseControlledSourceExpr(st, cls, n1, n2);
 		return;
 	    }
 	    if (!n3.startsWith("poly")) {
