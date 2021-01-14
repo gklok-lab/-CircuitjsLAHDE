@@ -86,6 +86,7 @@ TextArea outputArea;
 	    int pnp;
 	    double beta;
 	    double cjc, cje;
+	    double rc, re, rb;
 	}
 	
 	class VoltageSource {
@@ -155,6 +156,12 @@ TextArea outputArea;
 				    tm.cje = parseNumber(s.substring(4));
 				if (s.startsWith("cjc="))
 				    tm.cjc = parseNumber(s.substring(4));
+				if (s.startsWith("rc="))
+				    tm.rc = parseNumber(s.substring(3));
+				if (s.startsWith("re="))
+				    tm.re = parseNumber(s.substring(3));
+				if (s.startsWith("rb="))
+				    tm.rb = parseNumber(s.substring(3));
 			    }
 			    output("found transistor model " + name);
 			    transistorModels.put(name, tm);
@@ -229,6 +236,7 @@ TextArea outputArea;
 	    lineSt = new StringTokenizer(text, "\n\r");
 	    elmDump = "";
 	    String dump = "";
+	    int extraNode = nodes.size()+1;
 	    while (lineSt.hasMoreTokens()) {
 		String line = lineSt.nextToken();
 		BetterStringTokenizer st = new BetterStringTokenizer(line, " \t\f");
@@ -286,21 +294,51 @@ TextArea outputArea;
 			String n3 = st.nextToken();
 			String mod = st.nextToken();
 			TransistorModel tm = transistorModels.get(mod);
+			int collector = findNode(n1);
+			int base = findNode(n2);
+			int emitter = findNode(n3);
+			if (tm.rc > 0) {
+			    // add resistor at collector
+			    int n = extraNode++;
+			    elmDump += "ResistorElm " + collector + " " + n + "\r";
+			    if (dump.length() > 0)
+				dump += " ";
+			    dump += CustomLogicModel.escape("0 " + tm.rc);
+			    collector = n;
+			}
+			if (tm.rb > 0) {
+			    // add resistor at base
+			    int n = extraNode++;
+			    elmDump += "ResistorElm " + base + " " + n + "\r";
+			    if (dump.length() > 0)
+				dump += " ";
+			    dump += CustomLogicModel.escape("0 " + tm.rb);
+			    base = n;
+			}
+			if (tm.re > 0) {
+			    // add resistor at emitter
+			    int n = extraNode++;
+			    elmDump += "ResistorElm " + emitter + " " + n + "\r";
+			    if (dump.length() > 0)
+				dump += " ";
+			    dump += CustomLogicModel.escape("0 " + tm.re);
+			    emitter = n;
+			}
 			if (tm.cje > 0) {
 			    // add capacitor for base-emitter junction
-			    elmDump += "CapacitorElm " + findNode(n2) + " " + findNode(n3) + "\r";
+			    elmDump += "CapacitorElm " + base + " " + emitter + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
 			    dump += CustomLogicModel.escape("0 " + tm.cje + " 0 0");
 			}
 			if (tm.cjc > 0) {
 			    // add capacitor for base-collector junction
-			    elmDump += "CapacitorElm " + findNode(n2) + " " + findNode(n1) + "\r";
+			    elmDump += "CapacitorElm " + base + " " + collector + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
 			    dump += CustomLogicModel.escape("0 " + tm.cjc + " 0 0");
 			}
-			elmDump += "TransistorElm " + findNode(n2) + " "+ findNode(n1) + " " + findNode(n3) + " " + "\r";
+			elmDump += "TransistorElm " + base + " " + collector + " " + emitter + " " + "\r";
 			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta;
 		    } else if (c == 'v') {
 			// don't want to write this out if it's used for a current-controlled source.
