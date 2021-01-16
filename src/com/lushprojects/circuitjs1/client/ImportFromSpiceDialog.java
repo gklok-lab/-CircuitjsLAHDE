@@ -100,9 +100,22 @@ TextArea outputArea;
 		throw new Exception();
 	}
 	
+	Vector<String> getLines(String text) {
+	    Vector<String> vec = new Vector<String>();
+	    
+	    StringTokenizer lineSt = new StringTokenizer(text, "\n\r");
+	    while (lineSt.hasMoreTokens()) {
+		String s = lineSt.nextToken();
+		if (s.startsWith("+") && vec.size() > 0)
+		    vec.set(vec.size()-1, vec.lastElement() + s.substring(1));
+		else
+		    vec.add(s);
+	    }
+	    return vec;
+	}
 	void parseCircuit() {
 	    String text = textArea.getText();
-	    StringTokenizer lineSt = new StringTokenizer(text, "\n\r");
+	    Vector<String> lines = getLines(text);
 	    Vector<String> externalNodes = new Vector<String>();
 	    Vector<String> elements = new Vector<String>();
 	    Vector<String> voltageSourcesToSuppress = new Vector<String>();
@@ -114,8 +127,10 @@ TextArea outputArea;
 	    outputArea.setText("");
 	    
 	    // first pass, get a list of models and nodes
-	    while (lineSt.hasMoreTokens()) {
-		String line = lineSt.nextToken();
+	    int ln;
+	    for (ln = 0; ln != lines.size(); ln++) {
+		String line = lines.get(ln);
+		output("got line " + line);
 		BetterStringTokenizer st = new BetterStringTokenizer(line, " \t\f()");
 		if (!st.hasMoreTokens())
 		    continue;
@@ -233,12 +248,11 @@ TextArea outputArea;
 	    output("nodes: " + nodes);
 	    
 	    // second pass
-	    lineSt = new StringTokenizer(text, "\n\r");
 	    elmDump = "";
 	    String dump = "";
 	    int extraNode = nodes.size()+1;
-	    while (lineSt.hasMoreTokens()) {
-		String line = lineSt.nextToken();
+	    for (ln = 0; ln != lines.size(); ln++) {
+		String line = lines.get(ln);
 		BetterStringTokenizer st = new BetterStringTokenizer(line, " \t\f");
 		if (!st.hasMoreTokens())
 		    continue;
