@@ -168,15 +168,15 @@ TextArea outputArea;
 				    tm.beta = bf;
 				}
 				if (s.startsWith("cje="))
-				    tm.cje = parseNumber(s.substring(4));
+				    tm.cje = parseCapacitance(s.substring(4));
 				if (s.startsWith("cjc="))
-				    tm.cjc = parseNumber(s.substring(4));
+				    tm.cjc = parseCapacitance(s.substring(4));
 				if (s.startsWith("rc="))
-				    tm.rc = parseNumber(s.substring(3));
+				    tm.rc = parseCapacitance(s.substring(3));
 				if (s.startsWith("re="))
-				    tm.re = parseNumber(s.substring(3));
+				    tm.re = parseCapacitance(s.substring(3));
 				if (s.startsWith("rb="))
-				    tm.rb = parseNumber(s.substring(3));
+				    tm.rb = parseCapacitance(s.substring(3));
 			    }
 			    output("found transistor model " + name);
 			    transistorModels.put(name, tm);
@@ -198,16 +198,11 @@ TextArea outputArea;
 			continue;
 		    }
 		    if (first.startsWith(".rename")) {
-			String fromStr = st.nextToken();
-			String toStr = st.nextTokenPreserveCase();
-			int i;
-			for (i = 0; i != extList.size(); i++)
-			    if (extList.get(i).name.equalsIgnoreCase(fromStr)) {
-				extList.get(i).setName(toStr);
-				break;
-			    }
-			if (i == extList.size())
-			    throw new Exception();
+			int i = 0;
+			while (st.hasMoreTokens()) {
+			    String toStr = st.nextTokenPreserveCase();
+			    extList.get(i++).setName(toStr);
+			}
 			continue;
 		    }
 
@@ -285,7 +280,7 @@ TextArea outputArea;
 		    if (c == 'c') {
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
-			double cap = parseNumber(st.nextToken());
+			double cap = parseCapacitance(st.nextToken());
 			elmDump += "CapacitorElm " + findNode(n1) + " "+ findNode(n2) + "\r";
 			// add FLAG_BACK_EULER because that is probably the most appropriate setting for spice models
 			ldump = "2 " + cap + " 0 0";
@@ -353,18 +348,18 @@ TextArea outputArea;
 			    emitter = n;
 			}
 			if (tm.cje > 0) {
-			    // add capacitor for base-emitter junction
+			    // add capacitor for base-emitter junction (with FLAG_BACK_EULER)
 			    elmDump += "CapacitorElm " + base + " " + emitter + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("0 " + tm.cje + " 0 0");
+			    dump += CustomLogicModel.escape("2 " + tm.cje + " 0 0");
 			}
 			if (tm.cjc > 0) {
 			    // add capacitor for base-collector junction
 			    elmDump += "CapacitorElm " + base + " " + collector + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("0 " + tm.cjc + " 0 0");
+			    dump += CustomLogicModel.escape("2 " + tm.cjc + " 0 0");
 			}
 			elmDump += "TransistorElm " + base + " " + collector + " " + emitter + " " + "\r";
 			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta;
@@ -581,6 +576,11 @@ TextArea outputArea;
 	    // spice M means milli, so make it lowercase.
 	    str = str.replaceAll("e", "E").replaceAll("M", "m");
 	    return EditDialog.parseUnits(str);
+	}
+	
+	double parseCapacitance(String str) throws Exception {
+	    // remove trailing f
+	    return parseNumber(str.replaceAll("f$", ""));
 	}
 	
 	int findNode(String node) {
