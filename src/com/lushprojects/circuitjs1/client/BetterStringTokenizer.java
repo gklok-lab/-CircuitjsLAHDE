@@ -6,7 +6,7 @@ public class BetterStringTokenizer {
     String text;
     int pos;
     int tlen;
-    String token;
+    String token, tokenPreserveCase;
     
     public BetterStringTokenizer(String text_, String delim_) {
 	text  = text_;
@@ -19,7 +19,7 @@ public class BetterStringTokenizer {
 
     String nextToken() {
 	if (pos == tlen) {
-	    token = "";
+	    token = tokenPreserveCase = "";
 	    return token;
 	}
 	int i = pos + 1;
@@ -28,13 +28,19 @@ public class BetterStringTokenizer {
 	    while (i < tlen && delim.indexOf(text.charAt(i)) < 0)
 		i++;
 	}
-	token = text.substring(pos, i).toLowerCase();
+	tokenPreserveCase = text.substring(pos, i);
+	token = tokenPreserveCase.toLowerCase();
 	pos = i;
 	while (pos < tlen && (text.charAt(pos) == ' ' || text.charAt(pos) == '\t'))
 	    pos++;
 	return token;
     }
 
+    String nextTokenPreserveCase() {
+	nextToken();
+	return tokenPreserveCase;
+    }
+    
     void setDelimiters(String d) {
 	delim = d;
     }

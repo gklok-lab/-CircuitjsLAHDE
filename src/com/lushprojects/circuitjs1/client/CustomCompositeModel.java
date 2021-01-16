@@ -16,6 +16,7 @@ class ExtListEntry {
     ExtListEntry(String s, int n, int p, int sd) { name = s; node = n; pos = p; side = sd; }
     String name;
     int node, pos, side;
+    void setName(String s) { name = s; }
 };
 
 public class CustomCompositeModel implements Comparable<CustomCompositeModel> {

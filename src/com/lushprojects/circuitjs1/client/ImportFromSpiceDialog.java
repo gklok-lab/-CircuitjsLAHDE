@@ -116,7 +116,7 @@ TextArea outputArea;
 	void parseCircuit() {
 	    String text = textArea.getText();
 	    Vector<String> lines = getLines(text);
-	    Vector<String> externalNodes = new Vector<String>();
+//	    Vector<String> externalNodes = new Vector<String>();
 	    Vector<String> elements = new Vector<String>();
 	    Vector<String> voltageSourcesToSuppress = new Vector<String>();
 	    HashMap<String,TransistorModel> transistorModels = new HashMap<String,TransistorModel>();
@@ -147,7 +147,7 @@ TextArea outputArea;
 			while (st.hasMoreTokens()) {
 			    String n = st.nextToken();
 			    nodes.add(n);
-			    externalNodes.add(n);
+//			    externalNodes.add(n);
 			    extList.add(new ExtListEntry(n, nodes.size()));
 			}
 			continue;
@@ -197,6 +197,20 @@ TextArea outputArea;
 			}
 			continue;
 		    }
+		    if (first.startsWith(".rename")) {
+			String fromStr = st.nextToken();
+			String toStr = st.nextTokenPreserveCase();
+			int i;
+			for (i = 0; i != extList.size(); i++)
+			    if (extList.get(i).name.equalsIgnoreCase(fromStr)) {
+				extList.get(i).setName(toStr);
+				break;
+			    }
+			if (i == extList.size())
+			    throw new Exception();
+			continue;
+		    }
+
 		    elements.add(first);
 		    int nodeCount = 0;
 		    char c = first.charAt(0);
