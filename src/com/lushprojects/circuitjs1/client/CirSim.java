@@ -190,7 +190,19 @@ MouseOutHandler, MouseWheelHandler {
     int menuPlot = -1;
     int hintType = -1, hintItem1, hintItem2;
     String stopMessage;
-    double timeStep, iterStep;
+    
+    // current timestep (time between iterations)
+    double timeStep;
+    
+    // maximum timestep (== timeStep unless we reduce it because of trouble converging)
+    double maxTimeStep;
+    
+    // accumulated time since we incremented timeStepCount
+    double timeStepAccum;
+    
+    // incremented each time we advance t by maxTimeStep
+    int timeStepCount;
+    
     boolean adjustTimeStep;
     static final int HINT_LC = 1;
     static final int HINT_RC = 2;
@@ -1705,7 +1717,7 @@ MouseOutHandler, MouseWheelHandler {
     // the voltage on their terminal nodes.  But wires have the same voltage at both ends, so we need
     // to use the neighbors' currents instead.  We used to treat wires as zero voltage sources to make
     // this easier, but this is very inefficient, since it makes the matrix 2 rows bigger for each wire.
-    // So we create a list of WireInfo objects instead to help us calculate the wire currents instead,
+    // We create a list of WireInfo objects instead to help us calculate the wire currents instead,
     // so we make the matrix less complex, and we only calculate the wire currents when we need them
     // (once per frame, not once per subiteration)
     boolean calcWireInfo() {
@@ -1879,7 +1891,9 @@ MouseOutHandler, MouseWheelHandler {
     void findUnconnectedNodes() {
 	int i, j;
 	
-	// determine nodes that are not connected indirectly to ground
+	// determine nodes that are not connected indirectly to ground.
+	// all nodes must be connected to ground somehow, or else we
+	// will get a matrix error.
 	boolean closure[] = new boolean[nodeList.size()];
 	boolean changed = true;
 	unconnectedNodes = new Vector<Integer>();
@@ -1918,7 +1932,7 @@ MouseOutHandler, MouseWheelHandler {
 		if (!closure[i] && !getCircuitNode(i).internal) {
 		    unconnectedNodes.add(i);
 		    console("node " + i + " unconnected");
-//		    stampResistor(0, i, 1e8);
+//		    stampResistor(0, i, 1e8);   // do this later in connectUnconnectedNodes()
 		    closure[i] = true;
 		    changed = true;
 		    break;
@@ -1926,6 +1940,8 @@ MouseOutHandler, MouseWheelHandler {
 	}
     }
     
+    // take list of unconnected nodes, which we identified earlier, and connect them to ground
+    // with a big resistor.  otherwise we will get matrix errors
     void connectUnconnectedNodes() {
 	int i;
 	for (i = 0; i != unconnectedNodes.size(); i++) {
@@ -2079,10 +2095,11 @@ MouseOutHandler, MouseWheelHandler {
 	if (!validateCircuit())
 	    return;
 
-	iterStep = timeStep;
+	timeStep = maxTimeStep;
 	stampCircuit();
     }
     
+    // stamp the matrix, meaning populate the matrix as required to simulate the circuit (for all linear elements, at least)
     void stampCircuit() {
 	int i;
 	int matrixSize = nodeList.size()-1 + voltageSourceCount;
@@ -2125,8 +2142,8 @@ MouseOutHandler, MouseWheelHandler {
 	}
     }
 
-    // simplify the matrix; this speeds things up quite a bit, especially for
-    // digital circuits
+    // simplify the matrix; this speeds things up quite a bit, especially for digital circuits.
+    // or at least it did before we added wire removal
     boolean simplifyMatrix(int matrixSize) {
 	int i, j;
 	for (i = 0; i != matrixSize; i++) {
@@ -2135,7 +2152,9 @@ MouseOutHandler, MouseWheelHandler {
 	    RowInfo re = circuitRowInfo[i];
 	    /*System.out.println("row " + i + " " + re.lsChanges + " " + re.rsChanges + " " +
 			       re.dropRow);*/
-//	    if (qp != -100) continue;   // uncomment to disable matrix simplification
+	    
+//	    if (qp != -100) continue;   // uncomment this line to disable matrix simplification for debugging purposes
+	    
 	    if (re.lsChanges || re.dropRow || re.rsChanges)
 		continue;
 	    double rsadd = 0;
@@ -2235,8 +2254,8 @@ MouseOutHandler, MouseWheelHandler {
     }
     
     // make list of posts we need to draw.  posts shared by 2 elements should be hidden, all
-    // others should be drawn.  We can't use the node list anymore because wires have the same
-    // node number at both ends.
+    // others should be drawn.  We can't use the node list for this purpose anymore because wires
+    // have the same node number at both ends.
     void makePostDrawList() {
 	postDrawList = new Vector<Point>();
 	badConnectionList = new Vector<Point>();
@@ -2429,7 +2448,7 @@ MouseOutHandler, MouseWheelHandler {
 	stampMatrix(n2, n1, -r0);
     }
 
-    // current from cn1 to cn2 is equal to voltage from vn1 to 2, divided by g
+    // specify that current from cn1 to cn2 is equal to voltage from vn1 to 2, divided by g
     void stampVCCurrentSource(int cn1, int cn2, int vn1, int vn2, double g) {
 	stampMatrix(cn1, vn1, g);
 	stampMatrix(cn2, vn2, g);
@@ -2524,7 +2543,7 @@ MouseOutHandler, MouseWheelHandler {
     
     boolean converged;
     int subIterations;
-    final double iterStepLowerLimit = 50e-12;
+    final double timeStepLowerLimit = 50e-12;
     
     void runCircuit(boolean didAnalyze) {
 	if (circuitMatrix == null || elmList.size() == 0) {
@@ -2549,23 +2568,34 @@ MouseOutHandler, MouseWheelHandler {
 	    return;
 	
 	boolean delayWireProcessing = canDelayWireProcessing();
-	if (iterStep < timeStep) {
-	    iterStep = Math.min(iterStep*2, timeStep);
-	    console("iterstep up = " + iterStep + " at " + t);
-	    stampCircuit();
-	}
+	
+	int timeStepCountAtFrameStart = timeStepCount;
+	
+	// keep track of iterations completed without convergence issues
+	int goodIterations = 100;
+	boolean goodIteration = true;
 	
 	for (iter = 1; ; iter++) {
+	    if (goodIterations >= 3 && timeStep < maxTimeStep && goodIteration) {
+		// things are going well, double the time step
+		timeStep = Math.min(timeStep*2, maxTimeStep);
+		console("timestep up = " + timeStep + " at " + t);
+		stampCircuit();
+		goodIterations = 0;
+	    }
+	    
 	    int i, j, subiter;
 	    for (i = 0; i != elmList.size(); i++) {
 		CircuitElm ce = getElm(i);
 		ce.startIteration();
 	    }
 	    steps++;
-	    int subiterCount = (adjustTimeStep && iterStep/2 > iterStepLowerLimit) ? 100 : 5000;
+	    int subiterCount = (adjustTimeStep && timeStep/2 > timeStepLowerLimit) ? 100 : 5000;
 	    for (subiter = 0; subiter != subiterCount; subiter++) {
 		converged = true;
 		subIterations = subiter;
+//		if (t % .030 < .002 && timeStep > 1e-6)
+//		    converged = false;
 		for (i = 0; i != circuitMatrixSize; i++)
 		    circuitRightSide[i] = origRightSide[i];
 		if (circuitNonLinear) {
@@ -2618,23 +2648,35 @@ MouseOutHandler, MouseWheelHandler {
 		    break;
 	    }
 	    if (subiter == subiterCount) {
+		// convergence failed
+		goodIterations = 0;
 		if (adjustTimeStep) {
-		    iterStep /= 2;
-		    console("iterstep down to " + iterStep + " at " + t);
+		    timeStep /= 2;
+		    console("timestep down to " + timeStep + " at " + t);
 		}
-		if (iterStep < iterStepLowerLimit || !adjustTimeStep) {
+		if (timeStep < timeStepLowerLimit || !adjustTimeStep) {
 		    console("convergence failed after " + subiter + " iterations");
 		    stop("Convergence failed!", null);
 		    break;
 		}
-		// reset circuit state to the way it was at start of iteration
+		// we reduced the timestep.  reset circuit state to the way it was at start of iteration
 		setNodeVoltages(lastNodeVoltages);
 		stampCircuit();
 		continue;
 	    }
-	    if (subiter > 5 || iterStep < timeStep)
-		console("converged after " + subiter + " iterations, iterStep = " + iterStep);
-	    t += iterStep;
+	    if (subiter > 5 || timeStep < maxTimeStep)
+		console("converged after " + subiter + " iterations, timeStep = " + timeStep);
+	    if (subiter < 3 && goodIteration)
+		goodIterations++;
+	    else
+		goodIterations = 0;
+	    t += timeStep;
+	    timeStepAccum += timeStep;
+	    goodIteration = true;
+	    if (timeStepAccum >= maxTimeStep) {
+		timeStepAccum -= maxTimeStep;
+		timeStepCount++;
+	    }
 	    for (i = 0; i != elmList.size(); i++)
 		getElm(i).stepFinished();
 	    if (!delayWireProcessing)
@@ -2653,7 +2695,7 @@ MouseOutHandler, MouseWheelHandler {
 	    lit = tm;
 	    // Check whether enough time has elapsed to perform an *additional* iteration after
 	    // those we have already completed.
-	    if ((iter+1)*1000 >= steprate*(tm-lastIterTime) || (tm-lastFrameTime > 500))
+	    if ((timeStepCount-timeStepCountAtFrameStart)*1000 >= steprate*(tm-lastIterTime) || (tm-lastFrameTime > 500))
 		break;
 	    if (!simRunning)
 		break;
@@ -2732,18 +2774,14 @@ MouseOutHandler, MouseWheelHandler {
     
     int min(int a, int b) { return (a < b) ? a : b; }
     int max(int a, int b) { return (a > b) ? a : b; }
-
-    
-    
-
     
     public void resetAction(){
     	int i;
     	analyzeFlag = true;
     	if (t == 0)
     	    setSimRunning(true);
-    	else
-    	    t=0;
+    	t = timeStepAccum = 0;
+    	timeStepCount = 0;
     	for (i = 0; i != elmList.size(); i++)
 		getElm(i).reset();
 	for (i = 0; i != scopeCount; i++)
@@ -3227,7 +3265,7 @@ MouseOutHandler, MouseWheelHandler {
 	// 32 = linear scale in afilter
 	f |= adjustTimeStep ? 64 : 0;
 	String dump = "$ " + f + " " +
-	    timeStep + " " + getIterCount() + " " +
+	    maxTimeStep + " " + getIterCount() + " " +
 	    currentBar.getValue() + " " + CircuitElm.voltageRange + " " +
 	    powerBar.getValue() + "\n";
 		
@@ -3354,7 +3392,6 @@ MouseOutHandler, MouseWheelHandler {
     }
     
 	void readSetupFile(String str, String title) {
-		t = 0;
 		System.out.println(str);
 		// TODO: Maybe think about some better approach to cache management!
 		String url=GWT.getModuleBaseURL()+"circuits/"+str+"?v="+random.nextInt(); 
@@ -3407,9 +3444,10 @@ MouseOutHandler, MouseWheelHandler {
 		CircuitElm ce = getElm(i);
 		ce.delete();
 	    }
+	    t = timeStepAccum = 0;
 	    elmList.removeAllElements();
 	    hintType = -1;
-	    timeStep = 5e-6;
+	    maxTimeStep = 5e-6;
 	    dotsCheckItem.setState(false);
 	    smallGridCheckItem.setState(false);
 	    powerCheckItem.setState(false);
@@ -3555,7 +3593,7 @@ MouseOutHandler, MouseWheelHandler {
 	powerCheckItem.setState((flags & 8) == 8);
 	showValuesCheckItem.setState((flags & 16) == 0);
 	adjustTimeStep = (flags & 64) != 0;
-	timeStep = new Double (st.nextToken()).doubleValue();
+	maxTimeStep = timeStep = new Double (st.nextToken()).doubleValue();
 	double sp = new Double(st.nextToken()).doubleValue();
 	int sp2 = (int) (Math.log(10*sp)*24+61.5);
 	//int sp2 = (int) (Math.log(sp)*24+1.5);
