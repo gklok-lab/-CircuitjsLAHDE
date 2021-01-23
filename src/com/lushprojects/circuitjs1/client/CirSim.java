@@ -196,6 +196,7 @@ MouseOutHandler, MouseWheelHandler {
     
     // maximum timestep (== timeStep unless we reduce it because of trouble converging)
     double maxTimeStep;
+    double minTimeStep;
     
     // accumulated time since we incremented timeStepCount
     double timeStepAccum;
@@ -926,6 +927,8 @@ MouseOutHandler, MouseWheelHandler {
     	passMenuBar.addItem(getClassCheckItem(LS("Add Fuse"), "FuseElm"));
     	passMenuBar.addItem(getClassCheckItem(LS("Add Custom Transformer"), "CustomTransformerElm"));
     	passMenuBar.addItem(getClassCheckItem(LS("Add Crystal"), "CrystalElm"));
+    	passMenuBar.addItem(getClassCheckItem(LS("Add Photoresistor"), "LDRElm"));
+    	passMenuBar.addItem(getClassCheckItem(LS("Add Thermistor"), "ThermistorNTCElm"));
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Passive Components")), passMenuBar);
 
     	MenuBar inputMenuBar = new MenuBar(true);
@@ -982,8 +985,6 @@ MouseOutHandler, MouseWheelHandler {
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Varactor/Varicap"), "VaractorElm"));
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Tunnel Diode"), "TunnelDiodeElm"));
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Triode"), "TriodeElm"));
-    	activeMenuBar.addItem(getClassCheckItem("Add Photoresistor", "LDRElm"));
-    	activeMenuBar.addItem(getClassCheckItem("Add Thermistor", "ThermistorNTCElm"));
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Active Components")), activeMenuBar);
 
     	MenuBar activeBlocMenuBar = new MenuBar(true);
@@ -2543,7 +2544,6 @@ MouseOutHandler, MouseWheelHandler {
     
     boolean converged;
     int subIterations;
-    final double timeStepLowerLimit = 50e-12;
     
     void runCircuit(boolean didAnalyze) {
 	if (circuitMatrix == null || elmList.size() == 0) {
@@ -2590,11 +2590,11 @@ MouseOutHandler, MouseWheelHandler {
 		ce.startIteration();
 	    }
 	    steps++;
-	    int subiterCount = (adjustTimeStep && timeStep/2 > timeStepLowerLimit) ? 100 : 5000;
+	    int subiterCount = (adjustTimeStep && timeStep/2 > minTimeStep) ? 100 : 5000;
 	    for (subiter = 0; subiter != subiterCount; subiter++) {
 		converged = true;
 		subIterations = subiter;
-//		if (t % .030 < .002 && timeStep > 1e-6)
+//		if (t % .030 < .002 && timeStep > 1e-6)  // force nonconvergence for debugging
 //		    converged = false;
 		for (i = 0; i != circuitMatrixSize; i++)
 		    circuitRightSide[i] = origRightSide[i];
@@ -2654,7 +2654,7 @@ MouseOutHandler, MouseWheelHandler {
 		    timeStep /= 2;
 		    console("timestep down to " + timeStep + " at " + t);
 		}
-		if (timeStep < timeStepLowerLimit || !adjustTimeStep) {
+		if (timeStep < minTimeStep || !adjustTimeStep) {
 		    console("convergence failed after " + subiter + " iterations");
 		    stop("Convergence failed!", null);
 		    break;
@@ -3267,7 +3267,7 @@ MouseOutHandler, MouseWheelHandler {
 	String dump = "$ " + f + " " +
 	    maxTimeStep + " " + getIterCount() + " " +
 	    currentBar.getValue() + " " + CircuitElm.voltageRange + " " +
-	    powerBar.getValue() + "\n";
+	    powerBar.getValue() + " " + minTimeStep + "\n";
 		
 	for (i = 0; i != elmList.size(); i++) {
 	    CircuitElm ce = getElm(i);
@@ -3448,6 +3448,7 @@ MouseOutHandler, MouseWheelHandler {
 	    elmList.removeAllElements();
 	    hintType = -1;
 	    maxTimeStep = 5e-6;
+	    minTimeStep = 50e-12;
 	    dotsCheckItem.setState(false);
 	    smallGridCheckItem.setState(false);
 	    powerCheckItem.setState(false);
@@ -3603,6 +3604,7 @@ MouseOutHandler, MouseWheelHandler {
 
 	try {
 	    powerBar.setValue(new Integer(st.nextToken()).intValue());
+	    minTimeStep = Double.parseDouble(st.nextToken());
 	} catch (Exception e) {
 	}
 	setGrid();
