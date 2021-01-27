@@ -82,11 +82,15 @@ TextArea outputArea;
 
 	Vector<String> nodes;
 	
-	class TransistorModel {
+	class TransistorModelImport {
 	    int pnp;
 	    double beta;
+	    String name;
 	    double cjc, cje;
 	    double rc, re, rb;
+	    TransistorModelImport() {
+		beta = 100;
+	    }
 	}
 	
 	class VoltageSource {
@@ -119,7 +123,7 @@ TextArea outputArea;
 //	    Vector<String> externalNodes = new Vector<String>();
 	    Vector<String> elements = new Vector<String>();
 	    Vector<String> voltageSourcesToSuppress = new Vector<String>();
-	    HashMap<String,TransistorModel> transistorModels = new HashMap<String,TransistorModel>();
+	    HashMap<String,TransistorModelImport> transistorModels = new HashMap<String,TransistorModelImport>();
 	    HashMap<String,VoltageSource> voltageSources = new HashMap<String,VoltageSource>();
 	    nodes = new Vector<String>();
 	    Vector<ExtListEntry> extList = new Vector<ExtListEntry>();
@@ -158,28 +162,42 @@ TextArea outputArea;
 			String name = st.nextToken();
 			String type = st.nextToken();
 			if (type.equalsIgnoreCase("pnp") || type.equalsIgnoreCase("npn")) {
-			    TransistorModel tm = new TransistorModel();
-			    tm.pnp = (type.equalsIgnoreCase("pnp")) ? -1 : 1;
-			    tm.beta = 100;
+			    TransistorModelImport tmi = new TransistorModelImport();
+			    tmi.pnp = (type.equalsIgnoreCase("pnp")) ? -1 : 1;
+			    tmi.name = subcircuitName + "-" + name;
+			    TransistorModel tm = TransistorModel.getModelWithName(tmi.name);
+			    tm.satCur = 1e-16;
 			    while (st.hasMoreTokens()) {
 				String s = st.nextToken();
 				if (s.startsWith("bf=")) {
 				    double bf = parseNumber(s.substring(3));
-				    tm.beta = bf;
+				    tmi.beta = bf;
 				}
+				if (s.startsWith("is=")) { tm.satCur = parseNumber(s.substring(3)); }
+				if (s.startsWith("br=")) { tm.betaR = parseNumber(s.substring(3)); }
+				if (s.startsWith("ne=")) { tm.leakBEemissionCoeff = parseNumber(s.substring(3)); }
+				if (s.startsWith("nc=")) { tm.leakBCemissionCoeff = parseNumber(s.substring(3)); }
+				if (s.startsWith("nf=")) { tm.emissionCoeffF = parseNumber(s.substring(3)); }
+				if (s.startsWith("nr=")) { tm.emissionCoeffR = parseNumber(s.substring(3)); }
+				if (s.startsWith("vaf=")) { tm.invEarlyVoltF = 1/parseNumber(s.substring(4)); }
+				if (s.startsWith("var=")) { tm.invEarlyVoltR = 1/parseNumber(s.substring(4)); }
+				if (s.startsWith("ikf=")) { tm.invRollOffF = 1/parseNumber(s.substring(4)); }
+				if (s.startsWith("ikr=")) { tm.invRollOffR = 1/parseNumber(s.substring(4)); }
+				if (s.startsWith("ise=")) { tm.BEleakCur = parseNumber(s.substring(4)); }
+				if (s.startsWith("isc=")) { tm.BCleakCur = parseNumber(s.substring(4)); }
 				if (s.startsWith("cje="))
-				    tm.cje = parseCapacitance(s.substring(4));
+				    tmi.cje = parseCapacitance(s.substring(4));
 				if (s.startsWith("cjc="))
-				    tm.cjc = parseCapacitance(s.substring(4));
+				    tmi.cjc = parseCapacitance(s.substring(4));
 				if (s.startsWith("rc="))
-				    tm.rc = parseCapacitance(s.substring(3));
+				    tmi.rc = parseCapacitance(s.substring(3));
 				if (s.startsWith("re="))
-				    tm.re = parseCapacitance(s.substring(3));
+				    tmi.re = parseCapacitance(s.substring(3));
 				if (s.startsWith("rb="))
-				    tm.rb = parseCapacitance(s.substring(3));
+				    tmi.rb = parseCapacitance(s.substring(3));
 			    }
 			    output("found transistor model " + name);
-			    transistorModels.put(name, tm);
+			    transistorModels.put(name, tmi);
 			}
 			if (type.equalsIgnoreCase("d")) {
 			    DiodeModel dm = DiodeModel.getModelWithName(subcircuitName + "-" + name);
@@ -316,7 +334,7 @@ TextArea outputArea;
 			String n2 = st.nextToken();
 			String n3 = st.nextToken();
 			String mod = st.nextToken();
-			TransistorModel tm = transistorModels.get(mod);
+			TransistorModelImport tm = transistorModels.get(mod);
 			int collector = findNode(n1);
 			int base = findNode(n2);
 			int emitter = findNode(n3);
@@ -362,7 +380,7 @@ TextArea outputArea;
 			    dump += CustomLogicModel.escape("2 " + tm.cjc + " 0 0");
 			}
 			elmDump += "TransistorElm " + base + " " + collector + " " + emitter + " " + "\r";
-			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta;
+			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta + " " + tm.name;
 		    } else if (c == 'v') {
 			// don't want to write this out if it's used for a current-controlled source.
 			// not necessary and causes the source to not work.

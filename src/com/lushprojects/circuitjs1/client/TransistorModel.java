@@ -34,7 +34,7 @@ public class TransistorModel implements Editable, Comparable<TransistorModel> {
 	TransistorModel lm = modelMap.get(name);
 	if (lm != null)
 	    return lm;
-	lm = new TransistorModel();
+	lm = new TransistorModel(name, 1e-13);
 	lm.name = name;
 	modelMap.put(name, lm);
 	return lm;
@@ -103,10 +103,6 @@ public class TransistorModel implements Editable, Comparable<TransistorModel> {
 	if (description == null)
 	    return name;
 	return name + " (" + CirSim.LS(description) + ")";
-    }
-
-    TransistorModel() {
-	updateModel();
     }
 
     TransistorModel(TransistorModel copy) {
