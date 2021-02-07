@@ -117,6 +117,9 @@ TextArea outputArea;
 	    }
 	    return vec;
 	}
+	
+	HashMap<String,VoltageSource> voltageSources;
+	
 	void parseCircuit() {
 	    String text = textArea.getText();
 	    Vector<String> lines = getLines(text);
@@ -124,7 +127,7 @@ TextArea outputArea;
 	    Vector<String> elements = new Vector<String>();
 	    Vector<String> voltageSourcesToSuppress = new Vector<String>();
 	    HashMap<String,TransistorModelImport> transistorModels = new HashMap<String,TransistorModelImport>();
-	    HashMap<String,VoltageSource> voltageSources = new HashMap<String,VoltageSource>();
+	    voltageSources = new HashMap<String,VoltageSource>();
 	    nodes = new Vector<String>();
 	    Vector<ExtListEntry> extList = new Vector<ExtListEntry>();
 	    String subcircuitName = null;
@@ -264,8 +267,12 @@ TextArea outputArea;
 			if (!nodes.contains(n) && !n.equals("0"))
 			    nodes.add(n);
 		    }
-		    if (c == 'f' || c == 'h')
-			voltageSourcesToSuppress.add(st.nextToken());
+		    if (c == 'f' || c == 'h') {
+			// assume everything is a voltage source name and suppress it.
+			// no big deal if we're wrong
+			while (st.hasMoreTokens())
+			    voltageSourcesToSuppress.add(st.nextToken());
+		    }
 		} catch (Exception e) {
 		    output("exception when parsing line: " + line);
 		    CirSim.debugger();
@@ -395,29 +402,15 @@ TextArea outputArea;
 			elmDump += "VoltageElm " + findNode(n2) + " "+ findNode(n1) + "\r";
 			ldump = "0 0 0 " + v;
 		    } else if (c == 'e') {
-			parseControlledSource("VCVSElm", st);
+			parseControlledSource("VCVSElm", st, false);
 		    } else if (c == 'g') {
-			parseControlledSource("VCCSElm", st);
+			parseControlledSource("VCCSElm", st, false);
 		    } else if (c == 'b') {
 			parseBSource(st);
 		    } else if (c == 'h') {
-			String n1 = st.nextToken();
-			String n2 = st.nextToken();
-			String vcontrol = st.nextToken();
-			double mult = parseNumber(st.nextToken());
-			// find voltage source used to sense current and get its nodes
-			VoltageSource vs = voltageSources.get(vcontrol);
-			elmDump += "CCVSElm " + findNode(vs.node1) + " " + findNode(vs.node2) + " " + findNode(n1) + " " + findNode(n2) + "\r";
-			ldump = "0 2 " + mult + "*i";
+			parseControlledSource("CCVSElm", st, true);
 		    } else if (c == 'f') {
-			String n1 = st.nextToken();
-			String n2 = st.nextToken();
-			String vcontrol = st.nextToken();
-			double mult = parseNumber(st.nextToken());
-			VoltageSource vs = voltageSources.get(vcontrol);
-			// swap n1 and n2 because positive current flows from C- to C+
-			elmDump += "CCCSElm " + findNode(vs.node1) + " " + findNode(vs.node2) + " " + findNode(n2) + " " + findNode(n1) + "\r";
-			ldump = "0 2 " + mult + "*i";
+			parseControlledSource("CCCSElm", st, true);
 		    } else {
 			output("skipping " + first);
 			continue;
@@ -502,25 +495,40 @@ TextArea outputArea;
 	    return Character.toString((char)('a'+ch));
 	}
 	
-	void parseControlledSource(String cls, BetterStringTokenizer st) throws Exception {
+	void parseControlledSource(String cls, BetterStringTokenizer st, boolean cc) throws Exception {
+	    // get output nodes
+	    CirSim.debugger();
 	    String n1 = st.nextToken();
 	    String n2 = st.nextToken();
+	    
 	    // swap output nodes for current sources because current flows the opposite way
 	    if (cls.endsWith("CSElm")) {
 		String x = n1;
 		n1 = n2;
 		n2 = x;
 	    }
+	    
 	    st.setDelimiters(" =");
 	    String n3 = st.nextToken();
 	    if (n3.equals("value")) {
 		st.setDelimiters(" ={}()+-*/,");
+		if (cc)
+		    throw new Exception();
 		parseControlledSourceExpr(st, cls, n1, n2);
 		return;
 	    }
 	    if (!n3.startsWith("poly")) {
-		// simple linear controlled source with two control inputs
-		String n4 = st.nextToken();
+		// not a POLY, just simple linear controlled source with two control inputs
+		String n4;
+		if (cc) {
+		    // current controlled source, convert voltage source to node pair
+		    VoltageSource vs = voltageSources.get(n3);
+		    n3 = vs.node1;
+		    n4 = vs.node2;
+		} else {
+		    // get second node for voltage controlled source
+		    n4 = st.nextToken();
+		}
 		double mult = parseNumber(st.nextToken());
 		elmDump += cls + " " + findNode(n3) + " " + findNode(n4) + " " + findNode(n1) + " " + findNode(n2) + "\r";
 		ldump = "0 2 " + mult + "*(a-b)";
@@ -541,6 +549,14 @@ TextArea outputArea;
 	    for (i = 0; i != dim; i++) {
 		StringTokenizer st2 = new StringTokenizer(st.nextToken(), "(),");
 		String na = st2.nextToken();
+		if (cc) {
+		    // current-controlled source
+		    VoltageSource vs = voltageSources.get(na);
+		    inputExprs[i] = getLetter(inputCount/2);
+		    inputs[inputCount++] = vs.node1;
+		    inputs[inputCount++] = vs.node2;
+		    continue;
+		}
 		inputs[inputCount] = na;
 		inputExprs[i] = getLetter(inputCount++);
 		if (st2.hasMoreTokens()) {
