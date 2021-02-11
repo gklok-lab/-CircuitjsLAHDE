@@ -125,7 +125,6 @@ TextArea outputArea;
 	    Vector<String> lines = getLines(text);
 //	    Vector<String> externalNodes = new Vector<String>();
 	    Vector<String> elements = new Vector<String>();
-	    Vector<String> voltageSourcesToSuppress = new Vector<String>();
 	    HashMap<String,TransistorModelImport> transistorModels = new HashMap<String,TransistorModelImport>();
 	    voltageSources = new HashMap<String,VoltageSource>();
 	    nodes = new Vector<String>();
@@ -267,12 +266,6 @@ TextArea outputArea;
 			if (!nodes.contains(n) && !n.equals("0"))
 			    nodes.add(n);
 		    }
-		    if (c == 'f' || c == 'h') {
-			// assume everything is a voltage source name and suppress it.
-			// no big deal if we're wrong
-			while (st.hasMoreTokens())
-			    voltageSourcesToSuppress.add(st.nextToken());
-		    }
 		} catch (Exception e) {
 		    output("exception when parsing line: " + line);
 		    CirSim.debugger();
@@ -389,10 +382,6 @@ TextArea outputArea;
 			elmDump += "TransistorElm " + base + " " + collector + " " + emitter + " " + "\r";
 			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta + " " + tm.name;
 		    } else if (c == 'v') {
-			// don't want to write this out if it's used for a current-controlled source.
-			// not necessary and causes the source to not work.
-			if (voltageSourcesToSuppress.contains(first))
-			    continue;
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
 			String x = st.nextToken();
@@ -500,6 +489,7 @@ TextArea outputArea;
 	    CirSim.debugger();
 	    String n1 = st.nextToken();
 	    String n2 = st.nextToken();
+	    int flags = (cls.startsWith("CC")) ? 2 : 0;
 	    
 	    // swap output nodes for current sources because current flows the opposite way
 	    if (cls.endsWith("CSElm")) {
@@ -531,7 +521,7 @@ TextArea outputArea;
 		}
 		double mult = parseNumber(st.nextToken());
 		elmDump += cls + " " + findNode(n3) + " " + findNode(n4) + " " + findNode(n1) + " " + findNode(n2) + "\r";
-		ldump = "0 2 " + mult + "*(a-b)";
+		ldump = flags + " 2 " + mult + "*(a-b)";
 		return;
 	    }
 	    
@@ -597,7 +587,7 @@ TextArea outputArea;
 		expr += Double.toString(x) + "*" + inputExprs[i-1];
 	    }
 	    CirSim.debugger();
-	    ldump = "0 " + inputCount + " " + expr;
+	    ldump = flags + " " + inputCount + " " + expr;
 	}
 	
 	int getPolyDim(String s) {
