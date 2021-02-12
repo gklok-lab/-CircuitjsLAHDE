@@ -229,9 +229,9 @@ TextArea outputArea;
 		    elements.add(first);
 		    int nodeCount = 0;
 		    char c = first.charAt(0);
-		    if ("bcdfhirv".indexOf(c) >= 0)
+		    if ("bcdfhilrv".indexOf(c) >= 0)
 			nodeCount = 2;
-		    else if ("q".indexOf(c) >= 0)
+		    else if ("qjm".indexOf(c) >= 0)
 			nodeCount = 3;
 		    else if (c == 'e' || c == 'g')
 			nodeCount = 2;     // might be POLY, just look at first two nodes
@@ -308,7 +308,7 @@ TextArea outputArea;
 			String restxt = st.nextToken();
 			// skip model if present
 			char cd = restxt.charAt(0);
-			if (!(cd >= '0' && cd <= '9'))
+			if (!(cd >= '0' && cd <= '9') && cd != '.')
 			    restxt = st.nextToken();
 			double res = parseNumber(restxt);
 			elmDump += "ResistorElm " + findNode(n1) + " "+ findNode(n2) + "\r";
@@ -381,6 +381,24 @@ TextArea outputArea;
 			}
 			elmDump += "TransistorElm " + base + " " + collector + " " + emitter + " " + "\r";
 			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta + " " + tm.name;
+		    } else if (c == 'j') {
+			String n1 = st.nextToken();
+			String n2 = st.nextToken();
+			String n3 = st.nextToken();
+//			String mod = st.nextToken();
+//			FetModelImport tm = fetModels.get(mod);
+			int drain = findNode(n1);
+			int gate = findNode(n2);
+			int source = findNode(n3);
+			elmDump += "JfetElm " + gate + " " + source + " " + drain + " " + "\r";
+			ldump = "0 -4 .00125";
+		    } else if (c == 'l') {
+			String n1 = st.nextToken();
+			String n2 = st.nextToken();
+			double ind = parseNumber(st.nextToken());
+			elmDump += "InductorElm " + findNode(n1) + " "+ findNode(n2) + "\r";
+			// add FLAG_BACK_EULER because that is probably the most appropriate setting for spice models
+			ldump = "2 " + ind + " 0";
 		    } else if (c == 'v') {
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
