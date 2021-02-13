@@ -88,8 +88,20 @@ TextArea outputArea;
 	    String name;
 	    double cjc, cje;
 	    double rc, re, rb;
+	    Vector<String> areaModelNames;
 	    TransistorModelImport() {
 		beta = 100;
+		areaModelNames = new Vector<String>();
+	    }
+	}
+	
+	class FetModelImport {
+	    int pnp;
+	    double beta, vto;
+	    FetModelImport() {
+		pnp = 1;
+		beta = 1e-3;
+		vto = -2;
 	    }
 	}
 	
@@ -126,6 +138,7 @@ TextArea outputArea;
 //	    Vector<String> externalNodes = new Vector<String>();
 	    Vector<String> elements = new Vector<String>();
 	    HashMap<String,TransistorModelImport> transistorModels = new HashMap<String,TransistorModelImport>();
+	    HashMap<String,FetModelImport> fetModels = new HashMap<String,FetModelImport>();
 	    voltageSources = new HashMap<String,VoltageSource>();
 	    nodes = new Vector<String>();
 	    Vector<ExtListEntry> extList = new Vector<ExtListEntry>();
@@ -214,6 +227,19 @@ TextArea outputArea;
 				else if (s.startsWith("bv="))
 				    dm.breakdownVoltage = parseNumber(s.substring(3));
 			    }
+			}
+			if (type.equalsIgnoreCase("njf") || type.equalsIgnoreCase("pjf")) {
+			    FetModelImport fm = new FetModelImport();
+			    if (type.equalsIgnoreCase("pjf"))
+				fm.pnp = -1;
+			    while (st.hasMoreTokens()) {
+				String s = st.nextToken();
+				if (s.startsWith("vto="))
+				    fm.vto = parseNumber(s.substring(4));
+				else if (s.startsWith("beta="))
+				    fm.beta = parseNumber(s.substring(5));
+			    }
+			    fetModels.put(name, fm);
 			}
 			continue;
 		    }
@@ -334,6 +360,9 @@ TextArea outputArea;
 			String n2 = st.nextToken();
 			String n3 = st.nextToken();
 			String mod = st.nextToken();
+			double area = 1;
+			if (st.hasMoreTokens())
+			    area = Double.parseDouble(st.nextToken());
 			TransistorModelImport tm = transistorModels.get(mod);
 			int collector = findNode(n1);
 			int base = findNode(n2);
@@ -344,7 +373,7 @@ TextArea outputArea;
 			    elmDump += "ResistorElm " + collector + " " + n + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("0 " + tm.rc);
+			    dump += CustomLogicModel.escape("0 " + tm.rc*area);
 			    collector = n;
 			}
 			if (tm.rb > 0) {
@@ -353,7 +382,7 @@ TextArea outputArea;
 			    elmDump += "ResistorElm " + base + " " + n + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("0 " + tm.rb);
+			    dump += CustomLogicModel.escape("0 " + tm.rb*area);
 			    base = n;
 			}
 			if (tm.re > 0) {
@@ -362,7 +391,7 @@ TextArea outputArea;
 			    elmDump += "ResistorElm " + emitter + " " + n + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("0 " + tm.re);
+			    dump += CustomLogicModel.escape("0 " + tm.re*area);
 			    emitter = n;
 			}
 			if (tm.cje > 0) {
@@ -370,28 +399,28 @@ TextArea outputArea;
 			    elmDump += "CapacitorElm " + base + " " + emitter + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("2 " + tm.cje + " 0 0");
+			    dump += CustomLogicModel.escape("2 " + tm.cje*area + " 0 0");
 			}
 			if (tm.cjc > 0) {
 			    // add capacitor for base-collector junction
 			    elmDump += "CapacitorElm " + base + " " + collector + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("2 " + tm.cjc + " 0 0");
+			    dump += CustomLogicModel.escape("2 " + tm.cjc*area + " 0 0");
 			}
 			elmDump += "TransistorElm " + base + " " + collector + " " + emitter + " " + "\r";
-			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta + " " + tm.name;
+			ldump = "0 " + tm.pnp + " 0 0 " + tm.beta + " " + getTransistorModelWithArea(tm, area);
 		    } else if (c == 'j') {
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
 			String n3 = st.nextToken();
-//			String mod = st.nextToken();
-//			FetModelImport tm = fetModels.get(mod);
+			String mod = st.nextToken();
+			FetModelImport fm = fetModels.get(mod);
 			int drain = findNode(n1);
 			int gate = findNode(n2);
 			int source = findNode(n3);
 			elmDump += "JfetElm " + gate + " " + source + " " + drain + " " + "\r";
-			ldump = "0 -4 .00125";
+			ldump = ((fm.pnp == -1) ? "1" : "0") + " " + fm.vto + " " + fm.beta;
 		    } else if (c == 'l') {
 			String n1 = st.nextToken();
 			String n2 = st.nextToken();
@@ -450,6 +479,28 @@ TextArea outputArea;
 	    dlg.createDialog();
 	    CirSim.dialogShowing = dlg;
 	    dlg.show();
+	}
+	
+	// get/create variant of transistor model with a particular area
+	String getTransistorModelWithArea(TransistorModelImport tmi, double area) {
+	    if (area == 1)
+		return tmi.name;
+	    String n = tmi.name + "-A" + area;
+	    if (tmi.areaModelNames.contains(n))
+		return n;
+	    
+	    // create new model from old
+	    TransistorModel tm = TransistorModel.getModelWithName(n);
+	    TransistorModel tm1 = TransistorModel.getModelWithName(tmi.name);
+	    
+	    // adjust parameters as necessary for area
+	    tm.satCur = tm1.satCur*area;
+	    tm.invRollOffF = tm1.invRollOffF*area;
+	    tm.BEleakCur = tm1.BEleakCur*area;
+	    tm.invRollOffR = tm1.invRollOffR*area;
+	    tm.BCleakCur = tm1.BCleakCur*area;
+	    tmi.areaModelNames.add(n);
+	    return n;
 	}
 	
 	void parseBSource(BetterStringTokenizer st) throws Exception {
