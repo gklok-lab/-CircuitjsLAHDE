@@ -435,8 +435,11 @@ TextArea outputArea;
 			if (x.equalsIgnoreCase("dc"))
 			    x = st.nextToken();
 			double v = parseNumber(x);
-			elmDump += "VoltageElm " + findNode(n2) + " "+ findNode(n1) + "\r";
-			ldump = "0 0 0 " + v;
+			// higher voltage node comes first for spice, last for us.
+			// rather than swap nodes, swap the sign of the voltage because
+			// it simplifies things for controlled sources
+			elmDump += "VoltageElm " + findNode(n1) + " "+ findNode(n2) + "\r";
+			ldump = "0 0 0 " + (-v);
 		    } else if (c == 'e') {
 			parseControlledSource("VCVSElm", st, false);
 		    } else if (c == 'g') {
@@ -561,6 +564,7 @@ TextArea outputArea;
 	    int flags = (cls.startsWith("CC")) ? 2 : 0;
 	    
 	    // swap output nodes for current sources because current flows the opposite way
+	    // (output nodes come first for spice, last for us)
 	    if (cls.endsWith("CSElm")) {
 		String x = n1;
 		n1 = n2;
