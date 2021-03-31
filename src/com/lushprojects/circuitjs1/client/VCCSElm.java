@@ -146,6 +146,9 @@ package com.lushprojects.circuitjs1.client;
             for (i = 0; i != inputCount; i++)
         	lastVolts[i] = volts[i];
         }
+        void stepFinished() {
+            exprState.updateLastValues(pins[inputCount].current);
+        }
 	void draw(Graphics g) {
 	    drawChip(g);
 	}
@@ -204,6 +207,11 @@ package com.lushprojects.circuitjs1.client;
             int i;
             for (i = 0; arr[i] != null; i++) ;
             arr[i] = "I = " + getCurrentText(pins[inputCount].current);
+        }
+        
+        void reset() {
+            super.reset();
+            exprState.reset();
         }
     }
 

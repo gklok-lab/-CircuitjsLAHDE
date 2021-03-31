@@ -145,6 +145,10 @@ class CCCSElm extends VCCSElm {
                 lastCurrents[i] = pins[i*2+1].current;
         }
 	
+        void stepFinished() {
+            exprState.updateLastValues(pins[inputCount].current);
+        }
+        
         void setCurrentExprValue(int n, double cur) {
             // set i to current for backward compatibility
             if (n == 0 && inputPairCount < 9)
@@ -197,7 +201,7 @@ class CCCSElm extends VCCSElm {
                     CircuitElm ce = elmList.get(j);
                     if (!(ce instanceof VoltageElm))
                         continue;
-                    if (ce.getNode(1) == nodes[i] && ce.getNode(0) == nodes[i+1])
+                    if (ce.getNode(0) == nodes[i] && ce.getNode(1) == nodes[i+1])
                         voltageSources[i/2] = (VoltageElm)ce;
                 }
             }
@@ -209,5 +213,17 @@ class CCCSElm extends VCCSElm {
             else
                 super.setVoltageSource(j, vs);
         }
+        
+        void getInfo(String arr[]) {
+            super.getInfo(arr);
+            int i = 1;
+            int j;
+            for (j = 0; j != inputCount; j += 2)
+        	arr[i++] = pins[j].text + " = " + getCurrentText(-pins[j].current);
+            arr[i++] = pins[j].text + " = " + getVoltageText(volts[j]) + "; " + pins[j+1].text + " = " + getVoltageText(volts[j+1]);
+            arr[i++] = "I = " + getCurrentText(pins[j].current);
+            arr[i++] = null;
+        }
+        
     }
 

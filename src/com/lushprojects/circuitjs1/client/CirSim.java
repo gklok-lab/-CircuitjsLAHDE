@@ -21,11 +21,8 @@ package com.lushprojects.circuitjs1.client;
 
 // GWT conversion (c) 2015 by Iain Sharp
 
-
-
 // For information about the theory behind this, see Electronic Circuit & System Simulation Methods by Pillage
-
-
+// or https://github.com/sharpie7/circuitjs1/blob/master/INTERNALS.md
 
 import java.util.Vector;
 import java.util.Arrays;
@@ -733,9 +730,7 @@ MouseOutHandler, MouseWheelHandler {
 		    event.setMessage(LS("Are you sure?  There are unsaved changes."));
 	    }
 	});
-
-
-	
+	setupJSInterface();
 	
 	setSimRunning(running);
     }
@@ -951,6 +946,7 @@ MouseOutHandler, MouseWheelHandler {
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Current Source"), "CurrentElm"));
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Noise Generator"), "NoiseElm"));
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Audio Input"), "AudioInputElm"));
+    	inputMenuBar.addItem(getClassCheckItem(LS("Add External Voltage (JavaScript)"), "ExtVoltageElm"));
 
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Inputs and Sources")), inputMenuBar);
     	
@@ -989,6 +985,7 @@ MouseOutHandler, MouseWheelHandler {
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Varactor/Varicap"), "VaractorElm"));
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Tunnel Diode"), "TunnelDiodeElm"));
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Triode"), "TriodeElm"));
+    	activeMenuBar.addItem(getClassCheckItem(LS("Add Unijunction Transistor"), "UnijunctionElm"));
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Active Components")), activeMenuBar);
 
     	MenuBar activeBlocMenuBar = new MenuBar(true);
@@ -1488,6 +1485,7 @@ MouseOutHandler, MouseWheelHandler {
 	lastFrameTime = lastTime;
 	mytime=mytime+System.currentTimeMillis()-mystarttime;
 	myframes++;
+	callUpdateHook();
     }
 
     Color getBackgroundColor() {
@@ -2710,6 +2708,7 @@ MouseOutHandler, MouseWheelHandler {
 	    for (i=0; i != elmList.size(); i++)
 		if (getElm(i) instanceof ScopeElm)
 		    ((ScopeElm)getElm(i)).stepScope();
+	    callTimeStepHook();
 	    // save last node voltages so we can restart the next iteration if necessary
 	    for (i = 0; i != lastNodeVoltages.length; i++)
 		lastNodeVoltages[i] = nodeVoltages[i];
@@ -4339,7 +4338,7 @@ MouseOutHandler, MouseWheelHandler {
 	// IES - Grab resize handles in select mode if they are far enough apart and you are on top of them
 	if (tempMouseMode == MODE_SELECT && mouseElm!=null && !noEditCheckItem.getState() &&
 		mouseElm.getHandleGrabbedClose(gx, gy, POSTGRABSQ, MINPOSTGRABSIZE) >=0 &&
-		!anySelectedButMouse() && (mouseElm instanceof ScopeElm || mouseElm.getPostCount() > 1))
+		!anySelectedButMouse())
 	    tempMouseMode = MODE_DRAG_POST;
 	
 	if (tempMouseMode != MODE_SELECT && tempMouseMode != MODE_DRAG_SELECTED)
@@ -4364,21 +4363,20 @@ MouseOutHandler, MouseWheelHandler {
 	}
     }
 
- 
-    
-    
-    
+    // check/uncheck/enable/disable menu items as appropriate when menu bar clicked on, or when
+    // right mouse menu accessed.  also displays shortcuts as a side effect
     void doMainMenuChecks() {
-	// Code to disable draw menu items when cct is not editable, but no used in this version as it
-	// puts up a dialog box instead (see menuPerformed).
-//    	int c = mainMenuItems.size();
-//    	int i;
-//    	for (i=0; i<c ; i++) {
-//    	    	String s = mainMenuItemNames.get(i);
-//    		mainMenuItems.get(i).setState(s==mouseModeStr);
-//    		if (s.length() > 3 && s.substring(s.length()-3)=="Elm")
-//    		    mainMenuItems.get(i).setEnabled(!noEditCheckItem.getState());
-//    	}
+    	int c = mainMenuItems.size();
+    	int i;
+    	for (i=0; i<c ; i++) {
+    	    	String s = mainMenuItemNames.get(i);
+    		mainMenuItems.get(i).setState(s==mouseModeStr);
+
+	        // Code to disable draw menu items when cct is not editable, but no used in this version as it
+	        // puts up a dialog box instead (see menuPerformed).
+    		//if (s.length() > 3 && s.substring(s.length()-3)=="Elm")
+    		    //mainMenuItems.get(i).setEnabled(!noEditCheckItem.getState());
+    	}
     	stackAllItem.setEnabled(scopeCount > 1 && scopes[scopeCount-1].position > 0);
     	unstackAllItem.setEnabled(scopeCount > 1 && scopes[scopeCount-1].position != scopeCount -1);
     	combineAllItem.setEnabled(scopeCount > 1);
@@ -4729,11 +4727,17 @@ MouseOutHandler, MouseWheelHandler {
     	
     	// add new items
     	int oldsz = elmList.size();
+    	int flags = RC_RETAIN;
+    	
+    	// don't recenter circuit if we're going to paste in place because that will change the transform
+	if (mouseCursorX > 0 && circuitArea.contains(mouseCursorX, mouseCursorY))
+	    flags |= RC_NO_CENTER;
+	
     	if (dump != null)
-    	    readCircuit(dump, RC_RETAIN);
+    	    readCircuit(dump, flags);
     	else {
     	    readClipboardFromStorage();
-    	    readCircuit(clipboard, RC_RETAIN);
+    	    readCircuit(clipboard, flags);
     	}
 
     	// select new items and get their bounding box
@@ -5207,6 +5211,8 @@ MouseOutHandler, MouseWheelHandler {
     	case 414: return new TimeDelayRelayElm(x1, y1, x2, y2, f, st);
 	case 415: return new DCMotorElm(x1, y1, x2, y2, f, st);
 	case 416: return new MBBSwitchElm(x1, y1, x2, y2, f, st);
+    	case 417: return new UnijunctionElm(x1, y1, x2, y2, f, st);
+    	case 418: return new ExtVoltageElm(x1, y1, x2, y2, f, st);
         }
     	return null;
     }
@@ -5455,6 +5461,10 @@ MouseOutHandler, MouseWheelHandler {
 		return (CircuitElm) new LDRElm(x1, y1);
     	if (n=="ThermistorNTCElm")
 		return (CircuitElm) new ThermistorNTCElm(x1, y1);
+    	if (n=="UnijunctionElm")
+		return (CircuitElm) new UnijunctionElm(x1, y1);
+    	if (n=="ExtVoltageElm")
+		return (CircuitElm) new ExtVoltageElm(x1, y1);
     	return null;
     }
     
@@ -5769,4 +5779,50 @@ MouseOutHandler, MouseWheelHandler {
 		for (j = 0; j != n; j++)
 		    a[i][j] = inva[i][j];
 	}
+	
+	double getLabeledNodeVoltage(String name) {
+	    Integer node = LabeledNodeElm.getByName(name);
+	    if (node == null || node == 0)
+		return 0;
+	    // subtract one because ground is not included in nodeVoltages[]
+	    return nodeVoltages[node.intValue()-1];
+	}
+	
+	void setExtVoltage(String name, double v) {
+	    int i;
+	    for (i = 0; i != elmList.size(); i++) {
+		CircuitElm ce = getElm(i);
+		if (ce instanceof ExtVoltageElm) {
+		    ExtVoltageElm eve = (ExtVoltageElm) ce;
+		    if (eve.getName().equals(name))
+			eve.setVoltage(v);
+		}
+	    }
+	}
+	
+	native void setupJSInterface() /*-{
+	    var that = this;
+	    $wnd.CircuitJS1 = {
+	        setSimRunning: $entry(function(run) { that.@com.lushprojects.circuitjs1.client.CirSim::setSimRunning(Z)(run); } ),
+	        getTime: $entry(function() { return that.@com.lushprojects.circuitjs1.client.CirSim::t; } ),
+	        isRunning: $entry(function() { return that.@com.lushprojects.circuitjs1.client.CirSim::simIsRunning()(); } ),
+	        getNodeVoltage: $entry(function(n) { return that.@com.lushprojects.circuitjs1.client.CirSim::getLabeledNodeVoltage(Ljava/lang/String;)(n); } ),
+	        setExtVoltage: $entry(function(n, v) { that.@com.lushprojects.circuitjs1.client.CirSim::setExtVoltage(Ljava/lang/String;D)(n, v); } )
+	    };
+	    var hook = $wnd.oncircuitjsloaded;
+	    if (hook)
+	    	hook($wnd.CircuitJS1);
+	}-*/;
+	
+	native void callUpdateHook() /*-{
+	    var hook = $wnd.CircuitJS1.onupdate;
+	    if (hook)
+	    	hook($wnd.CircuitJS1);
+	}-*/;
+	
+	native void callTimeStepHook() /*-{
+	    var hook = $wnd.CircuitJS1.ontimestep;
+	    if (hook)
+	    	hook($wnd.CircuitJS1);
+	}-*/;	
 }
