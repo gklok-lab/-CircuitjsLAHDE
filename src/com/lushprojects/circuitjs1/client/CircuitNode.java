@@ -30,6 +30,7 @@ class CircuitNode {
 }
 
 class VoltageSource extends CircuitNode {
+    double current;
     VoltageSource(int vn) {
 	index = vn;
     }

@@ -2741,6 +2741,7 @@ MouseOutHandler, MouseWheelHandler {
 	boolean debugprint = dumpMatrix;
 	dumpMatrix = false;
 	long steprate = (long) (160*getIterCount());
+	steprate *= 10; // take this out, it maxes out the simulation speed
 	long tm = System.currentTimeMillis();
 	long lit = lastIterTime;
 	if (lit == 0) {
@@ -2912,7 +2913,8 @@ MouseOutHandler, MouseWheelHandler {
 		nodeVoltages[j] = res;
 	    } else {
 		int ji = j-(nodeList.size()-1);
-		voltageSourceElms[ji].setCurrent(voltageSources[ji], res);
+		voltageSources[ji].current = res;
+//		voltageSourceElms[ji].setCurrent(voltageSources[ji], res);
 	    }
 	}
 	

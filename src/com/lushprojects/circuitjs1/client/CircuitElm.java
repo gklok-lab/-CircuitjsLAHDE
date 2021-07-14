@@ -203,7 +203,10 @@ public abstract class CircuitElm implements Editable {
     double getPostVoltage(int x) { return nodes[x].volts; }
     
     // calculate current in response to node voltages changing
-    void calculateCurrent() {}
+    void calculateCurrent() {
+	if (voltSource != null)
+	    current = voltSource.current;
+    }
     
     // calculate post locations and other convenience values used for drawing.  Called when element is moved 
     void setPoints() {

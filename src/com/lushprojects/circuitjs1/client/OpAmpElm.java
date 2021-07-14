@@ -178,6 +178,7 @@ package com.lushprojects.circuitjs1.client;
 	    /*if (sim.converged)
 	      System.out.println((nodes[1].volts-nodes[0].volts) + " " + nodes[2].volts + " " + initvd);*/
 	}
+	
 	// there is no current path through the op-amp inputs, but there
 	// is an indirect path through the output to ground.
 	boolean getConnection(int n1, int n2) { return false; }
