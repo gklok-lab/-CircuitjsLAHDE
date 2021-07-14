@@ -142,9 +142,8 @@ package com.lushprojects.circuitjs1.client;
 	double lastvd;
 
 	void stamp() {
-	    int vn = sim.nodeList.size()+voltSource;
-	    sim.stampNonLinear(vn);
-	    sim.stampMatrix(nodes[2], vn, 1);
+	    sim.stampNonLinear(voltSource);
+	    sim.stampMatrix(nodes[2], voltSource, 1);
 	}
 	void doStep() {
 	    double vd = volts[1] - volts[0];
@@ -154,7 +153,6 @@ package com.lushprojects.circuitjs1.client;
 	    else if (volts[2] > maxOut+.1 || volts[2] < minOut-.1)
 		sim.converged = false;
 	    double x = 0;
-	    int vn = sim.nodeList.size()+voltSource;
 	    double dx = 0;
 	    double maxAdj = maxOut-midpoint;
 	    double minAdj = minOut-midpoint;
@@ -171,10 +169,10 @@ package com.lushprojects.circuitjs1.client;
 	    //System.out.println("opamp " + vd + " " + volts[2] + " " + dx + " "  + x + " " + lastvd + " " + sim.converged);
 	    
 	    // newton-raphson
-	    sim.stampMatrix(vn, nodes[0], dx);
-	    sim.stampMatrix(vn, nodes[1], -dx);
-	    sim.stampMatrix(vn, nodes[2], 1);
-	    sim.stampRightSide(vn, x);
+	    sim.stampMatrix(voltSource, nodes[0], dx);
+	    sim.stampMatrix(voltSource, nodes[1], -dx);
+	    sim.stampMatrix(voltSource, nodes[2], 1);
+	    sim.stampRightSide(voltSource, x);
 	    
 	    lastvd = vd;
 	    /*if (sim.converged)

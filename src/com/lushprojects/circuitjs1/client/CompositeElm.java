@@ -93,7 +93,7 @@ public abstract class CompositeElm extends CircuitElm {
 
 		// node = 0 means ground
 		if (nodeOfThisPost == 0) {
-		    newce.setNode(thisPost, 0);
+		    newce.setNode(thisPost, sim.groundNode);
 		    newce.setNodeVoltage(thisPost, 0);
 		    thisPost++;
 		    continue;
@@ -226,8 +226,8 @@ public abstract class CompositeElm extends CircuitElm {
 		for (int k = 0; k != lelm.getConnectionNodeCount(); k++)
 		    // are they connected?
 		    if (k != link.num && lelm.getConnection(link.num, k)) {
-			int kn = lelm.getConnectionNode(k);
-			if (kn == 0)
+			CircuitNode kn = lelm.getConnectionNode(k);
+			if (kn == sim.groundNode)
 			    return true;
 			int m;
 			// find local node number (kn is global) and add it to list
@@ -261,7 +261,7 @@ public abstract class CompositeElm extends CircuitElm {
 		for (int k = 0; k != lelm.getConnectionNodeCount(); k++)
 		    // are they connected?
 		    if (k != link.num && lelm.getConnection(link.num, k)) {
-			int kn = lelm.getConnectionNode(k);
+			CircuitNode kn = lelm.getConnectionNode(k);
 			int m;
 			// find local node number (kn is global) and add it to list
 			for (m = 0; m != nodes.length; m++)
@@ -331,7 +331,7 @@ public abstract class CompositeElm extends CircuitElm {
     }
 
     // called to set node p (local to this element) to equal n (global)
-    public void setNode(int p, int n) {
+    public void setNode(int p, CircuitNode n) {
 	// nodes[p] = n
 	Vector<CircuitNodeLink> cnLinks;
 	super.setNode(p, n);
@@ -372,7 +372,7 @@ public abstract class CompositeElm extends CircuitElm {
     // Find the component with the nth voltage
     // and set the
     // appropriate source in that component
-    void setVoltageSource(int n, int v) {
+    void setVoltageSource(int n, VoltageSource v) {
 	// voltSource(n) = v;
 	VoltageSourceRecord vsr;
 	vsr=voltageSources.get(n);
@@ -381,7 +381,7 @@ public abstract class CompositeElm extends CircuitElm {
     }
     
     @Override
-     public void   setCurrent(int vsn, double c) {
+     public void   setCurrent(VoltageSource vsn, double c) {
 	for (int i=0;i<voltageSources.size(); i++)
 	    if (voltageSources.get(i).vsNode == vsn) {
 		voltageSources.get(i).elm.setCurrent(vsn, c);
@@ -404,6 +404,6 @@ public abstract class CompositeElm extends CircuitElm {
 
 class VoltageSourceRecord {
 	int vsNumForElement;
-	int vsNode;
+	VoltageSource vsNode;
 	CircuitElm elm;
 }

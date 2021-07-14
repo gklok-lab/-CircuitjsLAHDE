@@ -55,7 +55,10 @@ public abstract class CircuitElm implements Editable {
     // point to which user dragged out element.  For simple two-terminal elements, this is the second node/post
     int x2, y2;
     
-    int flags, nodes[], voltSource;
+    int flags;
+    
+    CircuitNode nodes[];
+    VoltageSource voltSource;
     
     // length along x and y axes, and sign of difference
     int dx, dy, dsign;
@@ -163,7 +166,7 @@ public abstract class CircuitElm implements Editable {
 	int n = getPostCount() + getInternalNodeCount();
 	// preserve voltages if possible
 	if (nodes == null || nodes.length != n) {
-	    nodes = new int[n];
+	    nodes = new CircuitNode[n];
 	    volts = new double[n];
 	}
     }
@@ -185,7 +188,7 @@ public abstract class CircuitElm implements Editable {
     void draw(Graphics g) {}
     
     // set current for voltage source vn to c.  vn will be the same value as in a previous call to setVoltageSource(n, vn) 
-    void setCurrent(int vn, double c) { current = c; }
+    void setCurrent(VoltageSource vn, double c) { current = c; }
     
     // get current for one- or two-terminal elements
     double getCurrent() { return current; }
@@ -509,10 +512,10 @@ public abstract class CircuitElm implements Editable {
     int getInternalNodeCount() { return 0; }
     
     // notify this element that its pth node is n.  This value n can be passed to stampMatrix()
-    void setNode(int p, int n) { nodes[p] = n; }
+    void setNode(int p, CircuitNode n) { nodes[p] = n; }
     
     // notify this element that its nth voltage source is v.  This value v can be passed to stampVoltageSource(), etc and will be passed back in calls to setCurrent()
-    void setVoltageSource(int n, int v) {
+    void setVoltageSource(int n, VoltageSource v) {
 	// default implementation only makes sense for subclasses with one voltage source.  If we have 0 this isn't used, if we have >1 this won't work 
 	voltSource = v;
     }
@@ -526,7 +529,7 @@ public abstract class CircuitElm implements Editable {
     int getPostCount() { return 2; }
     
     // get (global) node number of nth node
-    int getNode(int n) { return nodes[n]; }
+    CircuitNode getNode(int n) { return nodes[n]; }
     
     // get position of nth node
     Point getPost(int n) {
@@ -966,9 +969,7 @@ public abstract class CircuitElm implements Editable {
     // get number of nodes that can be retrieved by getConnectionNode()
     int getConnectionNodeCount() { return getPostCount(); }
     
-    // get nodes that can be passed to getConnection(), to test if this element connects
-    // those two nodes; this is the same as getNode() for all but labeled nodes.
-    int getConnectionNode(int n) { return getNode(n); }
+    CircuitNode getConnectionNode(int n) { return getNode(n); }
     
     // are n1 and n2 connected by this element?  this is used to determine
     // unconnected nodes, and look for loops

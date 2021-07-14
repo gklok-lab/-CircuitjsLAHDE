@@ -50,10 +50,10 @@ package com.lushprojects.circuitjs1.client;
 	//boolean nonLinear() { return true; }
 	void stamp() {
 	    // X voltage = Y voltage
-	    sim.stampVoltageSource(0, nodes[0], pins[0].voltSource);
-	    sim.stampVCVS(0, nodes[1], 1, pins[0].voltSource);
+	    sim.stampVoltageSource(sim.groundNode, nodes[0], pins[0].voltSource);
+	    sim.stampVCVS(sim.groundNode, nodes[1], 1, pins[0].voltSource);
 	    // Z current = gain * X current
-	    sim.stampCCCS(0, nodes[2], pins[0].voltSource, gain);
+	    sim.stampCCCS(sim.groundNode, nodes[2], pins[0].voltSource, gain);
 	}
 	void calculateCurrent() {
 	    super.calculateCurrent();

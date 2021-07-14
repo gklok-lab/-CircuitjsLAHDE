@@ -89,7 +89,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	void stamp() {
 	    if (isOldStyle())
-		sim.stampVoltageSource(0, nodes[0], voltSource, 0);
+		sim.stampVoltageSource(sim.groundNode, nodes[0], voltSource, 0);
 	}
 	void setCurrent(int x, double c) { current = isOldStyle() ? -c : c; }
 

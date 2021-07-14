@@ -51,7 +51,7 @@ class LabeledNodeElm extends CircuitElm {
     
     class LabelEntry {
 	Point point;
-	int node;
+	CircuitNode node;
     }
     
     static HashMap<String,LabelEntry> labelList;
@@ -86,7 +86,7 @@ class LabeledNodeElm extends CircuitElm {
 	return null;
     }
     
-    void setNode(int p, int n) {
+    void setNode(int p, CircuitNode n) {
 	super.setNode(p, n);
 	
 	// save node number so we can return it in getByName()
@@ -102,7 +102,7 @@ class LabeledNodeElm extends CircuitElm {
     boolean isWireEquivalent() { return true; }
     boolean isRemovableWire() { return true; }
     
-    static Integer getByName(String n) {
+    static CircuitNode getByName(String n) {
 	LabelEntry le = labelList.get(n);
 	if (le == null)
 	    return null;

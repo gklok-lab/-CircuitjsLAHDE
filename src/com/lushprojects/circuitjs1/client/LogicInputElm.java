@@ -78,7 +78,7 @@ package com.lushprojects.circuitjs1.client;
 	void setCurrent(int vs, double c) { current = c; }
 	void calculateCurrent() {}
 	void stamp() {
-	    sim.stampVoltageSource(0, nodes[0], voltSource);
+	    sim.stampVoltageSource(sim.groundNode, nodes[0], voltSource);
 	}
 	
 	boolean isWireEquivalent() { return false; }
@@ -88,7 +88,7 @@ package com.lushprojects.circuitjs1.client;
 	    double v = (position == 0) ? loV : hiV;
 	    if (isTernary())
 		v = position * 2.5;
-	    sim.updateVoltageSource(0, nodes[0], voltSource, v);
+	    sim.updateVoltageSource(sim.groundNode, nodes[0], voltSource, v);
 	}
 	int getVoltageSourceCount() { return 1; }
 	double getVoltageDiff() { return volts[0]; }

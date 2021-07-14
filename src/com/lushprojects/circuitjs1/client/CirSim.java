@@ -1731,9 +1731,11 @@ MouseOutHandler, MouseWheelHandler {
     }
     
     Vector<CircuitNode> nodeList;
+    CircuitNode groundNode;
     Vector<Point> postDrawList = new Vector<Point>();
     Vector<Point> badConnectionList = new Vector<Point>();
-    CircuitElm voltageSources[];
+    CircuitElm voltageSourceElms[];
+    VoltageSource voltageSources[];
 
     public CircuitNode getCircuitNode(int n) {
 	if (n >= nodeList.size())
@@ -1856,7 +1858,7 @@ MouseOutHandler, MouseWheelHandler {
 	for (i = 0; i != wireInfoList.size(); i++) {
 	    WireInfo wi = wireInfoList.get(i);
 	    CircuitElm wire = wi.wire;
-	    CircuitNode cn1 = nodeList.get(wire.getNode(0));  // both ends of wire have same node #
+	    CircuitNode cn1 = wire.getNode(0);  // both ends of wire have same node #
 	    int j;
 
 	    Vector<CircuitElm> neighbors0 = new Vector<CircuitElm>();
@@ -1988,7 +1990,8 @@ MouseOutHandler, MouseWheelHandler {
 		    cnl.num = j;
 		    cnl.elm = ce;
 		    cn.links.addElement(cnl);
-		    ce.setNode(j, nodeList.size());
+		    cn.index = nodeList.size();
+		    ce.setNode(j, cn);
 		    if (cln != null)
 			cln.node = nodeList.size();
 		    else
@@ -1999,8 +2002,9 @@ MouseOutHandler, MouseWheelHandler {
 		    CircuitNodeLink cnl = new CircuitNodeLink();
 		    cnl.num = j;
 		    cnl.elm = ce;
-		    getCircuitNode(n).links.addElement(cnl);
-		    ce.setNode(j, n);
+		    CircuitNode cn = getCircuitNode(n);
+		    cn.links.addElement(cnl);
+		    ce.setNode(j, cn);
 		    // if it's the ground node, make sure the node voltage is 0,
 		    // cause it may not get set later
 		    if (n == 0)
@@ -2014,7 +2018,8 @@ MouseOutHandler, MouseWheelHandler {
 		cnl.num = j+posts;
 		cnl.elm = ce;
 		cn.links.addElement(cnl);
-		ce.setNode(cnl.num, nodeList.size());
+		cn.index = nodeList.size();
+		ce.setNode(cnl.num, cn);
 		nodeList.addElement(cn);
 	    }
 	    
@@ -2022,7 +2027,9 @@ MouseOutHandler, MouseWheelHandler {
 	    vscount += ivs;
 	}
 	
-        voltageSources = new CircuitElm[vscount];
+        voltageSourceElms = new CircuitElm[vscount];
+        voltageSources = new VoltageSource[vscount];
+        groundNode = nodeList.get(0);
     }
     
     Vector<Integer> unconnectedNodes;
@@ -2052,18 +2059,18 @@ MouseOutHandler, MouseWheelHandler {
 		    boolean hg = ce.hasGroundConnection(j);
 		    if (hg)
 			hasGround = true;
-		    if (!closure[ce.getConnectionNode(j)]) {
+		    if (!closure[ce.getConnectionNode(j).index]) {
 			if (hg)
-			    closure[ce.getConnectionNode(j)] = changed = true;
+			    closure[ce.getConnectionNode(j).index] = changed = true;
 			continue;
 		    }
 		    int k;
 		    for (k = 0; k != ce.getConnectionNodeCount(); k++) {
 			if (j == k)
 			    continue;
-			int kn = ce.getConnectionNode(k);
-			if (ce.getConnection(j, k) && !closure[kn]) {
-			    closure[kn] = true;
+			CircuitNode kn = ce.getConnectionNode(k);
+			if (ce.getConnection(j, k) && !closure[kn.index]) {
+			    closure[kn.index] = true;
 			    changed = true;
 			}
 		    }
@@ -2093,7 +2100,7 @@ MouseOutHandler, MouseWheelHandler {
 	int i;
 	for (i = 0; i != unconnectedNodes.size(); i++) {
 	    int n = unconnectedNodes.get(i);
-	    stampResistor(0, n, 1e8);
+	    stampResistor(getCircuitNode(0), getCircuitNode(n), 1e8);
 	}
     }
     
@@ -2143,7 +2150,7 @@ MouseOutHandler, MouseWheelHandler {
 	    // look for path from rail to ground
 	    if (ce instanceof RailElm || ce instanceof LogicInputElm) {
 		FindPathInfo fpi = new FindPathInfo(FindPathInfo.VOLTAGE, ce, ce.getNode(0));
-		if (fpi.findPath(0)) {
+		if (fpi.findPath(getCircuitNode(0))) {
 		    stop("Path to ground with no resistance!", ce);
 		    return false;
 		}
@@ -2207,8 +2214,10 @@ MouseOutHandler, MouseWheelHandler {
 		circuitNonLinear = true;
 	    int ivs = ce.getVoltageSourceCount();
 	    for (j = 0; j != ivs; j++) {
-		voltageSources[vscount] = ce;
-		ce.setVoltageSource(j, vscount++);
+		voltageSourceElms[vscount] = ce;
+		VoltageSource vs = voltageSources[vscount] = new VoltageSource(nodeList.size() + vscount);
+		ce.setVoltageSource(j, vs);
+		vscount++;
 	    }
 	}
 	voltageSourceCount = vscount;
@@ -2462,13 +2471,13 @@ MouseOutHandler, MouseWheelHandler {
 	static final int SHORT   = 3;
 	static final int CAP_V   = 4;
 	boolean visited[];
-	int dest;
+	CircuitNode dest;
 	CircuitElm firstElm;
 	int type;
 
 	// State object to help find loops in circuit subject to various conditions (depending on type_)
 	// elm_ = source and destination element.  dest_ = destination node.
-	FindPathInfo(int type_, CircuitElm elm_, int dest_) {
+	FindPathInfo(int type_, CircuitElm elm_, CircuitNode dest_) {
 	    dest = dest_;
 	    type = type_;
 	    firstElm = elm_;
@@ -2477,34 +2486,32 @@ MouseOutHandler, MouseWheelHandler {
 
 	// look through circuit for loop starting at node n1 of firstElm, for a path back to
 	// dest node of firstElm
-	boolean findPath(int n1) {
-	    if (n1 == dest)
+	boolean findPath(CircuitNode cn) {
+	    if (cn == dest)
 		return true;
 
+	    int n1 = cn.index;
 	    // depth first search, don't need to revisit already visited nodes!
 	    if (visited[n1])
 		return false;
 
 	    visited[n1] = true;
-	    CircuitNode cn = getCircuitNode(n1);
 	    int i;
-	    if (cn == null)
-		return false;
 	    for (i = 0; i != cn.links.size(); i++) {
 		CircuitNodeLink cnl = cn.links.get(i);
 		CircuitElm ce = cnl.elm;
-		if (checkElm(n1, ce))
+		if (checkElm(cn, ce))
 		    return true;
 	    }
 	    if (n1 == 0) {
 		for (i = 0; i != nodesWithGroundConnection.size(); i++)
-		    if (checkElm(0, nodesWithGroundConnection.get(i)))
+		    if (checkElm(getCircuitNode(0), nodesWithGroundConnection.get(i)))
 			return true;
 	    }
 	    return false;
 	}
 	
-	boolean checkElm(int n1, CircuitElm ce) {
+	boolean checkElm(CircuitNode n, CircuitElm ce) {
 		if (ce == firstElm)
 		    return false;
 		if (type == INDUCT) {
@@ -2525,7 +2532,7 @@ MouseOutHandler, MouseWheelHandler {
 		    if (!(ce.isWireEquivalent() || ce instanceof CapacitorElm || ce instanceof VoltageElm))
 			return false;
 		}
-		if (n1 == 0) {
+		if (n.index == 0) {
 		    // look for posts which have a ground connection;
 		    // our path can go through ground
 		    int j;
@@ -2535,12 +2542,12 @@ MouseOutHandler, MouseWheelHandler {
 		}
 		int j;
 		for (j = 0; j != ce.getConnectionNodeCount(); j++) {
-		    if (ce.getConnectionNode(j) == n1)
+		    if (ce.getConnectionNode(j) == n)
 			break;
 		}
 		if (j == ce.getConnectionNodeCount())
 		    return false;
-		if (ce.hasGroundConnection(j) && findPath(0))
+		if (ce.hasGroundConnection(j) && findPath(getCircuitNode(0)))
 		    return true;
 		if (type == INDUCT && ce instanceof InductorElm) {
 		    // inductors can use paths with other inductors of matching current
@@ -2574,15 +2581,13 @@ MouseOutHandler, MouseWheelHandler {
     
     // control voltage source vs with voltage from n1 to n2 (must
     // also call stampVoltageSource())
-    void stampVCVS(int n1, int n2, double coef, int vs) {
-	int vn = nodeList.size()+vs;
+    void stampVCVS(CircuitNode n1, CircuitNode n2, double coef, VoltageSource vn) {
 	stampMatrix(vn, n1, coef);
 	stampMatrix(vn, n2, -coef);
     }
     
     // stamp independent voltage source #vs, from n1 to n2, amount v
-    void stampVoltageSource(int n1, int n2, int vs, double v) {
-	int vn = nodeList.size()+vs;
+    void stampVoltageSource(CircuitNode n1, CircuitNode n2, VoltageSource vn, double v) {
 	stampMatrix(vn, n1, -1);
 	stampMatrix(vn, n2, 1);
 	stampRightSide(vn, v);
@@ -2591,8 +2596,7 @@ MouseOutHandler, MouseWheelHandler {
     }
 
     // use this if the amount of voltage is going to be updated in doStep(), by updateVoltageSource()
-    void stampVoltageSource(int n1, int n2, int vs) {
-	int vn = nodeList.size()+vs;
+    void stampVoltageSource(CircuitNode n1, CircuitNode n2, VoltageSource vn) {
 	stampMatrix(vn, n1, -1);
 	stampMatrix(vn, n2, 1);
 	stampRightSide(vn);
@@ -2601,12 +2605,11 @@ MouseOutHandler, MouseWheelHandler {
     }
     
     // update voltage source in doStep()
-    void updateVoltageSource(int n1, int n2, int vs, double v) {
-	int vn = nodeList.size()+vs;
+    void updateVoltageSource(CircuitNode n1, CircuitNode n2, VoltageSource vn, double v) {
 	stampRightSide(vn, v);
     }
     
-    void stampResistor(int n1, int n2, double r) {
+    void stampResistor(CircuitNode n1, CircuitNode n2, double r) {
 	double r0 = 1/r;
 	if (Double.isNaN(r0) || Double.isInfinite(r0)) {
 	    System.out.print("bad resistance " + r + " " + r0 + "\n");
@@ -2619,7 +2622,7 @@ MouseOutHandler, MouseWheelHandler {
 	stampMatrix(n2, n1, -r0);
     }
 
-    void stampConductance(int n1, int n2, double r0) {
+    void stampConductance(CircuitNode n1, CircuitNode n2, double r0) {
 	stampMatrix(n1, n1, r0);
 	stampMatrix(n2, n2, r0);
 	stampMatrix(n1, n2, -r0);
@@ -2627,21 +2630,20 @@ MouseOutHandler, MouseWheelHandler {
     }
 
     // specify that current from cn1 to cn2 is equal to voltage from vn1 to 2, divided by g
-    void stampVCCurrentSource(int cn1, int cn2, int vn1, int vn2, double g) {
-	stampMatrix(cn1, vn1, g);
-	stampMatrix(cn2, vn2, g);
-	stampMatrix(cn1, vn2, -g);
-	stampMatrix(cn2, vn1, -g);
+    void stampVCCurrentSource(CircuitNode n1, CircuitNode n2, CircuitNode vn1, CircuitNode vn2, double g) {
+	stampMatrix(n1, vn1, g);
+	stampMatrix(n2, vn2, g);
+	stampMatrix(n1, vn2, -g);
+	stampMatrix(n2, vn1, -g);
     }
 
-    void stampCurrentSource(int n1, int n2, double i) {
+    void stampCurrentSource(CircuitNode n1, CircuitNode n2, double i) {
 	stampRightSide(n1, -i);
 	stampRightSide(n2, i);
     }
 
     // stamp a current source from n1 to n2 depending on current through vs
-    void stampCCCS(int n1, int n2, int vs, double gain) {
-	int vn = nodeList.size()+vs;
+    void stampCCCS(CircuitNode n1, CircuitNode n2, VoltageSource vn, double gain) {
 	stampMatrix(n1, vn, gain);
 	stampMatrix(n2, vn, -gain);
     }
@@ -2649,9 +2651,11 @@ MouseOutHandler, MouseWheelHandler {
     // stamp value x in row i, column j, meaning that a voltage change
     // of dv in node j will increase the current into node i by x dv.
     // (Unless i or j is a voltage source node.)
-    void stampMatrix(int i, int j, double x) {
+    void stampMatrix(CircuitNode ci, CircuitNode cj, double x) {
 	if (Double.isInfinite(x))
 	    debugger();
+        int i = ci.index;
+        int j = cj.index;
 	if (i > 0 && j > 0) {
 	    if (circuitNeedsMap) {
 		i = circuitRowInfo[i-1].mapRow;
@@ -2673,7 +2677,8 @@ MouseOutHandler, MouseWheelHandler {
 
     // stamp value x on the right side of row i, representing an
     // independent current source flowing into node i
-    void stampRightSide(int i, double x) {
+    void stampRightSide(CircuitNode cn, double x) {
+        int i = cn.index;
 	if (i > 0) {
 	    if (circuitNeedsMap) {
 		i = circuitRowInfo[i-1].mapRow;
@@ -2685,14 +2690,16 @@ MouseOutHandler, MouseWheelHandler {
     }
 
     // indicate that the value on the right side of row i changes in doStep()
-    void stampRightSide(int i) {
+    void stampRightSide(CircuitNode cn) {
 	//System.out.println("rschanges true " + (i-1));
+	int i = cn.index;
 	if (i > 0)
 	    circuitRowInfo[i-1].rsChanges = true;
     }
     
     // indicate that the values on the left side of row i change in doStep()
-    void stampNonLinear(int i) {
+    void stampNonLinear(CircuitNode cn) {
+        int i = cn.index;
 	if (i > 0)
 	    circuitRowInfo[i-1].lsChanges = true;
     }
@@ -2901,7 +2908,7 @@ MouseOutHandler, MouseWheelHandler {
 		nodeVoltages[j] = res;
 	    } else {
 		int ji = j-(nodeList.size()-1);
-		voltageSources[ji].setCurrent(ji, res);
+		voltageSourceElms[ji].setCurrent(voltageSources[ji], res);
 	    }
 	}
 	
@@ -2941,9 +2948,9 @@ MouseOutHandler, MouseWheelHandler {
 		cur += ce.getCurrentIntoNode(n);
 	    }
 	    if (wi.post == 0)
-		wi.wire.setCurrent(-1, cur);
+		wi.wire.setCurrent(null, cur);
 	    else
-		wi.wire.setCurrent(-1, -cur);
+		wi.wire.setCurrent(null, -cur);
 	}
     }
     
@@ -6011,13 +6018,13 @@ MouseOutHandler, MouseWheelHandler {
 			continue;
 		    
 		    // already added to list?
-		    if (extnodes[ce.getNode(0)])
+		    if (extnodes[ce.getNode(0).index])
 			continue;
 		    
 		    // create ext list entry for external nodes
-		    ExtListEntry ent = new ExtListEntry(label, ce.getNode(0));
+		    ExtListEntry ent = new ExtListEntry(label, ce.getNode(0).index);
 		    extList.add(ent);
-		    extnodes[ce.getNode(0)] = true;
+		    extnodes[ce.getNode(0).index] = true;
 		}
 	    }
 	    
@@ -6036,7 +6043,7 @@ MouseOutHandler, MouseWheelHandler {
 		    nodeDump += "\r";
 		nodeDump += ce.getClass().getSimpleName();
 		for (j = 0; j != ce.getPostCount(); j++) {
-		    int n = ce.getNode(j);
+		    int n = ce.getNode(j).index;
 		    used[n] = true;
 		    nodeDump += " " + n;
 		}
@@ -6105,11 +6112,11 @@ MouseOutHandler, MouseWheelHandler {
 	}
 	
 	double getLabeledNodeVoltage(String name) {
-	    Integer node = LabeledNodeElm.getByName(name);
-	    if (node == null || node == 0)
+	    CircuitNode node = LabeledNodeElm.getByName(name);
+	    if (node == null || node == groundNode)
 		return 0;
 	    // subtract one because ground is not included in nodeVoltages[]
-	    return nodeVoltages[node.intValue()-1];
+	    return nodeVoltages[node.index-1];
 	}
 	
 	void setExtVoltage(String name, double v) {

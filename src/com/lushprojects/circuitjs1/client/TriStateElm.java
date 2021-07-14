@@ -109,7 +109,7 @@ class TriStateElm extends CircuitElm {
     }
 
     void stamp() {
-	sim.stampVoltageSource(0, nodes[3], voltSource);
+	sim.stampVoltageSource(sim.groundNode, nodes[3], voltSource);
 	sim.stampNonLinear(nodes[3]);
 	sim.stampNonLinear(nodes[1]);
     }
@@ -118,7 +118,7 @@ class TriStateElm extends CircuitElm {
 	open = (volts[2] < 2.5);
 	resistance = (open) ? r_off : r_on;
 	sim.stampResistor(nodes[3], nodes[1], resistance);
-	sim.updateVoltageSource(0, nodes[3], voltSource, volts[0] > 2.5 ? 5 : 0);
+	sim.updateVoltageSource(sim.groundNode, nodes[3], voltSource, volts[0] > 2.5 ? 5 : 0);
     }
 
     void drag(int xx, int yy) {

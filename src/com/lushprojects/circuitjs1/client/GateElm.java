@@ -153,7 +153,7 @@ package com.lushprojects.circuitjs1.client;
 	    arr[2] = "Iout = " + getCurrentText(getCurrent());
 	}
 	void stamp() {
-	    sim.stampVoltageSource(0, nodes[inputCount], voltSource);
+	    sim.stampVoltageSource(sim.groundNode, nodes[inputCount], voltSource);
 	}
 	boolean hasSchmittInputs() { return (flags & FLAG_SCHMITT) != 0; }
 	boolean getInput(int x) {
@@ -185,7 +185,7 @@ package com.lushprojects.circuitjs1.client;
 	    
 	    lastOutput = f;
 	    double res = f ? highVoltage : 0;
-	    sim.updateVoltageSource(0, nodes[inputCount], voltSource, res);
+	    sim.updateVoltageSource(sim.groundNode, nodes[inputCount], voltSource, res);
 	}
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0)

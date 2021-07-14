@@ -21,7 +21,7 @@ package com.lushprojects.circuitjs1.client;
 
     class MBBSwitchElm extends SwitchElm {
 	int link;
-	int voltSources[];
+	VoltageSource voltSources[];
 	double currents[];
 	double curcounts[];
 	boolean both;
@@ -33,7 +33,7 @@ package com.lushprojects.circuitjs1.client;
 	
 	void setup() {
 	    noDiagonal = true;
-	    voltSources = new int[2];
+	    voltSources = new VoltageSource[2];
 	    currents = new double[2];
 	    curcounts = new double[3];
 	}
@@ -120,7 +120,7 @@ package com.lushprojects.circuitjs1.client;
 	
 	int getPostCount() { return 3; }
 	
-	void setCurrent(int vn, double c) {
+	void setCurrent(VoltageSource vn, double c) {
 	    // set current for voltage source vn to c
 	    if (vn == voltSources[0])
 		currents[both ? 0 : position/2] = c;
@@ -132,7 +132,7 @@ package com.lushprojects.circuitjs1.client;
 	    if (!both)
 		currents[1-(position/2)] = 0;
 	}
-	void setVoltageSource(int n, int v) {
+	void setVoltageSource(int n, VoltageSource v) {
 	    voltSources[n] = v;
 	}
 	void stamp() {

@@ -43,11 +43,11 @@ package com.lushprojects.circuitjs1.client;
 	boolean nonLinear() { return true; }
 	void stamp() {
 	    // output pin
-	    sim.stampVoltageSource(0, nodes[1], pins[1].voltSource);
+	    sim.stampVoltageSource(sim.groundNode, nodes[1], pins[1].voltSource);
 	    // attach Vi to R1 pin so its current is proportional to Vi
 	    sim.stampVoltageSource(nodes[0], nodes[4], pins[4].voltSource, 0);
 	    // attach 5V to R2 pin so we get a current going
-	    sim.stampVoltageSource(0, nodes[5], pins[5].voltSource, 5);
+	    sim.stampVoltageSource(sim.groundNode, nodes[5], pins[5].voltSource, 5);
 	    // put resistor across cap pins to give current somewhere to go
 	    // in case cap is not connected
 	    sim.stampResistor(nodes[2], nodes[3], cResistance);
@@ -72,12 +72,12 @@ package com.lushprojects.circuitjs1.client;
 	    }
 
 	    // generate output voltage
-	    sim.updateVoltageSource(0, nodes[1], pins[1].voltSource, vo);
+	    sim.updateVoltageSource(sim.groundNode, nodes[1], pins[1].voltSource, vo);
 	    // now we set the current through the cap to be equal to the
 	    // current through R1 and R2, so we can measure the voltage
 	    // across the cap
-	    int cur1 = sim.nodeList.size() + pins[4].voltSource;
-	    int cur2 = sim.nodeList.size() + pins[5].voltSource;
+	    VoltageSource cur1 = pins[4].voltSource;
+	    VoltageSource cur2 = pins[5].voltSource;
 	    sim.stampMatrix(nodes[2], cur1, dir);
 	    sim.stampMatrix(nodes[2], cur2, dir);
 	    sim.stampMatrix(nodes[3], cur1, -dir);

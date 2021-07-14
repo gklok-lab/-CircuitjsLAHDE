@@ -53,7 +53,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	String getChipName() { return "VCVS"; } 
 	void stamp() {
-            int vn = pins[inputCount].voltSource + sim.nodeList.size();
+            VoltageSource vn = pins[inputCount].voltSource;
             sim.stampNonLinear(vn);
             sim.stampVoltageSource(nodes[inputCount+1], nodes[inputCount], pins[inputCount].voltSource);
 	}
@@ -68,7 +68,7 @@ package com.lushprojects.circuitjs1.client;
 //        	if (Double.isNaN(volts[i]))
 //        	    volts[i] = 0;
             }
-            int vn = pins[inputCount].voltSource + sim.nodeList.size();
+            VoltageSource vn = pins[inputCount].voltSource;
             if (expr != null) {
         	// calculate output
         	for (i = 0; i != inputCount; i++)
@@ -112,7 +112,7 @@ package com.lushprojects.circuitjs1.client;
 	int getDumpType() { return 212; }
         boolean hasCurrentOutput() { return false; }
 
-        void setCurrent(int vn, double c) {
+        void setCurrent(VoltageSource vn, double c) {
             if (pins[inputCount].voltSource == vn) {
                 pins[inputCount].current = c;
                 pins[inputCount+1].current = -c;

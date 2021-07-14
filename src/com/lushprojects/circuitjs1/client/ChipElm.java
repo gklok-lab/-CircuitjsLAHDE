@@ -221,7 +221,7 @@ abstract class ChipElm extends CircuitElm {
 	    return pins[n].post;
 	}
 	abstract int getVoltageSourceCount(); // output count
-	void setVoltageSource(int j, int vs) {
+	void setVoltageSource(int j, VoltageSource vs) {
 	    int i;
 	    for (i = 0; i != getPostCount(); i++) {
 		Pin p = pins[i];
@@ -237,7 +237,7 @@ abstract class ChipElm extends CircuitElm {
 	    for (i = 0; i != getPostCount(); i++) {
 		Pin p = pins[i];
 		if (p.output)
-		    sim.stampVoltageSource(0, nodes[i], p.voltSource);
+		    sim.stampVoltageSource(sim.groundNode, nodes[i], p.voltSource);
 	    }
 	}
 	void execute() {}
@@ -252,7 +252,7 @@ abstract class ChipElm extends CircuitElm {
 	    for (i = 0; i != getPostCount(); i++) {
 		Pin p = pins[i];
 		if (p.output)
-		    sim.updateVoltageSource(0, nodes[i], p.voltSource,
+		    sim.updateVoltageSource(sim.groundNode, nodes[i], p.voltSource,
 					p.value ? 5 : 0);
 	    }
 	}
@@ -297,7 +297,7 @@ abstract class ChipElm extends CircuitElm {
 		    a++;
 	    }
 	}
-	void setCurrent(int x, double c) {
+	void setCurrent(VoltageSource x, double c) {
 	    int i;
 	    for (i = 0; i != getPostCount(); i++)
 		if (pins[i].output && pins[i].voltSource == x)
@@ -388,7 +388,8 @@ abstract class ChipElm extends CircuitElm {
 	    }
 	    Point post, stub;
 	    Point textloc;
-	    int pos, side, voltSource, bubbleX, bubbleY;
+	    int pos, side, bubbleX, bubbleY;
+	    VoltageSource voltSource;
 	    String text;
 	    boolean lineOver, bubble, clock, output, value, state, selected;
 	    double curcount, current;

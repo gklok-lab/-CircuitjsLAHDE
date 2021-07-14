@@ -76,7 +76,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	void stamp() {
 	    if (needsPullDown())
-		sim.stampResistor(nodes[0], 0, 1e6);
+		sim.stampResistor(nodes[0], sim.groundNode, 1e6);
 	}
 	double getVoltageDiff() { return volts[0]; }
 	void getInfo(String arr[]) {

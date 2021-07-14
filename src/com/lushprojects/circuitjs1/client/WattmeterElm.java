@@ -21,7 +21,7 @@ package com.lushprojects.circuitjs1.client;
 
 class WattmeterElm extends CircuitElm {
     int width;
-    int voltSources[];
+    VoltageSource voltSources[];
     double currents[];
     double curcounts[];
 
@@ -37,7 +37,7 @@ class WattmeterElm extends CircuitElm {
     }
 
     void setup() {
-	voltSources = new int[2];
+	voltSources = new VoltageSource[2];
 	currents = new double[2];
 	curcounts = new double[2];
     }
@@ -115,7 +115,7 @@ class WattmeterElm extends CircuitElm {
 	sim.stampVoltageSource(nodes[2], nodes[3], voltSources[1], 0);
     }
 
-    void setVoltageSource(int j, int vs) {
+    void setVoltageSource(int j, VoltageSource vs) {
 	voltSources[j] = vs;
     }
 
@@ -157,7 +157,7 @@ class WattmeterElm extends CircuitElm {
 
     double getPower() { return getVoltageDiff()*getCurrent(); }
 
-    void setCurrent(int vn, double c) {
+    void setCurrent(VoltageSource vn, double c) {
 	currents[vn == voltSources[0] ? 0 : 1] = c;
     }
     double getCurrentIntoNode(int n) {

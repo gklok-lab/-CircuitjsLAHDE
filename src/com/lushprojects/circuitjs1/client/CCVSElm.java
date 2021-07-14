@@ -26,7 +26,7 @@ import com.lushprojects.circuitjs1.client.ChipElm.Pin;
 class CCVSElm extends VCCSElm {
     	static int FLAG_SPICE = 2;
     	VoltageElm voltageSources[];
-    	int outputVS;
+    	VoltageSource outputVS;
     
 	public CCVSElm(int xa, int ya, int xb, int yb, int f,
 		      StringTokenizer st) {
@@ -74,15 +74,15 @@ class CCVSElm extends VCCSElm {
 	    } else {
 		// voltage source (0V) between C+ and C- so we can measure current
 		for (i = 0; i != inputCount; i += 2) {
-		    int vn1 = pins[i+1].voltSource;
+		    VoltageSource vn1 = pins[i+1].voltSource;
 		    sim.stampVoltageSource(nodes[i], nodes[i+1], vn1, 0);
 		}
 	    }
 	    
 	    // voltage source for outputs
-	    int vn2 = pins[inputCount].voltSource;
+	    VoltageSource vn2 = pins[inputCount].voltSource;
             outputVS = vn2;
-            sim.stampNonLinear(vn2 + sim.nodeList.size());
+            sim.stampNonLinear(vn2);
             sim.stampVoltageSource(nodes[inputCount+1], nodes[inputCount], vn2);
 	}
 
@@ -104,7 +104,7 @@ class CCVSElm extends VCCSElm {
         	    sim.converged = false;
             }
             
-            int vno = outputVS + sim.nodeList.size();
+            VoltageSource vno = outputVS;
             if (expr != null) {
         	// calculate output
         	for (i = 0; i != inputPairCount; i++)
@@ -116,7 +116,7 @@ class CCVSElm extends VCCSElm {
         	for (i = 0; i != inputPairCount; i++) {
         	    double cur = pins[i*2+1].current;
         	    double dv = cur-lastCurrents[i];
-                    int vni = pins[i*2+1].voltSource + sim.nodeList.size();
+        	    VoltageSource vni = pins[i*2+1].voltSource;
         	    if (Math.abs(dv) < 1e-6)
         		dv = 1e-6;
         	    setCurrentExprValue(i, cur);
@@ -160,7 +160,7 @@ class CCVSElm extends VCCSElm {
         boolean hasCurrentOutput() { return false; }
         boolean isSpiceStyle() { return (flags & FLAG_SPICE) != 0; }
 	
-        void setCurrent(int vn, double c) {
+        void setCurrent(VoltageSource vn, double c) {
             int i = 0;
             if (!isSpiceStyle()) {
         	for (i = 0; i != inputCount; i += 2)
@@ -209,7 +209,7 @@ class CCVSElm extends VCCSElm {
             }
         }
         
-	void setVoltageSource(int j, int vs) {
+	void setVoltageSource(int j, VoltageSource vs) {
 	    if (isSpiceStyle())
 		pins[inputCount].voltSource = vs;
 	    else
