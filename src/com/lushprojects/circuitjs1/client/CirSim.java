@@ -2593,6 +2593,7 @@ MouseOutHandler, MouseWheelHandler {
 	stampMatrix(vn, n1, -1);
 	stampMatrix(vn, n2, 1);
 	stampRightSide(vn, v);
+	n2.volts = v;
 	stampMatrix(n1, vn, 1);
 	stampMatrix(n2, vn, -1);
     }
@@ -2608,7 +2609,8 @@ MouseOutHandler, MouseWheelHandler {
     
     // update voltage source in doStep()
     void updateVoltageSource(CircuitNode n1, CircuitNode n2, VoltageSource vn, double v) {
-	stampRightSide(vn, v);
+//	stampRightSide(vn, v);
+	n2.volts = v;
     }
     
     void stampResistor(CircuitNode n1, CircuitNode n2, double r) {
@@ -2741,7 +2743,7 @@ MouseOutHandler, MouseWheelHandler {
 	boolean debugprint = dumpMatrix;
 	dumpMatrix = false;
 	long steprate = (long) (160*getIterCount());
-	steprate *= 10; // take this out, it maxes out the simulation speed
+	steprate *= 20; // take this out, it maxes out the simulation speed
 	long tm = System.currentTimeMillis();
 	long lit = lastIterTime;
 	if (lit == 0) {
@@ -2775,6 +2777,7 @@ MouseOutHandler, MouseWheelHandler {
 	    for (i = 0; i != elmArr.length; i++)
 		elmArr[i].startIteration();
 	    steps++;
+	    /*
 	    int subiterCount = (adjustTimeStep && timeStep/2 > minTimeStep) ? 100 : 5000;
 	    for (subiter = 0; subiter != subiterCount; subiter++) {
 		converged = true;
@@ -2856,6 +2859,12 @@ MouseOutHandler, MouseWheelHandler {
 		goodIterations++;
 	    else
 		goodIterations = 0;
+		*/
+	    for (i = 0; i != elmArr.length; i++)
+		elmArr[i].doStep();
+//	    for (i = 0; i != elmArr.length; i++)
+//		elmArr[i].stepFinished();
+	    
 	    t += timeStep;
 	    timeStepAccum += timeStep;
 	    goodIteration = true;
