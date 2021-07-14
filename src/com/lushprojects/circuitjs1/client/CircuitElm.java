@@ -999,7 +999,7 @@ public abstract class CircuitElm implements Editable {
     boolean needsShortcut() { return getShortcut() > 0; }
     int getShortcut() { return 0; }
 
-    boolean isGraphicElmt() { return false; }
+    boolean isGraphicElm() { return false; }
     
     void setMouseElm(boolean v) {
 	if (v)

@@ -49,7 +49,7 @@ class DecimalDisplayElm extends ChipElm {
         int i;
         int value = 0;
         for (i = 0; i != bitCount; i++)
-            if (pins[i].value)
+            if (nodes[i].volts > 2.5)
         	value |= 1<<i;
         String str = String.valueOf(value);
         int w=(int)g.context.measureText(str).getWidth();
@@ -87,5 +87,6 @@ class DecimalDisplayElm extends ChipElm {
         super.setEditValue(n, ei);
     }
 
+    boolean isGraphicElm() { return true; }
 }
     

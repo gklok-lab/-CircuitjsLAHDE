@@ -2294,7 +2294,7 @@ MouseOutHandler, MouseWheelHandler {
 	    CircuitElm ce = elmList.get(i);
 	    if (ce instanceof ScopeElm)
 		scopeElmCount++;
-	    if (!ce.isRemovableWire() && !ce.isGraphicElmt())
+	    if (!ce.isRemovableWire() && !ce.isGraphicElm())
 		elmArrCount++;
 	}
 	
@@ -2305,7 +2305,7 @@ MouseOutHandler, MouseWheelHandler {
 	    CircuitElm ce = elmList.get(i);
 	    if (ce instanceof ScopeElm)
 		scopeElmArr[j++] = (ScopeElm) ce;
-	    if (!ce.isRemovableWire() && !ce.isGraphicElmt())
+	    if (!ce.isRemovableWire() && !ce.isGraphicElm())
 		elmArr[k++] = ce;
 	}
 
