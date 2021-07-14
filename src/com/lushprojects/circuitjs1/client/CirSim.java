@@ -2285,23 +2285,29 @@ MouseOutHandler, MouseWheelHandler {
 		return;
 	    }
 	}
-	
-	// copy elmList to an array to avoid a bunch of calls to canCast() when doing simulation
-	elmArr = new CircuitElm[elmList.size()];
+
+	// make list of elements that need to be looked at for simulation.
+	// also copy ScopeElms to an array to avoid a second pass over entire list of elms during simulation
 	int scopeElmCount = 0;
+	int elmArrCount = 0;
 	for (i = 0; i != elmList.size(); i++) {
-	    elmArr[i] = elmList.get(i);
-	    if (elmArr[i] instanceof ScopeElm)
+	    CircuitElm ce = elmList.get(i);
+	    if (ce instanceof ScopeElm)
 		scopeElmCount++;
+	    if (!ce.isRemovableWire() && !ce.isGraphicElmt())
+		elmArrCount++;
 	}
 	
-	// copy ScopeElms to an array to avoid a second pass over entire list of elms during simulation
+	elmArr = new CircuitElm[elmArrCount];
 	scopeElmArr = new ScopeElm[scopeElmCount];
-	int j = 0;
+	int j = 0, k = 0;
 	for (i = 0; i != elmList.size(); i++) {
-	    if (elmArr[i] instanceof ScopeElm)
-		scopeElmArr[j++] = (ScopeElm) elmArr[i];
-	}	
+	    CircuitElm ce = elmList.get(i);
+	    if (ce instanceof ScopeElm)
+		scopeElmArr[j++] = (ScopeElm) ce;
+	    if (!ce.isRemovableWire() && !ce.isGraphicElmt())
+		elmArr[k++] = ce;
+	}
 
 	needsStamp = false;
     }
