@@ -77,7 +77,7 @@ package com.lushprojects.circuitjs1.client;
 	    int ix, iy, i = 0;
 	    for (iy = 0; iy != sizeY; iy++)
 		for (ix = 0; ix != sizeX; ix++, i++)
-		    diodes[i].doStep(volts[sizeX+iy]-volts[ix]);
+		    diodes[i].doStep(nodes[sizeX+iy].volts-nodes[ix].volts);
 	}
         boolean nonLinear() { return true; }
 	void draw(Graphics g) {
@@ -99,7 +99,7 @@ package com.lushprojects.circuitjs1.client;
 	    for (iy = 0; iy != sizeY; iy++) {
 		double cur = 0;
 		for (ix = 0; ix != sizeX; ix++, i++) {
-		    currents[i] = diodes[i].calculateCurrent(volts[sizeX+iy]-volts[ix]);
+		    currents[i] = diodes[i].calculateCurrent(nodes[sizeX+iy].volts-nodes[ix].volts);
 		    cur += currents[i];
 		    pins[ix].current += currents[i];
 		}

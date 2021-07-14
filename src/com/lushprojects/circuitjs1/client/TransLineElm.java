@@ -109,7 +109,7 @@ class TransLineElm extends CircuitElm {
 	g.fillRect(inner[2].x, inner[2].y,
 		   inner[1].x-inner[2].x+2, inner[1].y-inner[2].y+2);
 	for (i = 0; i != 4; i++) {
-	    setVoltageColor(g, volts[i]);
+	    setVoltageColor(g, nodes[i].volts);
 	    drawThickLine(g, posts[i], inner[i]);
 	}
 	if (voltageL != null) {
@@ -125,7 +125,7 @@ class TransLineElm extends CircuitElm {
 		drawThickLine(g, ps1, ps2);
 	    }
 	}
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	drawThickLine(g, inner[0], inner[1]);
 	drawPosts(g);
 
@@ -167,9 +167,9 @@ class TransLineElm extends CircuitElm {
 	    sim.stop("Transmission line delay too large!", this);
 	    return;
 	}
-	voltageL[ptr] = volts[2]-volts[0] + volts[2]-volts[4];
-	voltageR[ptr] = volts[3]-volts[1] + volts[3]-volts[5];
-	//System.out.println(volts[2] + " " + volts[0] + " " + (volts[2]-volts[0]) + " " + (imped*current1) + " " + voltageL[ptr]);
+	voltageL[ptr] = nodes[2].volts-nodes[0].volts + nodes[2].volts-nodes[4].volts;
+	voltageR[ptr] = nodes[3].volts-nodes[1].volts + nodes[3].volts-nodes[5].volts;
+	//System.out.println(nodes[2].volts + " " + nodes[0].volts + " " + (nodes[2].volts-nodes[0].volts) + " " + (imped*current1) + " " + voltageL[ptr]);
 	/*System.out.println("sending fwd  " + currentL[ptr] + " " + current1);
 	  System.out.println("sending back " + currentR[ptr] + " " + current2);*/
 	//System.out.println("sending back " + voltageR[ptr]);
@@ -182,7 +182,7 @@ class TransLineElm extends CircuitElm {
 	int nextPtr = (ptr + 1) % lenSteps;
 	sim.updateVoltageSource(nodes[4], nodes[0], voltSource1, -voltageR[nextPtr]);
 	sim.updateVoltageSource(nodes[5], nodes[1], voltSource2, -voltageL[nextPtr]);
-	if (Math.abs(volts[0]) > 1e-5 || Math.abs(volts[1]) > 1e-5) {
+	if (Math.abs(nodes[0].volts) > 1e-5 || Math.abs(nodes[1].volts) > 1e-5) {
 	    sim.stop("Need to ground transmission line!", this);
 	    return;
 	}
@@ -199,7 +199,7 @@ class TransLineElm extends CircuitElm {
 	return posts[n];
     }
 	
-    //double getVoltageDiff() { return volts[0]; }
+    //double getVoltageDiff() { return nodes[0].volts; }
     int getVoltageSourceCount() { return 2; }
     boolean hasGroundConnection(int n1) { return false; }
     boolean getConnection(int n1, int n2) {

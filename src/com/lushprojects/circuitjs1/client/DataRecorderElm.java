@@ -42,22 +42,22 @@ public class DataRecorderElm extends CircuitElm {
 	    setBbox(point1, lead1, 0);
 	    String s = sim.LS("export");
 	    drawLabeledNode(g, s, point1, lead1);
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    if (selected)
 		g.setColor(selectColor);
 	    drawThickLine(g, point1, lead1);
 	    drawPosts(g);
 	}
-	double getVoltageDiff() { return volts[0]; }
+	double getVoltageDiff() { return nodes[0].volts; }
 	void getInfo(String arr[]) {
 	    arr[0] = "data export";
-	    arr[1] = "V = " + getVoltageText(volts[0]);
+	    arr[1] = "V = " + getVoltageText(nodes[0].volts);
 	    arr[2] = (dataFull ? dataCount : dataPtr) + "/" + dataCount;
 	}
 	void stepFinished() {
 	    if (lastTimeStepCount == sim.timeStepCount)
 		return;
-	    data[dataPtr++] = volts[0];
+	    data[dataPtr++] = nodes[0].volts;
 	    lastTimeStepCount = sim.timeStepCount;
 	    if (dataPtr >= dataCount) {
 		dataPtr = 0;

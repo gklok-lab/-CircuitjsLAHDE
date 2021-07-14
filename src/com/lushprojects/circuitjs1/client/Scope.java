@@ -109,6 +109,7 @@ class ScopePlot {
     void timeStep() {
 	if (elm == null)
 		return;
+	elm.calculateCurrent();
 	double v = elm.getScopeValue(value);
 	 // AC coupling filter. 1st order IIR high pass
 	 // y[i] = alpha x (y[i-1]+x[i]-x[i-1])

@@ -86,7 +86,7 @@ class TriStateElm extends CircuitElm {
 
 	g.setColor(lightGrayColor);
 	drawThickPolygon(g, gatePoly);
-	setVoltageColor(g, volts[2]);
+	setVoltageColor(g, nodes[2].volts);
 	drawThickLine(g, point3, lead3);
 	curcount = updateDotCount(current, curcount);
 	drawDots(g, lead2, point2, curcount);
@@ -94,7 +94,7 @@ class TriStateElm extends CircuitElm {
     }
 
     void calculateCurrent() {
-	current = (volts[0] - volts[1]) / resistance;
+	current = (nodes[0].volts - nodes[1].volts) / resistance;
     }
 
     double getCurrentIntoNode(int n) {
@@ -115,10 +115,10 @@ class TriStateElm extends CircuitElm {
     }
 
     void doStep() {
-	open = (volts[2] < 2.5);
+	open = (nodes[2].volts < 2.5);
 	resistance = (open) ? r_off : r_on;
 	sim.stampResistor(nodes[3], nodes[1], resistance);
-	sim.updateVoltageSource(sim.groundNode, nodes[3], voltSource, volts[0] > 2.5 ? 5 : 0);
+	sim.updateVoltageSource(sim.groundNode, nodes[3], voltSource, nodes[0].volts > 2.5 ? 5 : 0);
     }
 
     void drag(int xx, int yy) {
@@ -164,7 +164,7 @@ class TriStateElm extends CircuitElm {
 	arr[1] = open ? "open" : "closed";
 	arr[2] = "Vd = " + getVoltageDText(getVoltageDiff());
 	arr[3] = "I = " + getCurrentDText(getCurrent());
-	arr[4] = "Vc = " + getVoltageText(volts[2]);
+	arr[4] = "Vc = " + getVoltageText(nodes[2].volts);
     }
 
     // there is no current path through the input, but there

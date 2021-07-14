@@ -75,13 +75,13 @@ package com.lushprojects.circuitjs1.client;
 	    adjustBbox(swposts[0], swposts[throwCount-1]);
 
 	    // draw first lead
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, point1, lead1);
 
 	    // draw other leads
 	    int i;
 	    for (i = 0; i != throwCount; i++) {
-		setVoltageColor(g, volts[i+1]);
+		setVoltageColor(g, nodes[i+1].volts);
 		drawThickLine(g, swpoles[i], swposts[i]);
 	    }
 	    

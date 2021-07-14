@@ -41,7 +41,7 @@ class TriodeElm extends CircuitElm {
     }
     boolean nonLinear() { return true; }
     void reset() {
-	volts[0] = volts[1] = volts[2] = 0;
+	nodes[0].volts = nodes[1].volts = nodes[2].volts = 0;
 	curcount = 0;
     }
     String dump() {
@@ -86,18 +86,18 @@ class TriodeElm extends CircuitElm {
 	setBbox(point1, plate[0], 16);
 	adjustBbox(cath[0].x, cath[1].y, point2.x+circler, point2.y+circler);
 	// draw plate
-	setVoltageColor(g, volts[0]);
-	setPowerColor(g, currentp*(volts[0]-volts[2]));
+	setVoltageColor(g, nodes[0].volts);
+	setPowerColor(g, currentp*(nodes[0].volts-nodes[2].volts));
 	drawThickLine(g, plate[0], plate[1]);
 	drawThickLine(g, plate[2], plate[3]);
 	// draw grid
-	setVoltageColor(g, volts[1]);
-	setPowerColor(g, currentg*(volts[1]-volts[2]));
+	setVoltageColor(g, nodes[1].volts);
+	setPowerColor(g, currentg*(nodes[1].volts-nodes[2].volts));
 	int i;
 	for (i = 0; i != 8; i += 2)
 	    drawThickLine(g, grid[i], grid[i+1]);
 	// draw cathode
-	setVoltageColor(g, volts[2]);
+	setVoltageColor(g, nodes[2].volts);
 	setPowerColor(g, 0);
 	for (i = 0; i != 3; i++)
 	    drawThickLine(g, cath[i], cath[i+1]);
@@ -127,7 +127,7 @@ class TriodeElm extends CircuitElm {
 	return (n == 0) ? plate[0] : (n == 1) ? grid[0] : cath[0];
     }
     int getPostCount() { return 3; }
-    double getPower() { return (volts[0]-volts[2])*currentc + (volts[gridN]-volts[cathN])*currentg; }
+    double getPower() { return (nodes[0].volts-nodes[2].volts)*currentc + (nodes[gridN].volts-nodes[cathN].volts)*currentg; }
     double getCurrent() { return currentc; } // for scope
 
     final int gridN = 1;
@@ -137,9 +137,9 @@ class TriodeElm extends CircuitElm {
     double lastv0, lastv1, lastv2;
     void doStep() {
 	double vs[] = new double[3];
-	vs[0] = volts[0];
-	vs[1] = volts[1];
-	vs[2] = volts[2];
+	vs[0] = nodes[0].volts;
+	vs[1] = nodes[1].volts;
+	vs[2] = nodes[2].volts;
 	if (vs[1] > lastv1 + .5)
 	    vs[1] = lastv1 + .5;
 	if (vs[1] < lastv1 - .5)
@@ -202,9 +202,9 @@ class TriodeElm extends CircuitElm {
     }
     void getInfo(String arr[]) {
 	arr[0] = "triode";
-	double vac = volts[plateN]-volts[cathN];
-	double vgc = volts[gridN ]-volts[cathN];
-	double vag = volts[plateN]-volts[gridN];
+	double vac = nodes[plateN].volts-nodes[cathN].volts;
+	double vgc = nodes[gridN ].volts-nodes[cathN].volts;
+	double vag = nodes[plateN].volts-nodes[gridN].volts;
 	arr[1] = "Vac = " + getVoltageText(vac);
 	arr[2] = "Vgc = " + getVoltageText(vgc);
 	arr[3] = "Vag = " + getVoltageText(vag);
@@ -227,6 +227,6 @@ class TriodeElm extends CircuitElm {
 	    kg1 = ei.value;
     }
     boolean canViewInScope() { return true; }
-    double getVoltageDiff() { return volts[plateN] - volts[cathN]; }    
+    double getVoltageDiff() { return nodes[plateN].volts - nodes[cathN].volts; }    
 }
 

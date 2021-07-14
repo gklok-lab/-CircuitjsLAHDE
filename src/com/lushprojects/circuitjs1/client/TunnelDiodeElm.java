@@ -52,8 +52,8 @@ class TunnelDiodeElm extends CircuitElm {
     void draw(Graphics g) {
 	setBbox(point1, point2, hs);
 
-	double v1 = volts[0];
-	double v2 = volts[1];
+	double v1 = nodes[0].volts;
+	double v2 = nodes[1].volts;
 
 	draw2Leads(g);
 
@@ -73,7 +73,7 @@ class TunnelDiodeElm extends CircuitElm {
     }
 	
     void reset() {
-	lastvoltdiff = volts[0] = volts[1] = curcount = 0;
+	lastvoltdiff = nodes[0].volts = nodes[1].volts = curcount = 0;
     }
 	
     double lastvoltdiff;
@@ -97,7 +97,7 @@ class TunnelDiodeElm extends CircuitElm {
     static final double pvpp = .525;
     static final double piv = 370e-6;
     void doStep() {
-	double voltdiff = volts[0] - volts[1];
+	double voltdiff = nodes[0].volts - nodes[1].volts;
 	if (Math.abs(voltdiff-lastvoltdiff) > .01)
 	    sim.converged = false;
 	//System.out.println(voltdiff + " " + lastvoltdiff + " " + Math.abs(voltdiff-lastvoltdiff));
@@ -119,7 +119,7 @@ class TunnelDiodeElm extends CircuitElm {
 	sim.stampCurrentSource(nodes[0], nodes[1], nc);
     }
     void calculateCurrent() {
-	double voltdiff = volts[0] - volts[1];
+	double voltdiff = nodes[0].volts - nodes[1].volts;
 	double i0 = piv*Math.exp(-pvv);
 	current = pip*Math.exp(-pvpp/pvt)*(Math.exp(voltdiff/pvt)-1) +
 	    pip*(voltdiff/pvp)*Math.exp(1-voltdiff/pvp) +

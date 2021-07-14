@@ -68,9 +68,9 @@ package com.lushprojects.circuitjs1.client;
 		super.draw(g);
 		return;
 	    }
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, point1, ledLead1);
-	    setVoltageColor(g, volts[1]);
+	    setVoltageColor(g, nodes[1].volts);
 	    drawThickLine(g, ledLead2, point2);
 	    
 	    g.setColor(Color.gray);

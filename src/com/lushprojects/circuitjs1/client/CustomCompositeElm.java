@@ -76,7 +76,7 @@ public class CustomCompositeElm extends CompositeElm {
     void draw(Graphics g) {
 	int i;
 	for (i = 0; i != postCount; i++) {
-	    chip.volts[i] = volts[i];
+	    chip.nodes[i].volts = nodes[i].volts;
 	    chip.pins[i].current = getCurrentIntoNode(i); 
 	}
 	chip.setSelected(needsHighlight());
@@ -208,7 +208,7 @@ public class CustomCompositeElm extends CompositeElm {
 	for (i = 0; i != postCount; i++) {
 	    if (i+1 >= arr.length)
 		break;
-	    arr[i+1] = model.extList.get(i).name + " = " + getVoltageText(volts[i]);
+	    arr[i+1] = model.extList.get(i).name + " = " + getVoltageText(nodes[i].volts);
 	}
     }
 }

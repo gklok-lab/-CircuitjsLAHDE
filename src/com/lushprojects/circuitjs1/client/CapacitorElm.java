@@ -42,10 +42,6 @@ package com.lushprojects.circuitjs1.client;
 	}
 	boolean isTrapezoidal() { return (flags & FLAG_BACK_EULER) == 0; }
 	
-	void stepFinished() {
-	    voltdiff = volts[0]-volts[1];
-	}
-	
 	void reset() {
 	    super.reset();
 	    current = curcount = curSourceValue = 0;
@@ -82,7 +78,7 @@ package com.lushprojects.circuitjs1.client;
 	    setBbox(point1, point2, hs);
 	    
 	    // draw first lead and plate
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, point1, lead1);
 	    setPowerColor(g, false);
 	    drawThickLine(g, plate1[0], plate1[1]);
@@ -90,7 +86,7 @@ package com.lushprojects.circuitjs1.client;
 		g.setColor(Color.gray);
 
 	    // draw second lead and plate
-	    setVoltageColor(g, volts[1]);
+	    setVoltageColor(g, nodes[1].volts);
 	    drawThickLine(g, point2, lead2);
 	    setPowerColor(g, false);
 	    if (platePoints == null)
@@ -139,18 +135,16 @@ package com.lushprojects.circuitjs1.client;
 	    else
 		curSourceValue = -voltdiff/compResistance;
 	}
-	void calculateCurrent() {
-	    double voltdiff = volts[0] - volts[1];
+	void stepFinished() {
+	    voltdiff = nodes[0].volts-nodes[1].volts;
+	    
 	    if (sim.dcAnalysisFlag) {
 		current = voltdiff/1e8;
 		return;
 	    }
-	    // we check compResistance because this might get called
-	    // before stamp(), which sets compResistance, causing
-	    // infinite current
-	    if (compResistance > 0)
-		current = voltdiff/compResistance + curSourceValue;
+	    current = voltdiff/compResistance + curSourceValue;
 	}
+	
 	double curSourceValue;
 	void doStep() {
 	    if (sim.dcAnalysisFlag)

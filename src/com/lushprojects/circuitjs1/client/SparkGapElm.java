@@ -58,14 +58,14 @@ class SparkGapElm extends CircuitElm {
     
     void draw(Graphics g) {
 	int i;
-	double v1 = volts[0];
-	double v2 = volts[1];
+	double v1 = nodes[0].volts;
+	double v2 = nodes[1].volts;
 	setBbox(point1, point2, 8);
 	draw2Leads(g);
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	setPowerColor(g, true);
 	g.fillPolygon(arrow1);
-	setVoltageColor(g, volts[1]);
+	setVoltageColor(g, nodes[1].volts);
 	setPowerColor(g, true);
 	g.fillPolygon(arrow2);
 	if (state)
@@ -74,7 +74,7 @@ class SparkGapElm extends CircuitElm {
     }
     
     void calculateCurrent() {
-	double vd = volts[0] - volts[1];
+	double vd = nodes[0].volts - nodes[1].volts;
 	current = vd/resistance;
     }
 
@@ -86,7 +86,7 @@ class SparkGapElm extends CircuitElm {
     void startIteration() {
 	if (Math.abs(current) < holdcurrent)
 	    state = false;
-	double vd = volts[0] - volts[1];
+	double vd = nodes[0].volts - nodes[1].volts;
 	if (Math.abs(vd) > breakdown)
 	    state = true;
     }

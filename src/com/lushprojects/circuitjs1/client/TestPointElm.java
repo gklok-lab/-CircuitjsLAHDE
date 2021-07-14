@@ -107,7 +107,7 @@ class TestPointElm extends CircuitElm {
         //draw selected value
         switch (meter) {
             case TP_VOL:
-                s = getUnitText(volts[0],"V");
+                s = getUnitText(nodes[0].volts,"V");
                 break;
             case TP_RMS:
                 s = getUnitText(rmsV,"V(rms)");
@@ -139,7 +139,7 @@ class TestPointElm extends CircuitElm {
         }
             drawCenteredText(g, s, x2, y2+12, true); //draw selected value TPx
         
-        setVoltageColor(g, volts[0]);
+        setVoltageColor(g, nodes[0].volts);
         if (selected)
             g.setColor(selectColor);
         drawThickLine(g, point1, lead1);
@@ -152,21 +152,21 @@ class TestPointElm extends CircuitElm {
 	    return;
 	lastStepCount = sim.timeStepCount;
         count++;//how many counts are in a cycle    
-        total += volts[0]*volts[0]; //sum of squares
+        total += nodes[0].volts*nodes[0].volts; //sum of squares
 
-        if (volts[0]<2.5)
+        if (nodes[0].volts<2.5)
             binaryLevel = 0;
         else
             binaryLevel = 1;
         
         
         //V going up, track maximum value with 
-        if (volts[0]>maxV && increasingV){
-            maxV = volts[0];
+        if (nodes[0].volts>maxV && increasingV){
+            maxV = nodes[0].volts;
             increasingV = true;
             decreasingV = false;
         }
-        if (volts[0]<maxV && increasingV){//change of direction V now going down - at start of waveform
+        if (nodes[0].volts<maxV && increasingV){//change of direction V now going down - at start of waveform
             lastMaxV=maxV; //capture last maximum 
             //capture time between
             periodLength = System.currentTimeMillis() - periodStart;
@@ -174,7 +174,7 @@ class TestPointElm extends CircuitElm {
             period = periodLength;
             pulseWidth = System.currentTimeMillis() - pulseStart;
             dutyCycle = pulseWidth / periodLength;
-            minV=volts[0]; //track minimum value with V
+            minV=nodes[0].volts; //track minimum value with V
             increasingV=false;
             decreasingV=true;
             
@@ -187,16 +187,16 @@ class TestPointElm extends CircuitElm {
             total=0;
             
         }
-        if (volts[0]<minV && decreasingV){ //V going down, track minimum value with V
-            minV=volts[0];
+        if (nodes[0].volts<minV && decreasingV){ //V going down, track minimum value with V
+            minV=nodes[0].volts;
             increasingV=false;
             decreasingV=true;
         }
 
-        if (volts[0]>minV && decreasingV){ //change of direction V now going up
+        if (nodes[0].volts>minV && decreasingV){ //change of direction V now going up
             lastMinV=minV; //capture last minimum
             pulseStart =  System.currentTimeMillis();
-            maxV = volts[0];
+            maxV = nodes[0].volts;
             increasingV = true;
             decreasingV = false;
             
@@ -211,7 +211,7 @@ class TestPointElm extends CircuitElm {
             
         }
         //need to zero the rms value if it stays at 0 for a while
-        if (volts[0]==0){
+        if (nodes[0].volts==0){
             zerocount++;
             if (zerocount > 5){
                 total=0;
@@ -224,7 +224,7 @@ class TestPointElm extends CircuitElm {
         }
         switch (meter) {
         case TP_VOL:
-            selectedValue = volts[0];
+            selectedValue = nodes[0].volts;
             break;
         case TP_RMS:
             selectedValue = rmsV;
@@ -266,13 +266,13 @@ class TestPointElm extends CircuitElm {
         return selectedValue;
     }
     
-    double getVoltageDiff() { return volts[0]; }
+    double getVoltageDiff() { return nodes[0].volts; }
     
     void getInfo(String arr[]) {
         arr[0] = "Test Point";
         switch (meter) {
             case TP_VOL:
-                arr[1] = "V = " + getUnitText(volts[0], "V");
+                arr[1] = "V = " + getUnitText(nodes[0].volts, "V");
                 break;
             case TP_RMS:
                 arr[1] = "V(rms) = " + getUnitText(rmsV, "V");

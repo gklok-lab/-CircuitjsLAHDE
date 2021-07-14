@@ -103,31 +103,31 @@ class VCCSElm extends ChipElm {
             // converged yet?
             double convergeLimit = getConvergeLimit();
             for (i = 0; i != inputCount; i++) {
-        	if (Math.abs(volts[i]-lastVolts[i]) > convergeLimit) {
+        	if (Math.abs(nodes[i].volts-lastVolts[i]) > convergeLimit) {
         	    sim.converged = false;
-//        	    sim.console("vcvs " + nodes + " " + i + " " + volts[i] + " " + lastVolts[i] + " " + sim.subIterations);
+//        	    sim.console("vcvs " + nodes + " " + i + " " + nodes[i].volts + " " + lastVolts[i] + " " + sim.subIterations);
         	}
-//        	if (Double.isNaN(volts[i]))
-//        	    volts[i] = 0;
+//        	if (Double.isNaN(nodes[i].volts))
+//        	    nodes[i].volts = 0;
             }
             if (expr != null) {
         	// calculate output
         	for (i = 0; i != inputCount; i++)
-        	    exprState.values[i] = volts[i];
+        	    exprState.values[i] = nodes[i].volts;
         	exprState.t = sim.t;
         	double v0 = -expr.eval(exprState);
-//        	if (Math.abs(volts[inputCount]-v0) > Math.abs(v0)*.01 && sim.subIterations < 100)
+//        	if (Math.abs(nodes[inputCount].volts-v0) > Math.abs(v0)*.01 && sim.subIterations < 100)
 //        	    sim.converged = false;
         	double rs = v0;
         	
         	// calculate and stamp output derivatives
         	for (i = 0; i != inputCount; i++) {
-        	    double dv = volts[i]-lastVolts[i];
+        	    double dv = nodes[i].volts-lastVolts[i];
         	    if (Math.abs(dv) < 1e-6)
         		dv = 1e-6;
-        	    exprState.values[i] = volts[i];
+        	    exprState.values[i] = nodes[i].volts;
         	    double v = -expr.eval(exprState);
-        	    exprState.values[i] = volts[i]-dv;
+        	    exprState.values[i] = nodes[i].volts-dv;
         	    double v2 = -expr.eval(exprState);
         	    double dx = (v-v2)/dv;
         	    if (Math.abs(dx) < 1e-6)
@@ -136,8 +136,8 @@ class VCCSElm extends ChipElm {
         	    //if (sim.subIterations > 1)
         		//sim.console("ccedx " + i + " " + dx + " " + sim.subIterations + " " + sim.t);
         	    // adjust right side
-        	    rs -= dx*volts[i];
-        	    exprState.values[i] = volts[i];
+        	    rs -= dx*nodes[i].volts;
+        	    exprState.values[i] = nodes[i].volts;
         	}
 //        	sim.console("ccers " + rs);
         	sim.stampCurrentSource(nodes[inputCount], nodes[inputCount+1], rs);
@@ -146,7 +146,7 @@ class VCCSElm extends ChipElm {
             }
 
             for (i = 0; i != inputCount; i++)
-        	lastVolts[i] = volts[i];
+        	lastVolts[i] = nodes[i].volts;
         }
         void stepFinished() {
             exprState.updateLastValues(pins[inputCount].current);

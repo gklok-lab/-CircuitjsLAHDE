@@ -49,8 +49,8 @@ package com.lushprojects.circuitjs1.client;
 		maxOut = new Double(st.nextToken()).doubleValue();
 		minOut = new Double(st.nextToken()).doubleValue();
 		gbw = new Double(st.nextToken()).doubleValue();
-		volts[0] = new Double(st.nextToken()).doubleValue();
-		volts[1] = new Double(st.nextToken()).doubleValue();
+		nodes[0].volts = new Double(st.nextToken()).doubleValue();
+		nodes[1].volts = new Double(st.nextToken()).doubleValue();
 		gain = new Double(st.nextToken()).doubleValue();
 	    } catch (Exception e) {
 	    }
@@ -68,16 +68,16 @@ package com.lushprojects.circuitjs1.client;
 	}
 	String dump() {
 	    flags |= FLAG_GAIN;
-	    return super.dump() + " " + maxOut + " " + minOut + " " + gbw + " " + volts[0] + " " + volts[1] + " " + gain;
+	    return super.dump() + " " + maxOut + " " + minOut + " " + gbw + " " + nodes[0].volts + " " + nodes[1].volts + " " + gain;
 	}
 	boolean nonLinear() { return true; }
 	void draw(Graphics g) {
 	    setBbox(point1, point2, opheight*2);
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, in1p[0], in1p[1]);
-	    setVoltageColor(g, volts[1]);
+	    setVoltageColor(g, nodes[1].volts);
 	    drawThickLine(g, in2p[0], in2p[1]);
-	    setVoltageColor(g, volts[2]);
+	    setVoltageColor(g, nodes[2].volts);
 	    drawThickLine(g, lead2, point2);
 	    g.setColor(needsHighlight() ? selectColor : lightGrayColor);
 	    setPowerColor(g, true);
@@ -89,7 +89,7 @@ package com.lushprojects.circuitjs1.client;
 	    drawDots(g, point2, lead2, curcount);
 	    drawPosts(g);
 	}
-	double getPower() { return volts[2]*current; }
+	double getPower() { return nodes[2].volts*current; }
 	Point in1p[], in2p[], textp[];
 	Polygon triangle;
 	Font plusFont;
@@ -128,11 +128,11 @@ package com.lushprojects.circuitjs1.client;
 	int getVoltageSourceCount() { return 1; }
 	void getInfo(String arr[]) {
 	    arr[0] = "op-amp";
-	    arr[1] = "V+ = " + getVoltageText(volts[1]);
-	    arr[2] = "V- = " + getVoltageText(volts[0]);
+	    arr[1] = "V+ = " + getVoltageText(nodes[1].volts);
+	    arr[2] = "V- = " + getVoltageText(nodes[0].volts);
 	    // sometimes the voltage goes slightly outside range, to make
 	    // convergence easier.  so we hide that here.
-	    double vo = Math.max(Math.min(volts[2], maxOut), minOut);
+	    double vo = Math.max(Math.min(nodes[2].volts, maxOut), minOut);
 	    arr[3] = "Vout = " + getVoltageText(vo);
 	    arr[4] = "Iout = " + getCurrentText(-current);
 	    arr[5] = "range = " + getVoltageText(minOut) + " to " +
@@ -146,11 +146,11 @@ package com.lushprojects.circuitjs1.client;
 	    sim.stampMatrix(nodes[2], voltSource, 1);
 	}
 	void doStep() {
-	    double vd = volts[1] - volts[0];
+	    double vd = nodes[1].volts - nodes[0].volts;
 	    double midpoint = (maxOut+minOut)*.5;
 	    if (Math.abs(lastvd-vd) > .1)
 		sim.converged = false;
-	    else if (volts[2] > maxOut+.1 || volts[2] < minOut-.1)
+	    else if (nodes[2].volts > maxOut+.1 || nodes[2].volts < minOut-.1)
 		sim.converged = false;
 	    double x = 0;
 	    double dx = 0;
@@ -166,7 +166,7 @@ package com.lushprojects.circuitjs1.client;
 		dx = gain;
 		x = midpoint;
 	    }
-	    //System.out.println("opamp " + vd + " " + volts[2] + " " + dx + " "  + x + " " + lastvd + " " + sim.converged);
+	    //System.out.println("opamp " + vd + " " + nodes[2].volts + " " + dx + " "  + x + " " + lastvd + " " + sim.converged);
 	    
 	    // newton-raphson
 	    sim.stampMatrix(voltSource, nodes[0], dx);
@@ -176,7 +176,7 @@ package com.lushprojects.circuitjs1.client;
 	    
 	    lastvd = vd;
 	    /*if (sim.converged)
-	      System.out.println((volts[1]-volts[0]) + " " + volts[2] + " " + initvd);*/
+	      System.out.println((nodes[1].volts-nodes[0].volts) + " " + nodes[2].volts + " " + initvd);*/
 	}
 	// there is no current path through the op-amp inputs, but there
 	// is an indirect path through the output to ground.
@@ -184,7 +184,7 @@ package com.lushprojects.circuitjs1.client;
 	boolean hasGroundConnection(int n1) {
 	    return (n1 == 2);
 	}
-	double getVoltageDiff() { return volts[2] - volts[1]; }
+	double getVoltageDiff() { return nodes[2].volts - nodes[1].volts; }
 	int getDumpType() { return 'a'; }
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0)

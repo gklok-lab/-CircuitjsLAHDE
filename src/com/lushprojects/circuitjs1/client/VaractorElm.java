@@ -27,7 +27,7 @@ class VaractorElm extends DiodeElm {
     Point plate1[], plate2[];
     
     void stepFinished() {
-	capvoltdiff = volts[0]-volts[1];
+	capvoltdiff = nodes[0].volts-nodes[1].volts;
     }
     
     void calculateCurrent() {
@@ -62,14 +62,14 @@ class VaractorElm extends DiodeElm {
 	drawDiode(g);
 	    
 	// draw first plate
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	setPowerColor(g, false);
 	drawThickLine(g, plate1[0], plate1[1]);
 	if (sim.powerCheckItem.getState())
 	    g.setColor(Color.gray);
 
 	// draw second plate
-	setVoltageColor(g, volts[1]);
+	setVoltageColor(g, nodes[1].volts);
 	setPowerColor(g, false);
 	drawThickLine(g, plate2[0], plate2[1]);
 	

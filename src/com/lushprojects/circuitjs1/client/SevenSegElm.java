@@ -206,7 +206,7 @@ package com.lushprojects.circuitjs1.client;
 	    
 	    int i;
 	    for (i = 0; i != segmentCount; i++)
-		diodes[i].doStep(diodeDirection*(volts[i]-volts[commonPin]));
+		diodes[i].doStep(diodeDirection*(nodes[i].volts-nodes[commonPin].volts));
 	}
         boolean nonLinear() { return diodeDirection != 0; }
 	void draw(Graphics g) {
@@ -262,7 +262,7 @@ package com.lushprojects.circuitjs1.client;
 	    int i;
 	    pins[commonPin].current = 0;
 	    for (i = 0; i != segmentCount; i++) {
-		pins[i].current = -diodeDirection*diodes[i].calculateCurrent(diodeDirection*(volts[i]-volts[commonPin]));
+		pins[i].current = -diodeDirection*diodes[i].calculateCurrent(diodeDirection*(nodes[i].volts-nodes[commonPin].volts));
 		pins[commonPin].current -= pins[i].current;
 	    }
 	}

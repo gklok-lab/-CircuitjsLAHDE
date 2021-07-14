@@ -98,10 +98,14 @@ class DCMotorElm extends CircuitElm {
 	//System.out.println("doing stamp voltage "+voltSource);
     }
     void startIteration() {
-	ind.startIteration(volts[0]-volts[2]);
-	indInertia.startIteration(volts[4]-volts[5]);
+	ind.startIteration();
+	indInertia.startIteration();
 	// update angle:
 	angle= angle + speed*sim.timeStep;
+    }
+    void stepFinished() {
+	ind.stepFinished();
+	indInertia.stepFinished();
     }
 
     /*  boolean hasGroundConnection(int n1) {
@@ -121,16 +125,16 @@ class DCMotorElm extends CircuitElm {
 		coilCurrent*K);
 	sim.updateVoltageSource(nodes[3],nodes[1], voltSources[0],
 		inertiaCurrent*Kb);
-	ind.doStep(volts[0]-volts[2]);
-	indInertia.doStep(volts[4]-volts[5]);
+	ind.doStep();
+	indInertia.doStep();
     }
     void calculateCurrent() {
-	coilCurrent = ind.calculateCurrent(volts[0]-volts[2]);
-	inertiaCurrent = indInertia.calculateCurrent(volts[4]-volts[5]);
-//	current = (volts[2]-volts[3])/resistance;
+	coilCurrent = ind.current;
+	inertiaCurrent = indInertia.current;
+//	current = (nodes[2].volts-nodes[3].volts)/resistance;
 	speed=inertiaCurrent;
     }
-//    public double getCurrent() { current = (volts[2]-volts[3])/resistance; return current; }
+//    public double getCurrent() { current = (nodes[2].volts-nodes[3].volts)/resistance; return current; }
 
     void setCurrent(VoltageSource vn, double c) {
 	if (vn == voltSources[0])

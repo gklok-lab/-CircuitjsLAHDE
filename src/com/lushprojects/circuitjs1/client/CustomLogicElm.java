@@ -27,8 +27,8 @@ public class CustomLogicElm extends ChipElm {
 	int i;
 	for (i = 0; i != getPostCount(); i++) {
 	    if (pins[i].output) {
-		volts[i] = new Double(st.nextToken()).doubleValue();
-		pins[i].value = volts[i] > 2.5;
+		nodes[i].volts = new Double(st.nextToken()).doubleValue();
+		pins[i].value = nodes[i].volts > 2.5;
 	    }
 	}
     }
@@ -43,7 +43,7 @@ public class CustomLogicElm extends ChipElm {
         int i;
         for (i = 0; i != getPostCount(); i++) {
             if (pins[i].output)
-                s += " " + volts[i];
+                s += " " + nodes[i].volts;
         }
 	return s;
     }
@@ -131,7 +131,7 @@ public class CustomLogicElm extends ChipElm {
 	for (i = 0; i != getPostCount(); i++) {
 	    Pin p = pins[i];
 	    if (!p.output)
-		p.value = volts[i] > 2.5;
+		p.value = nodes[i].volts > 2.5;
 	}
 	execute();
 	int add = (hasTriState()) ? outputCount : 0;

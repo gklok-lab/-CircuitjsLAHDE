@@ -56,7 +56,7 @@ class FuseElm extends CircuitElm {
 	}
 
 	Color getTempColor(Graphics g) {
-	    Color c = getVoltageColor(g, volts[0]);
+	    Color c = getVoltageColor(g, nodes[0].volts);
 	    double temp = heat/i2t;
 	    if (temp < .3333) {
 		double val = temp*3;
@@ -107,7 +107,7 @@ class FuseElm extends CircuitElm {
 	}
 
 	void calculateCurrent() {
-	    current = (volts[0]-volts[1])/(blown ? blownResistance : resistance);
+	    current = (nodes[0].volts-nodes[1].volts)/(blown ? blownResistance : resistance);
 	}
 	void stamp() {
 	    sim.stampNonLinear(nodes[0]);

@@ -64,7 +64,7 @@ package com.lushprojects.circuitjs1.client;
 		beta = new Double(st.nextToken()).doubleValue();
 	    } catch (Exception e) {}
 	    globalFlags = flags & (FLAGS_GLOBAL);
-	    allocNodes(); // make sure volts[] has the right number of elements when hasBodyTerminal() is true 
+	    allocNodes(); // make sure nodes[].volts has the right number of elements when hasBodyTerminal() is true 
 	}
 
 	// set up body diodes
@@ -92,11 +92,11 @@ package com.lushprojects.circuitjs1.client;
 	boolean hasBodyTerminal() { return (flags & FLAG_BODY_TERMINAL) != 0 && doBodyDiode(); }
 	boolean doBodyDiode() { return (flags & FLAG_BODY_DIODE) != 0 && showBulk(); }
 	void reset() {
-	    lastv1 = lastv2 = volts[0] = volts[1] = volts[2] = curcount = 0;
+	    lastv1 = lastv2 = curcount = 0;
 	    diodeB1.reset();
 	    diodeB2.reset();
 	    if (doBodyDiode())
-		volts[bodyTerminal] = 0;
+		nodes[bodyTerminal].volts = 0;
 	}
 	String dump() {
 	    return super.dump() + " " + vt + " " + beta;
@@ -112,9 +112,9 @@ package com.lushprojects.circuitjs1.client;
 		setBbox(point1, point2, hs);
 		
 		// draw source/drain terminals
-		setVoltageColor(g, volts[1]);
+		setVoltageColor(g, nodes[1].volts);
 		drawThickLine(g, src[0], src[1]);
-		setVoltageColor(g, volts[2]);
+		setVoltageColor(g, nodes[2].volts);
 		drawThickLine(g, drn[0], drn[1]);
 		
 		// draw line connecting source and drain
@@ -126,7 +126,7 @@ package com.lushprojects.circuitjs1.client;
 		boolean enhancement = vt > 0 && showBulk();
 		for (i = 0; i != segments; i++) {
 		    if ((i == 1 || i == 4) && enhancement) continue;
-		    double v = volts[1]+(volts[2]-volts[1])*i/segments;
+		    double v = nodes[1].volts+(nodes[2].volts-nodes[1].volts)*i/segments;
 		    if (!power)
 			setVoltageColor(g, v);
 		    interpPoint(src[1], drn[1], ps1, i*segf);
@@ -136,15 +136,15 @@ package com.lushprojects.circuitjs1.client;
 		
 		// draw little extensions of that line
 		if (!power)
-		    setVoltageColor(g, volts[1]);
+		    setVoltageColor(g, nodes[1].volts);
 		drawThickLine(g, src[1], src[2]);
 		if (!power)
-		    setVoltageColor(g, volts[2]);
+		    setVoltageColor(g, nodes[2].volts);
 		drawThickLine(g, drn[1], drn[2]);
 		
 		// draw bulk connection
 		if (showBulk()) {
-		    setVoltageColor(g, volts[bodyTerminal]);
+		    setVoltageColor(g, nodes[bodyTerminal].volts);
 		    if (!hasBodyTerminal())
 			drawThickLine(g, pnp == -1 ? drn[0] : src[0], body[0]);
 		    drawThickLine(g, body[0], body[1]);
@@ -152,14 +152,14 @@ package com.lushprojects.circuitjs1.client;
 		
 		// draw arrow
 		if (!drawDigital()) {
-		    setVoltageColor(g, volts[bodyTerminal]);
+		    setVoltageColor(g, nodes[bodyTerminal].volts);
 		    g.fillPolygon(arrowPoly);
 		}
 		if (power)
 		    g.setColor(Color.gray);
 		
 		// draw gate
-		setVoltageColor(g, volts[0]);
+		setVoltageColor(g, nodes[0].volts);
 		drawThickLine(g, point1, gate[1]);
 		drawThickLine(g, gate[0], gate[2]);
 		if (drawDigital() && pnp == -1)
@@ -212,7 +212,7 @@ package com.lushprojects.circuitjs1.client;
 	
 	double getCurrent() { return ids; }
 	double getPower() {
-	    return ids*(volts[2]-volts[1]) - diodeCurrent1*(volts[1]-volts[bodyTerminal]) - diodeCurrent2*(volts[2]-volts[bodyTerminal]);
+	    return ids*(nodes[2].volts-nodes[1].volts) - diodeCurrent1*(nodes[1].volts-nodes[bodyTerminal].volts) - diodeCurrent2*(nodes[2].volts-nodes[bodyTerminal].volts);
 	    }
 	int getPostCount() { return hasBodyTerminal() ? 4 : 3; }
 
@@ -338,14 +338,12 @@ package com.lushprojects.circuitjs1.client;
 	// this is called in doStep to stamp the matrix, and also called in stepFinished() to calculate the current
 	void calculate(boolean finished) {
 	    double vs[];
-	    if (finished)
-		vs = volts;
-	    else {
+	    vs = new double[3];
+	    vs[0] = nodes[0].volts;
+	    vs[1] = nodes[1].volts;
+	    vs[2] = nodes[2].volts;
+	    if (!finished) {
 		// limit voltage changes to .5V
-		vs = new double[3];
-		vs[0] = volts[0];
-		vs[1] = volts[1];
-		vs[2] = volts[2];
 		if (vs[1] > lastv1 + .5)
 		    vs[1] = lastv1 + .5;
 		if (vs[1] < lastv1 - .5)
@@ -402,10 +400,10 @@ package com.lushprojects.circuitjs1.client;
 	    }
 	    
 	    if (doBodyDiode()) {
-		diodeB1.doStep(pnp*(volts[bodyTerminal]-volts[1]));
-		diodeCurrent1 = diodeB1.calculateCurrent(pnp*(volts[bodyTerminal]-volts[1]))*pnp;
-		diodeB2.doStep(pnp*(volts[bodyTerminal]-volts[2]));
-		diodeCurrent2 = diodeB2.calculateCurrent(pnp*(volts[bodyTerminal]-volts[2]))*pnp;
+		diodeB1.doStep(pnp*(nodes[bodyTerminal].volts-nodes[1].volts));
+		diodeCurrent1 = diodeB1.calculateCurrent(pnp*(nodes[bodyTerminal].volts-nodes[1].volts))*pnp;
+		diodeB2.doStep(pnp*(nodes[bodyTerminal].volts-nodes[2].volts));
+		diodeCurrent2 = diodeB2.calculateCurrent(pnp*(nodes[bodyTerminal].volts-nodes[2].volts))*pnp;
 	    } else
 		diodeCurrent1 = diodeCurrent2 = 0;
 
@@ -438,8 +436,8 @@ package com.lushprojects.circuitjs1.client;
 	    arr[0] += " (Vt=" + getVoltageText(pnp*vt);
 	    arr[0] += ", \u03b2=" + beta + ")";
 	    arr[1] = ((pnp == 1) ? "Ids = " : "Isd = ") + getCurrentText(ids);
-	    arr[2] = "Vgs = " + getVoltageText(volts[0]-volts[pnp == -1 ? 2 : 1]);
-	    arr[3] = ((pnp == 1) ? "Vds = " : "Vsd = ") + getVoltageText(volts[2]-volts[1]);
+	    arr[2] = "Vgs = " + getVoltageText(nodes[0].volts-nodes[pnp == -1 ? 2 : 1].volts);
+	    arr[3] = ((pnp == 1) ? "Vds = " : "Vsd = ") + getVoltageText(nodes[2].volts-nodes[1].volts);
 	    arr[4] = sim.LS((mode == 0) ? "off" :
 		(mode == 1) ? "linear" : "saturation");
 	    arr[5] = "gm = " + getUnitText(gm, "A/V");
@@ -454,7 +452,7 @@ package com.lushprojects.circuitjs1.client;
 	    return sim.LS(((pnp == -1) ? "p-" : "n-") + "MOSFET");
 	}
 	boolean canViewInScope() { return true; }
-	double getVoltageDiff() { return volts[2] - volts[1]; }
+	double getVoltageDiff() { return nodes[2].volts - nodes[1].volts; }
 	boolean getConnection(int n1, int n2) {
 	    return !(n1 == 0 || n2 == 0);
 	}

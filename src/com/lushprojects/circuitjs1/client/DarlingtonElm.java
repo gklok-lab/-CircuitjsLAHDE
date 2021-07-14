@@ -50,18 +50,18 @@ public class DarlingtonElm extends CompositeElm {
 	setBbox(point1, point2, 16);
 	setPowerColor(g, true);
 	// draw collector
-	setVoltageColor(g, volts[1]);
+	setVoltageColor(g, nodes[1].volts);
 	drawThickLine(g, coll[0], coll[1]);
 	drawThickLine(g, coll2[0], coll2[1]);
 	drawThickLine(g, coll[0], coll2[0]);
 	// draw emitter
-	setVoltageColor(g, volts[2]);
+	setVoltageColor(g, nodes[2].volts);
 	drawThickLine(g, emit[0], emit[1]);
 	// draw arrow
 	g.setColor(lightGrayColor);
 	g.fillPolygon(arrowPoly);
 	// draw base
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	if (sim.powerCheckItem.getState())
 	    g.setColor(Color.gray);
 	drawThickLine(g, point1, base);
@@ -73,7 +73,7 @@ public class DarlingtonElm extends CompositeElm {
 	curcount_e = updateDotCount(getCurrentIntoNode(2), curcount_e);
 	drawDots(g, emit[1], emit[0], curcount_e);
 	// draw base rectangle
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	setPowerColor(g, true);
 	g.fillPolygon(rectPoly);
 
@@ -97,9 +97,9 @@ public class DarlingtonElm extends CompositeElm {
 
     void getInfo(String arr[]) {
 	arr[0] = sim.LS("darlington pair") + " (" + ((pnp == -1) ? "PNP)" : "NPN)");
-	double vbc = volts[0] - volts[1];
-	double vbe = volts[0] - volts[2];
-	double vce = volts[1] - volts[2];
+	double vbc = nodes[0].volts - nodes[1].volts;
+	double vbe = nodes[0].volts - nodes[2].volts;
+	double vce = nodes[1].volts - nodes[2].volts;
 	arr[1] = "Ic = " + getCurrentText(-getCurrentIntoNode(1));
 	arr[2] = "Ib = " + getCurrentText(-getCurrentIntoNode(0));
 	arr[3] = "Vbe = " + getVoltageText(vbe);

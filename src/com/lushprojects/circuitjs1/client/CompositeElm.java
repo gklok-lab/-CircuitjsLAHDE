@@ -94,7 +94,6 @@ public abstract class CompositeElm extends CircuitElm {
 		// node = 0 means ground
 		if (nodeOfThisPost == 0) {
 		    newce.setNode(thisPost, sim.groundNode);
-		    newce.setNodeVoltage(thisPost, 0);
 		    thisPost++;
 		    continue;
 		}
@@ -342,17 +341,6 @@ public abstract class CompositeElm extends CircuitElm {
 	    cnLinks.get(i).elm.setNode(cnLinks.get(i).num, n);
 	}
 
-    }
-
-    public void setNodeVoltage(int n, double c) {
-	// volts[n] = c;
-	Vector<CircuitNodeLink> cnLinks;
-	super.setNodeVoltage(n, c);
-	cnLinks = compNodeList.get(n).links;
-	for (int i = 0; i < cnLinks.size(); i++) {
-	    cnLinks.get(i).elm.setNodeVoltage(cnLinks.get(i).num, c);
-	}
-	volts[n]=c;
     }
 
     public boolean canViewInScope() {

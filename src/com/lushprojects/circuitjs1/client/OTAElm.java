@@ -55,13 +55,13 @@ public class OTAElm extends CompositeElm {
 
     void draw(Graphics g) {
 	setBbox(point1, point2, 3 * opheight / 2);
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	drawThickLine(g, in1p[0], in1p[1]);
-	setVoltageColor(g, volts[1]);
+	setVoltageColor(g, nodes[1].volts);
 	drawThickLine(g, in2p[0], in2p[1]);
-	setVoltageColor(g, volts[2]);
+	setVoltageColor(g, nodes[2].volts);
 	drawThickLine(g, in3p[0], in3p[1]);
-	setVoltageColor(g, volts[3]);
+	setVoltageColor(g, nodes[3].volts);
 	drawThickLine(g, in4p[0], in4p[1]);
 	g.setColor(needsHighlight() ? selectColor : lightGrayColor);
 	setPowerColor(g, true);
@@ -75,7 +75,7 @@ public class OTAElm extends CompositeElm {
 	g.setFont(plusFont);
 	drawCenteredText(g, "+", textp[0].x, textp[0].y - 2, true);
 	drawCenteredText(g, "-", textp[1].x, textp[1].y, true);
-	// setVoltageColor(g, volts[2]);
+	// setVoltageColor(g, nodes[2].volts);
 	// drawThickLine(g, lead2, point2);
 	curCount0 = updateDotCount(-getCurrentIntoNode(0), curCount0);
 	drawDots(g, in1p[0], in1p[1], curCount0);
@@ -153,7 +153,7 @@ public class OTAElm extends CompositeElm {
     void getInfo(String arr[]) {
 	arr[0] = "OTA (LM13700 style)";
 	arr[1] = "Iabc = " + getCurrentText(-getCurrentIntoNode(3));
-	arr[2] = "V+ - V- = " + getVoltageText(volts[0] - volts[1]);
+	arr[2] = "V+ - V- = " + getVoltageText(nodes[0].volts - nodes[1].volts);
     }
 
     public EditInfo getEditInfo(int n) {

@@ -220,7 +220,7 @@ class CCCSElm extends VCCSElm {
             int j;
             for (j = 0; j != inputCount; j += 2)
         	arr[i++] = pins[j].text + " = " + getCurrentText(-pins[j].current);
-            arr[i++] = pins[j].text + " = " + getVoltageText(volts[j]) + "; " + pins[j+1].text + " = " + getVoltageText(volts[j+1]);
+            arr[i++] = pins[j].text + " = " + getVoltageText(nodes[j].volts) + "; " + pins[j+1].text + " = " + getVoltageText(nodes[j+1].volts);
             arr[i++] = "I = " + getCurrentText(pins[j].current);
             arr[i++] = null;
         }

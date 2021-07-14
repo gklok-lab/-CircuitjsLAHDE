@@ -32,11 +32,11 @@ class SchmittElm extends InvertingSchmittElm{
 
 	int getDumpType() { return 182; }
 	void doStep() {
-	    double v0 = volts[1];
+	    double v0 = nodes[1].volts;
 	    double out;
 		if(state)
 		{//Output is high
-			if(volts[0]>upperTrigger)//Input voltage high enough to set output high
+			if(nodes[0].volts>upperTrigger)//Input voltage high enough to set output high
 			{
 			state=false;
 			out=logicOnLevel;
@@ -48,7 +48,7 @@ class SchmittElm extends InvertingSchmittElm{
 		}
 		else
 		{//Output is low
-			if(volts[0]<lowerTrigger)//Input voltage low enough to set output low
+			if(nodes[0].volts<lowerTrigger)//Input voltage low enough to set output low
 			{
 			state=true;
 			out=logicOffLevel;

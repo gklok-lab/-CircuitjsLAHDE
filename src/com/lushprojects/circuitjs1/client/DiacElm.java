@@ -83,8 +83,8 @@ class DiacElm extends CircuitElm {
     }
     
     void draw(Graphics g) {
-	double v1 = volts[0];
-	double v2 = volts[1];
+	double v1 = nodes[0].volts;
+	double v2 = nodes[1].volts;
 	setBbox(point1, point2, 6);
 	draw2Leads(g);
 	setVoltageColor(g, v1);
@@ -104,10 +104,10 @@ class DiacElm extends CircuitElm {
     
     void calculateCurrent() {
 	double r = (state) ? onresistance : offresistance;
-	current = (volts[0]-volts[2])/r + (volts[0]-volts[3])/r;
+	current = (nodes[0].volts-nodes[2].volts)/r + (nodes[0].volts-nodes[3].volts)/r;
     }
     void startIteration() {
-	double vd = volts[0] - volts[1];
+	double vd = nodes[0].volts - nodes[1].volts;
 	if(Math.abs(current) < holdcurrent) state = false;	
 	if(Math.abs(vd) > breakdown) state = true;
     }
@@ -115,8 +115,8 @@ class DiacElm extends CircuitElm {
 	double r = (state) ? onresistance : offresistance;
 	sim.stampResistor(nodes[0], nodes[2], r);
 	sim.stampResistor(nodes[0], nodes[3], r);
-	diode1.doStep(volts[2]-volts[1]);
-	diode2.doStep(volts[1]-volts[3]);
+	diode1.doStep(nodes[2].volts-nodes[1].volts);
+	diode2.doStep(nodes[1].volts-nodes[3].volts);
     }
     void stamp() {
 	sim.stampNonLinear(nodes[0]);

@@ -69,7 +69,7 @@ package com.lushprojects.circuitjs1.client;
 	void execute() {
 	    int i;
 	    
-	    // if we just loaded then the volts[] array is likely to be all zeroes, which might force us to do a reset, so defer execution until the next iteration
+	    // if we just loaded then the nodes[].volts array is likely to be all zeroes, which might force us to do a reset, so defer execution until the next iteration
 	    if (justLoaded) {
 		justLoaded = false;
 		return;

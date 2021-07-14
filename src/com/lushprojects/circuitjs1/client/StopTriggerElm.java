@@ -55,7 +55,7 @@ package com.lushprojects.circuitjs1.client;
 	    setBbox(point1, lead1, 0);
 	    String s = sim.LS("trigger");
 	    drawLabeledNode(g, s, point1, lead1);
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    if (selected)
 		g.setColor(selectColor);
 	    drawThickLine(g, point1, lead1);
@@ -63,7 +63,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	void stepFinished() {
 	    stopped = false;
-	    if (!triggered && ((type == 0 && volts[0] >= triggerVoltage) || (type == 1 && volts[0] <= triggerVoltage))) {
+	    if (!triggered && ((type == 0 && nodes[0].volts >= triggerVoltage) || (type == 1 && nodes[0].volts <= triggerVoltage))) {
 		triggered = true;
 		triggerTime = sim.t;
 	    }
@@ -74,10 +74,10 @@ package com.lushprojects.circuitjs1.client;
 	    }
 	}
 	
-	double getVoltageDiff() { return volts[0]; }
+	double getVoltageDiff() { return nodes[0].volts; }
 	void getInfo(String arr[]) {
 	    arr[0] = "stop trigger";
-	    arr[1] = "V = " + getVoltageText(volts[0]);
+	    arr[1] = "V = " + getVoltageText(nodes[0].volts);
 	    arr[2] = "Vtrigger = " + getVoltageText(triggerVoltage);
 	    arr[3] = (triggered) ? ("stopping in " + getUnitText(triggerTime+delay-sim.t, "s")) : (stopped) ? "stopped" : "waiting";
 	}

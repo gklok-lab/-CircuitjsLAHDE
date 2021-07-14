@@ -48,8 +48,8 @@ import com.google.gwt.canvas.dom.client.CanvasGradient;
 	    int ox = 0;
 	    //int hs = sim.euroResistorCheckItem.getState() ? 6 : 8;
 	    int hs=6;
-	    double v1 = volts[0];
-	    double v2 = volts[1];
+	    double v1 = nodes[0].volts;
+	    double v2 = nodes[1].volts;
 	    setBbox(point1, point2, hs);
 	    draw2Leads(g);
 	    
@@ -90,7 +90,8 @@ import com.google.gwt.canvas.dom.client.CanvasGradient;
 	}
 
 	void calculateCurrent() {
-	    current = (volts[0]-volts[1])/resistance;
+	    current = (nodes[0].volts-nodes[1].volts)/resistance;
+	    sim.debugger();
 	    //System.out.print(this + " res current set to " + current + "\n");
 	}
 	void stamp() {

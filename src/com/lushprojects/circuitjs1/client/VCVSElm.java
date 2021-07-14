@@ -63,49 +63,49 @@ package com.lushprojects.circuitjs1.client;
             // converged yet?
             double convergeLimit = getConvergeLimit();
             for (i = 0; i != inputCount; i++) {
-        	if (Math.abs(volts[i]-lastVolts[i]) > convergeLimit)
+        	if (Math.abs(nodes[i].volts-lastVolts[i]) > convergeLimit)
         	    sim.converged = false;
-//        	if (Double.isNaN(volts[i]))
-//        	    volts[i] = 0;
+//        	if (Double.isNaN(nodes[i].volts))
+//        	    nodes[i].volts = 0;
             }
             VoltageSource vn = pins[inputCount].voltSource;
             if (expr != null) {
         	// calculate output
         	for (i = 0; i != inputCount; i++)
-        	    exprState.values[i] = volts[i];
+        	    exprState.values[i] = nodes[i].volts;
         	exprState.t = sim.t;
         	double v0 = expr.eval(exprState);
-        	if (Math.abs(volts[inputCount]-volts[inputCount+1]-v0) > Math.abs(v0)*.01 && sim.subIterations < 100)
+        	if (Math.abs(nodes[inputCount].volts-nodes[inputCount+1].volts-v0) > Math.abs(v0)*.01 && sim.subIterations < 100)
         	    sim.converged = false;
         	double rs = v0;
         	
         	// calculate and stamp output derivatives
         	for (i = 0; i != inputCount; i++) {
-        	    double dv = volts[i]-lastVolts[i];
+        	    double dv = nodes[i].volts-lastVolts[i];
         	    if (Math.abs(dv) < 1e-6)
         		dv = 1e-6;
-        	    exprState.values[i] = volts[i];
+        	    exprState.values[i] = nodes[i].volts;
         	    double v = expr.eval(exprState);
-        	    exprState.values[i] = volts[i]-dv;
+        	    exprState.values[i] = nodes[i].volts-dv;
         	    double v2 = expr.eval(exprState);
         	    double dx = (v-v2)/dv;
         	    if (Math.abs(dx) < 1e-6)
         		dx = sign(dx, 1e-6);
 //        	    if (sim.subIterations > 1)
-//        		sim.console("ccedx " + i + " " + dx + " v " + v + " v2 " + v2 + " dv " + dv + " lv " + lastVolts[i] + " " + volts[i] + " " + sim.subIterations + " " + sim.t);
+//        		sim.console("ccedx " + i + " " + dx + " v " + v + " v2 " + v2 + " dv " + dv + " lv " + lastVolts[i] + " " + nodes[i].volts + " " + sim.subIterations + " " + sim.t);
         	    sim.stampMatrix(vn,  nodes[i], -dx);
         	    // adjust right side
-        	    rs -= dx*volts[i];
-        	    exprState.values[i] = volts[i];
+        	    rs -= dx*nodes[i].volts;
+        	    exprState.values[i] = nodes[i].volts;
         	}
         	sim.stampRightSide(vn, rs);
             }
 
             for (i = 0; i != inputCount; i++)
-        	lastVolts[i] = volts[i];
+        	lastVolts[i] = nodes[i].volts;
         }
         void stepFinished() {
-            exprState.updateLastValues(volts[inputCount]-volts[inputCount+1]);
+            exprState.updateLastValues(nodes[inputCount].volts-nodes[inputCount+1].volts);
         }
 	int getPostCount() { return inputCount+2; }
 	int getVoltageSourceCount() { return 1; }

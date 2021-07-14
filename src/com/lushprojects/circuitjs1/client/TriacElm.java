@@ -69,7 +69,7 @@ class TriacElm extends CircuitElm {
     boolean nonLinear() { return true; }
     
     void reset() {
-	volts[mt1node] = volts[mt2node] = volts[gnode] = 0;
+	nodes[mt1node].volts = nodes[mt2node].volts = nodes[gnode].volts = 0;
 	diode03.reset();
 	diode30.reset();
 	curcount_1 = curcount_2 = curcount_g = 0;
@@ -136,8 +136,8 @@ class TriacElm extends CircuitElm {
     }
     
     void draw(Graphics g) {
-	double v1 = volts[0];
-	double v2 = volts[1];
+	double v1 = nodes[0].volts;
+	double v2 = nodes[1].volts;
 	setBbox(point1, point2, 6);
 	adjustBbox(gate[0], gate[1]);
 	
@@ -152,7 +152,7 @@ class TriacElm extends CircuitElm {
 	setVoltageColor(g, v1);
 	setPowerColor(g, true);
 	g.fillPolygon(arrows[1]);
-	setVoltageColor(g, volts[gnode]);
+	setVoltageColor(g, nodes[gnode].volts);
 	
 	drawThickLine(g, lead2,   gate[0]);
 	drawThickLine(g, gate[0], gate[1]);
@@ -214,14 +214,14 @@ class TriacElm extends CircuitElm {
     }
     
     void doStep() {
-	diode03.doStep(volts[mt2node]-volts[mtinode]);
-	diode30.doStep(volts[mtinode]-volts[mt2node]);
+	diode03.doStep(nodes[mt2node].volts-nodes[mtinode].volts);
+	diode30.doStep(nodes[mtinode].volts-nodes[mt2node].volts);
 	sim.stampResistor(nodes[mtinode], nodes[mt1node], aresistance);
     }
     void getInfo(String arr[]) {
 	arr[0] = "TRIAC";
 	arr[1] = (state) ? "on" : "off";
-	arr[2] = "Vmt2mt1 = " + getVoltageText(volts[mt2node]-volts[mt1node]);
+	arr[2] = "Vmt2mt1 = " + getVoltageText(nodes[mt2node].volts-nodes[mt1node].volts);
 	arr[3] = "Imt1 = " + getCurrentText(i1);
 	arr[4] = "Imt2 = " + getCurrentText(i2);
 	arr[5] = "Ig = " + getCurrentText(ig);
@@ -232,12 +232,12 @@ class TriacElm extends CircuitElm {
 	if (aresistance == 0)
 	    i2 = 0;
 	else
-	    i2 = (volts[mtinode]-volts[mt1node])/aresistance;
-	ig = -(volts[mt1node]-volts[gnode])/cresistance;
+	    i2 = (nodes[mtinode].volts-nodes[mt1node].volts)/aresistance;
+	ig = -(nodes[mt1node].volts-nodes[gnode].volts)/cresistance;
 	i1 = -i2-ig;
     }
     double getPower() {
-	return (volts[mt2node]-volts[mt1node])*i2 + (volts[gnode]-volts[mt1node])*ig;
+	return (nodes[mt2node].volts-nodes[mt1node].volts)*i2 + (nodes[gnode].volts-nodes[mt1node].volts)*ig;
     }
     public EditInfo getEditInfo(int n) {
 	if (n == 0)
@@ -257,7 +257,7 @@ class TriacElm extends CircuitElm {
             cresistance = ei.value;
     }
     boolean canViewInScope() { return true; }
-    double getVoltageDiff() { return volts[mt2node] - volts[mt1node]; }
+    double getVoltageDiff() { return nodes[mt2node].volts - nodes[mt1node].volts; }
     double getCurrent() { return i2; } // for scope
 }
 

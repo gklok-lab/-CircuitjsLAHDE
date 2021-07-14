@@ -178,16 +178,16 @@ class CustomTransformerElm extends CircuitElm {
 	    
 	    // draw taps
 	    for (i = 0; i != getPostCount(); i++) {
-		setVoltageColor(g, volts[i]);
+		setVoltageColor(g, nodes[i].volts);
 		drawThickLine(g, nodePoints[i], nodeTaps[i]);
 	    }
 	    
 	    // draw coils
 	    for (i = 0; i != coilCount; i++) {
 		int n = coilNodes[i];
-		setVoltageColor(g, volts[n]);
-		setPowerColor(g, coilCurrents[i]*(volts[n]-volts[n+1]));
-		drawCoil(g, (i >= primaryCoils ? -6 : 6), nodeTaps[n], nodeTaps[n+1], volts[n], volts[n+1]);
+		setVoltageColor(g, nodes[n].volts);
+		setPowerColor(g, coilCurrents[i]*(nodes[n].volts-nodes[n+1].volts));
+		drawCoil(g, (i >= primaryCoils ? -6 : 6), nodeTaps[n], nodeTaps[n+1], nodes[n].volts, nodes[n+1].volts);
 		if (dots != null) {
 		    g.setColor(needsHighlight() ? selectColor : lightGrayColor);
 		    g.fillOval(dots[i].x-2, dots[i].y-2, 5, 5);
@@ -278,7 +278,7 @@ class CustomTransformerElm extends CircuitElm {
 	    for (i = 0; i != coilCount; i++)
 		coilCurrents[i] = coilCurSourceValues[i] = coilCurCounts[i] = 0;
 	    for (i = 0; i != nodeCount; i++)
-		volts[i] = nodeCurrents[i] = nodeCurCounts[i] = 0;
+		nodes[i].volts = nodeCurrents[i] = nodeCurCounts[i] = 0;
 	}
 	double xformMatrix[][];
 	
@@ -342,7 +342,7 @@ class CustomTransformerElm extends CircuitElm {
 		    int j;
 		    for (j = 0; j != coilCount; j++) {
 			int n = coilNodes[j];
-			double voltdiff = volts[n]-volts[n+1];
+			double voltdiff = nodes[n].volts-nodes[n+1].volts;
 			val += voltdiff*xformMatrix[i][j];
 		    }
 		}
@@ -368,7 +368,7 @@ class CustomTransformerElm extends CircuitElm {
 		    int j;
 		    for (j = 0; j != coilCount; j++) {
 			int n = coilNodes[j];
-			double voltdiff = volts[n]-volts[n+1];
+			double voltdiff = nodes[n].volts-nodes[n+1].volts;
 			val += voltdiff*xformMatrix[i][j];
 		    }
 		}
@@ -391,7 +391,7 @@ class CustomTransformerElm extends CircuitElm {
 		if (2+i*2 >= arr.length)
 		    break;
 		int ni = coilNodes[i];
-		arr[2+i*2] = "Vd" + (i+1) + " = " + getVoltageText(volts[ni]-volts[ni+1]);
+		arr[2+i*2] = "Vd" + (i+1) + " = " + getVoltageText(nodes[ni].volts-nodes[ni+1].volts);
 		arr[3+i*2] = "I" + (i+1) + " = " + getCurrentText(coilCurrents[i]);
 	    }
 	}

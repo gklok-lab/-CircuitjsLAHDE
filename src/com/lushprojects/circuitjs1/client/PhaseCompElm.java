@@ -45,8 +45,8 @@ class PhaseCompElm extends ChipElm {
     }
     boolean ff1, ff2;
     void doStep() {
-	boolean v1 = volts[0] > 2.5;
-	boolean v2 = volts[1] > 2.5;
+	boolean v1 = nodes[0].volts > 2.5;
+	boolean v2 = nodes[1].volts > 2.5;
 	if (v1 && !pins[0].value)
 	    ff1 = true;
 	if (v2 && !pins[1].value)

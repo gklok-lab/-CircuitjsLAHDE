@@ -76,9 +76,6 @@ public abstract class CircuitElm implements Editable {
     // lead points (ends of wire stubs for simple two-terminal elements)  
     Point lead1, lead2;
     
-    // voltages at each node
-    double volts[];
-    
     double current, curcount;
     Rectangle boundingBox;
     
@@ -164,11 +161,7 @@ public abstract class CircuitElm implements Editable {
     // allocate nodes/volts arrays we need
     void allocNodes() {
 	int n = getPostCount() + getInternalNodeCount();
-	// preserve voltages if possible
-	if (nodes == null || nodes.length != n) {
-	    nodes = new CircuitNode[n];
-	    volts = new double[n];
-	}
+	nodes = new CircuitNode[n];
     }
     
     // dump component state for export/undo
@@ -180,9 +173,6 @@ public abstract class CircuitElm implements Editable {
     
     // handle reset button
     void reset() {
-	int i;
-	for (i = 0; i != getPostCount()+getInternalNodeCount(); i++)
-	    volts[i] = 0;
 	curcount = 0;
     }
     void draw(Graphics g) {}
@@ -210,13 +200,7 @@ public abstract class CircuitElm implements Editable {
     void startIteration() {}
     
     // get voltage of x'th node
-    double getPostVoltage(int x) { return volts[x]; }
-    
-    // set voltage of x'th node, called by simulator logic
-    void setNodeVoltage(int n, double c) {
-	volts[n] = c;
-	calculateCurrent();
-    }
+    double getPostVoltage(int x) { return nodes[x].volts; }
     
     // calculate current in response to node voltages changing
     void calculateCurrent() {}
@@ -311,11 +295,11 @@ public abstract class CircuitElm implements Editable {
     
     void draw2Leads(Graphics g) {
 	// draw first lead
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	drawThickLine(g, point1, lead1);
 
 	// draw second lead
-	setVoltageColor(g, volts[1]);
+	setVoltageColor(g, nodes[1].volts);
 	drawThickLine(g, lead2, point2);
     }
     Point [] newPointArray(int n) {
@@ -523,7 +507,7 @@ public abstract class CircuitElm implements Editable {
 //    int getVoltageSource() { return voltSource; } // Never used except for debug code which is commented out
     
     double getVoltageDiff() {
-	return volts[0] - volts[1];
+	return nodes[0].volts - nodes[1].volts;
     }
     boolean nonLinear() { return false; }
     int getPostCount() { return 2; }

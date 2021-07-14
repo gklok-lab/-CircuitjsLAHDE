@@ -71,34 +71,34 @@ class TimerElm extends ChipElm {
     void calculateCurrent() {
 	// need current for V, discharge, control, ground; output current is
 	// calculated for us, and other pins have no current.
-	pins[N_VIN].current = (volts[N_CTL]-volts[N_VIN])/5000;
-	double groundVolts = hasGroundPin() ? volts[N_GND] : 0;
-	pins[N_CTL].current = -(volts[N_CTL]-groundVolts)/10000 - pins[N_VIN].current;
-	pins[N_DIS].current = (!out) ? -(volts[N_DIS]-groundVolts)/10 : 0;
-	pins[N_OUT].current = -(volts[N_OUT]-(out ? volts[N_VIN] : groundVolts));
+	pins[N_VIN].current = (nodes[N_CTL].volts-nodes[N_VIN].volts)/5000;
+	double groundVolts = hasGroundPin() ? nodes[N_GND].volts : 0;
+	pins[N_CTL].current = -(nodes[N_CTL].volts-groundVolts)/10000 - pins[N_VIN].current;
+	pins[N_DIS].current = (!out) ? -(nodes[N_DIS].volts-groundVolts)/10 : 0;
+	pins[N_OUT].current = -(nodes[N_OUT].volts-(out ? nodes[N_VIN].volts : groundVolts));
 	if (out)
 	    pins[N_VIN].current -= pins[N_OUT].current;
 	if (hasGroundPin()) {
-	    pins[N_GND].current = (volts[N_CTL]-groundVolts)/10000;
+	    pins[N_GND].current = (nodes[N_CTL].volts-groundVolts)/10000;
 	    if (!out)
-		pins[N_GND].current += (volts[N_DIS]-groundVolts)/10 + (volts[N_OUT]-groundVolts);
+		pins[N_GND].current += (nodes[N_DIS].volts-groundVolts)/10 + (nodes[N_OUT].volts-groundVolts);
 	}
     }
     boolean out;
     void startIteration() {
-	out = volts[N_OUT] > volts[N_VIN]/2;
+	out = nodes[N_OUT].volts > nodes[N_VIN].volts/2;
 	// check comparators
-	if (volts[N_THRES] > volts[N_CTL])
+	if (nodes[N_THRES].volts > nodes[N_CTL].volts)
 		out = false;
 	
 	// trigger overrides threshold
-	if (volts[N_CTL]/2 > volts[N_TRIG])
+	if (nodes[N_CTL].volts/2 > nodes[N_TRIG].volts)
 	    out = true;
 	
-	double groundVolts = hasGroundPin() ? volts[N_GND] : 0;
+	double groundVolts = hasGroundPin() ? nodes[N_GND].volts : 0;
 	
 	// reset overrides trigger
-	if (hasReset() && volts[N_RST] < .7+groundVolts)
+	if (hasReset() && nodes[N_RST].volts < .7+groundVolts)
 	    out = false;
     }
     void doStep() {

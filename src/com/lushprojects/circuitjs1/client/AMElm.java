@@ -71,7 +71,7 @@ class AMElm extends CircuitElm {
 
     void draw(Graphics g) {
 	setBbox(point1, point2, circleSize);
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	drawThickLine(g, point1, lead1);
 
 	    Font f = new Font("SansSerif", 0, 12);
@@ -104,7 +104,7 @@ class AMElm extends CircuitElm {
 	lead1 = interpPoint(point1, point2, 1-circleSize/dn);
     }
     
-    double getVoltageDiff() { return volts[0]; }
+    double getVoltageDiff() { return nodes[0].volts; }
    
     boolean hasGroundConnection(int n1) { return true; }
 	

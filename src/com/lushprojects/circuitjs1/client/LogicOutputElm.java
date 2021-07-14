@@ -56,20 +56,20 @@ package com.lushprojects.circuitjs1.client;
 	    g.setFont(f);
 	    //g.setColor(needsHighlight() ? selectColor : lightGrayColor);
 	    g.setColor(lightGrayColor);
-	    String s = (volts[0] < threshold) ? "L" : "H";
+	    String s = (nodes[0].volts < threshold) ? "L" : "H";
 	    if (isTernary()) {
-		if (volts[0] > 3.75)
+		if (nodes[0].volts > 3.75)
 		    s = "2";
-		else if (volts[0] > 1.25)
+		else if (nodes[0].volts > 1.25)
 		    s = "1";
 		else
 		    s = "0";
 	    } else if (isNumeric())
-		s = (volts[0] < threshold) ? "0" : "1";
+		s = (nodes[0].volts < threshold) ? "0" : "1";
 	    value = s;
 	    setBbox(point1, lead1, 0);
 	    drawCenteredText(g, s, x2, y2, true);
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, point1, lead1);
 	    drawPosts(g);
 	    g.setFont(oldf);
@@ -78,13 +78,13 @@ package com.lushprojects.circuitjs1.client;
 	    if (needsPullDown())
 		sim.stampResistor(nodes[0], sim.groundNode, 1e6);
 	}
-	double getVoltageDiff() { return volts[0]; }
+	double getVoltageDiff() { return nodes[0].volts; }
 	void getInfo(String arr[]) {
 	    arr[0] = "logic output";
-	    arr[1] = (volts[0] < threshold) ? "low" : "high";
+	    arr[1] = (nodes[0].volts < threshold) ? "low" : "high";
 	    if (isNumeric())
 		arr[1] = value;
-	    arr[2] = "V = " + getVoltageText(volts[0]);
+	    arr[2] = "V = " + getVoltageText(nodes[0].volts);
 	}
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0)

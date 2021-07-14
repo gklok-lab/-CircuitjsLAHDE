@@ -146,9 +146,9 @@ class PotElm extends CircuitElm implements Command, MouseWheelHandler {
 	int i;
 	int ox = 0;
 	int hs = sim.euroResistorCheckItem.getState() ? 6 : 8;
-	double v1 = volts[0];
-	double v2 = volts[1];
-	double v3 = volts[2];
+	double v1 = nodes[0].volts;
+	double v2 = nodes[1].volts;
+	double v3 = nodes[2].volts;
 	setBbox(point1, point2, hs);
 	draw2Leads(g);
 	setPowerColor(g, true);
@@ -271,8 +271,8 @@ class PotElm extends CircuitElm implements Command, MouseWheelHandler {
     void calculateCurrent() {
 	if (resistance1 == 0)
 	    return; // avoid NaN
-	current1 = (volts[0]-volts[2])/resistance1;
-	current2 = (volts[1]-volts[2])/resistance2;
+	current1 = (nodes[0].volts-nodes[2].volts)/resistance1;
+	current2 = (nodes[1].volts-nodes[2].volts)/resistance2;
 	current3 = -current1-current2;
     }
     

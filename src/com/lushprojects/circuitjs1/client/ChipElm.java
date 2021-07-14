@@ -45,13 +45,12 @@ abstract class ChipElm extends CircuitElm {
 	    setupPins();
 	    setSize((f & FLAG_SMALL) != 0 ? 1 : 2);
 	    int i;
-	    for (i = 0; i != getPostCount(); i++) {
-		if (pins == null)
-		    volts[i] = new Double(st.nextToken()).doubleValue();
-		else if (pins[i].state) {
-		    volts[i] = new Double(st.nextToken()).doubleValue();
-		    pins[i].value = volts[i] > 2.5;
-		}
+	    if (pins != null) {
+		for (i = 0; i != getPostCount(); i++)
+		    if (pins[i].state) {
+			double volts = new Double(st.nextToken()).doubleValue();
+			pins[i].value = volts > 2.5;
+		    }
 	    }
 	}
 	boolean needsBits() { return false; }
@@ -82,7 +81,7 @@ abstract class ChipElm extends CircuitElm {
 	    for (i = 0; i != getPostCount(); i++) {
 		g.setFont(f);
 		Pin p = pins[i];
-		setVoltageColor(g, volts[i]);
+		setVoltageColor(g, nodes[i].volts);
 		Point a = p.post;
 		Point b = p.stub;
 		drawThickLine(g, a, b);
@@ -246,7 +245,7 @@ abstract class ChipElm extends CircuitElm {
 	    for (i = 0; i != getPostCount(); i++) {
 		Pin p = pins[i];
 		if (!p.output)
-		    p.value = volts[i] > 2.5;
+		    p.value = nodes[i].volts > 2.5;
 	    }
 	    execute();
 	    for (i = 0; i != getPostCount(); i++) {
@@ -261,7 +260,6 @@ abstract class ChipElm extends CircuitElm {
 	    for (i = 0; i != getPostCount(); i++) {
 		pins[i].value = false;
 		pins[i].curcount = 0;
-		volts[i] = 0;
 	    }
 	    lastClock = false;
 	}
@@ -273,7 +271,7 @@ abstract class ChipElm extends CircuitElm {
 	    int i;
 	    for (i = 0; i != getPostCount(); i++) {
 		if (pins[i].state)
-		    s += " " + volts[i];
+		    s += " " + nodes[i].volts;
 	    }
 	    return s;
 	}
@@ -292,7 +290,7 @@ abstract class ChipElm extends CircuitElm {
 		    t += '\'';
 		if (p.clock)
 		    t = "Clk";
-		arr[a] += t + " = " + getVoltageText(volts[i]);
+		arr[a] += t + " = " + getVoltageText(nodes[i].volts);
 		if (i % 2 == 1)
 		    a++;
 	    }

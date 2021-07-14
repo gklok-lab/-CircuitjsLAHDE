@@ -49,8 +49,8 @@ package com.lushprojects.circuitjs1.client;
 	    calcLeads(32);
 	}
 	void draw(Graphics g) {
-	    double v1 = volts[0];
-	    double v2 = volts[1];
+	    double v1 = nodes[0].volts;
+	    double v2 = nodes[1].volts;
 	    int i;
 	    int hs = 8;
 	    setBbox(point1, point2, hs);
@@ -65,22 +65,23 @@ package com.lushprojects.circuitjs1.client;
 	    drawPosts(g);
 	}
 	void reset() {
-	    volts[0] = volts[1] = curcount = 0;
+	    nodes[0].volts = nodes[1].volts = curcount = 0;
 	    current = initialCurrent;
 	    ind.resetTo(initialCurrent);
 	}
 	void stamp() { ind.stamp(nodes[0], nodes[1]); }
 	void startIteration() {
-	    ind.startIteration(volts[0]-volts[1]);
+	    ind.startIteration();
+	}
+	void stepFinished() {
+	    ind.stepFinished();
 	}
 	boolean nonLinear() { return ind.nonLinear(); }
 	void calculateCurrent() {
-	    double voltdiff = volts[0]-volts[1];
-	    current = ind.calculateCurrent(voltdiff);
+	    current = ind.current;
 	}
 	void doStep() {
-	    double voltdiff = volts[0]-volts[1];
-	    ind.doStep(voltdiff);
+	    ind.doStep();
 	}
 	void getInfo(String arr[]) {
 	    arr[0] = "inductor";

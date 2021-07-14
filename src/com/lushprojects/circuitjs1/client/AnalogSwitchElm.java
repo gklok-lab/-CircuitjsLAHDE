@@ -66,7 +66,7 @@ class AnalogSwitchElm extends CircuitElm {
 	interpPoint(lead1, lead2, ps, 1, hs);
 	drawThickLine(g, lead1, ps);
 
-	setVoltageColor(g, volts[2]);
+	setVoltageColor(g, nodes[2].volts);
 	drawThickLine(g, point3, lead3);
 	    
 	if (!open)
@@ -74,7 +74,7 @@ class AnalogSwitchElm extends CircuitElm {
 	drawPosts(g);
     }
     void calculateCurrent() {
-	current = (volts[0]-volts[1])/resistance;
+	current = (nodes[0].volts-nodes[1].volts)/resistance;
     }
 	
     // we need this to be able to change the matrix for each step
@@ -85,7 +85,7 @@ class AnalogSwitchElm extends CircuitElm {
 	sim.stampNonLinear(nodes[1]);
     }
     void doStep() {
-	open = (volts[2] < 2.5);
+	open = (nodes[2].volts < 2.5);
 	if ((flags & FLAG_INVERT) != 0)
 	    open = !open;
 	resistance = (open) ? r_off : r_on;
@@ -114,7 +114,7 @@ class AnalogSwitchElm extends CircuitElm {
 	arr[1] = open ? "open" : "closed";
 	arr[2] = "Vd = " + getVoltageDText(getVoltageDiff());
 	arr[3] = "I = " + getCurrentDText(getCurrent());
-	arr[4] = "Vc = " + getVoltageText(volts[2]);
+	arr[4] = "Vc = " + getVoltageText(nodes[2].volts);
     }
     // we have to just assume current will flow either way, even though that
     // might cause singular matrix errors

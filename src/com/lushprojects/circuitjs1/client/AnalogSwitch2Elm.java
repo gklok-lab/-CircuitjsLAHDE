@@ -45,15 +45,15 @@ class AnalogSwitch2Elm extends AnalogSwitchElm {
 	setBbox(point1, point2, openhs);
 
 	// draw first lead
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	drawThickLine(g, point1, lead1);
 
 	// draw second lead
-	setVoltageColor(g, volts[1]);
+	setVoltageColor(g, nodes[1].volts);
 	drawThickLine(g, swpoles[0], swposts[0]);
 	    
 	// draw third lead
-	setVoltageColor(g, volts[2]);
+	setVoltageColor(g, nodes[2].volts);
 	drawThickLine(g, swpoles[1], swposts[1]);
 
 	// draw switch
@@ -74,9 +74,9 @@ class AnalogSwitch2Elm extends AnalogSwitchElm {
 
     void calculateCurrent() {
 	if (open)
-	    current = (volts[0]-volts[2])/r_on;
+	    current = (nodes[0].volts-nodes[2].volts)/r_on;
 	else
-	    current = (volts[0]-volts[1])/r_on;
+	    current = (nodes[0].volts-nodes[1].volts)/r_on;
     }
 	
     void stamp() {
@@ -85,7 +85,7 @@ class AnalogSwitch2Elm extends AnalogSwitchElm {
 	sim.stampNonLinear(nodes[2]);
     }
     void doStep() {
-	open = (volts[3] < 2.5);
+	open = (nodes[3].volts < 2.5);
 	if ((flags & FLAG_INVERT) != 0)
 	    open = !open;
 	if (open) {

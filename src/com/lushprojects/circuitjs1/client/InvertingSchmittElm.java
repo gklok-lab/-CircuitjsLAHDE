@@ -102,11 +102,11 @@ package com.lushprojects.circuitjs1.client;
 	    sim.stampVoltageSource(sim.groundNode, nodes[1], voltSource);
 	}
 	void doStep() {
-	    double v0 = volts[1];
+	    double v0 = nodes[1].volts;
 	    double out;
 		if(state)
 		{//Output is high
-			if(volts[0]>upperTrigger)//Input voltage high enough to set output low
+			if(nodes[0].volts>upperTrigger)//Input voltage high enough to set output low
 			{
 			state=false;
 			out=logicOffLevel;
@@ -118,7 +118,7 @@ package com.lushprojects.circuitjs1.client;
 		}
 		else
 		{//Output is low
-			if(volts[0]<lowerTrigger)//Input voltage low enough to set output high
+			if(nodes[0].volts<lowerTrigger)//Input voltage low enough to set output high
 			{
 			state=true;
 			out=logicOnLevel;
@@ -133,12 +133,12 @@ package com.lushprojects.circuitjs1.client;
 	    out = Math.max(Math.min(v0+maxStep, out), v0-maxStep);
 	    sim.updateVoltageSource(sim.groundNode, nodes[1], voltSource, out);
 	}
-	double getVoltageDiff() { return volts[0]; }
+	double getVoltageDiff() { return nodes[0].volts; }
 
 	void getInfo(String arr[]) {
 	    arr[0] = "inverting Schmitt trigger";
-	    arr[1] = "Vi = " + getVoltageText(volts[0]);
-	    arr[2] = "Vo = " + getVoltageText(volts[1]);
+	    arr[1] = "Vi = " + getVoltageText(nodes[0].volts);
+	    arr[2] = "Vo = " + getVoltageText(nodes[1].volts);
 	}
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0)

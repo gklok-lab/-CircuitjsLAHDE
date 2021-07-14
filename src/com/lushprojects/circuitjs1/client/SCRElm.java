@@ -47,9 +47,9 @@ class SCRElm extends CircuitElm {
 	try {
 	    lastvac = new Double(st.nextToken()).doubleValue();
 	    lastvag = new Double(st.nextToken()).doubleValue();
-	    volts[anode] = 0;
-	    volts[cnode] = -lastvac;
-	    volts[gnode] = -lastvag;
+	    nodes[anode].volts = 0;
+	    nodes[cnode].volts = -lastvac;
+	    nodes[gnode].volts = -lastvag;
 	    triggerI = new Double(st.nextToken()).doubleValue();
 	    holdingI = new Double(st.nextToken()).doubleValue();
 	    gresistance = new Double(st.nextToken()).doubleValue();
@@ -69,14 +69,14 @@ class SCRElm extends CircuitElm {
     }
     boolean nonLinear() { return true; }
     void reset() {
-	volts[anode] = volts[cnode] = volts[gnode] = 0;
+	nodes[anode].volts = nodes[cnode].volts = nodes[gnode].volts = 0;
 	diode.reset();
 	lastvag = lastvac = curcount_a = curcount_c = curcount_g = 0;
     }
     int getDumpType() { return 177; }
     String dump() {
-	return super.dump() + " " + (volts[anode]-volts[cnode]) + " " +
-	    (volts[anode]-volts[gnode]) + " " + triggerI + " "+  holdingI + " " +
+	return super.dump() + " " + (nodes[anode].volts-nodes[cnode].volts) + " " +
+	    (nodes[anode].volts-nodes[gnode].volts) + " " + triggerI + " "+  holdingI + " " +
 	    gresistance;
     }
     double ia, ic, ig, curcount_a, curcount_c, curcount_g;
@@ -133,8 +133,8 @@ class SCRElm extends CircuitElm {
 	setBbox(point1, point2, hs);
 	adjustBbox(gate[0], gate[1]);
 
-	double v1 = volts[anode];
-	double v2 = volts[cnode];
+	double v1 = nodes[anode].volts;
+	double v2 = nodes[cnode].volts;
 
 	draw2Leads(g);
 
@@ -143,7 +143,7 @@ class SCRElm extends CircuitElm {
 	setPowerColor(g, true);
 	g.fillPolygon(poly);
 
-	setVoltageColor(g, volts[gnode]);
+	setVoltageColor(g, nodes[gnode].volts);
 	drawThickLine(g, lead2,   gate[0]);
 	drawThickLine(g, gate[0], gate[1]);
 	
@@ -189,7 +189,7 @@ class SCRElm extends CircuitElm {
     int getPostCount() { return 3; }
     int getInternalNodeCount() { return 1; }
     double getPower() {
-	return (volts[anode]-volts[gnode])*ia + (volts[cnode]-volts[gnode])*ic;
+	return (nodes[anode].volts-nodes[gnode].volts)*ia + (nodes[cnode].volts-nodes[gnode].volts)*ic;
     }
 
     double aresistance;
@@ -203,26 +203,26 @@ class SCRElm extends CircuitElm {
     }
 
     void doStep() {
-	double vac = volts[anode]-volts[cnode]; // typically negative
-	double vag = volts[anode]-volts[gnode]; // typically positive
+	double vac = nodes[anode].volts-nodes[cnode].volts; // typically negative
+	double vag = nodes[anode].volts-nodes[gnode].volts; // typically positive
 	if (Math.abs(vac-lastvac) > .01 ||
 	    Math.abs(vag-lastvag) > .01)
 	    sim.converged = false;
 	lastvac = vac;
 	lastvag = vag;
-	diode.doStep(volts[inode]-volts[cnode]);
+	diode.doStep(nodes[inode].volts-nodes[cnode].volts);
 	double icmult = 1/triggerI;
 	double iamult = 1/holdingI - icmult;
 	//System.out.println(icmult + " " + iamult);
 	aresistance = (-icmult*ic + ia*iamult > 1) ? .0105 : 10e5;
-	//System.out.println(vac + " " + vag + " " + sim.converged + " " + ic + " " + ia + " " + aresistance + " " + volts[inode] + " " + volts[gnode] + " " + volts[anode]);
+	//System.out.println(vac + " " + vag + " " + sim.converged + " " + ic + " " + ia + " " + aresistance + " " + nodes[inode].volts + " " + nodes[gnode].volts + " " + nodes[anode].volts);
 	sim.stampResistor(nodes[anode], nodes[inode], aresistance);
     }
     void getInfo(String arr[]) {
 	arr[0] = "SCR";
-	double vac = volts[anode]-volts[cnode];
-	double vag = volts[anode]-volts[gnode];
-	double vgc = volts[gnode]-volts[cnode];
+	double vac = nodes[anode].volts-nodes[cnode].volts;
+	double vag = nodes[anode].volts-nodes[gnode].volts;
+	double vgc = nodes[gnode].volts-nodes[cnode].volts;
 	arr[1] = "Ia = " + getCurrentText(ia);
 	arr[2] = "Ig = " + getCurrentText(ig);
 	arr[3] = "Vac = " + getVoltageText(vac);
@@ -231,8 +231,8 @@ class SCRElm extends CircuitElm {
         arr[6] = "P = " + getUnitText(getPower(), "W");
     }
     void calculateCurrent() {
-	ig = (volts[gnode]-volts[cnode])/gresistance;
-	ia = (volts[anode]-volts[inode])/aresistance;
+	ig = (nodes[gnode].volts-nodes[cnode].volts)/gresistance;
+	ia = (nodes[anode].volts-nodes[inode].volts)/aresistance;
 	ic = -ig-ia;
     }
     public EditInfo getEditInfo(int n) {

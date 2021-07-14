@@ -91,7 +91,7 @@ package com.lushprojects.circuitjs1.client;
 	    setBbox(point1, point2, hs);
 	    
 	    // draw first lead and plate
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, point1, lead1);
 	    setPowerColor(g, false);
 	    drawThickLine(g, plate1[0], plate1[1]);
@@ -99,13 +99,13 @@ package com.lushprojects.circuitjs1.client;
 		g.setColor(Color.gray);
 
 	    // draw second lead and plate
-	    setVoltageColor(g, volts[1]);
+	    setVoltageColor(g, nodes[1].volts);
 	    drawThickLine(g, point2, lead2);
 	    setPowerColor(g, false);
 	    drawThickLine(g, plate2[0], plate2[1]);
 	    
 	    int i;
-	    setVoltageColor(g, .5*(volts[0]+volts[1]));	    
+	    setVoltageColor(g, .5*(nodes[0].volts+nodes[1].volts));	    
 	    for (i = 0; i != 4; i++)
 		drawThickLine(g,  sandwichPoints[i], sandwichPoints[(i+1) % 4]);
 	    

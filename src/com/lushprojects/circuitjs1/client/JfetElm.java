@@ -49,13 +49,13 @@ package com.lushprojects.circuitjs1.client;
 
 	void draw(Graphics g) {
 	    setBbox(point1, point2, hs);
-	    setVoltageColor(g, volts[1]);
+	    setVoltageColor(g, nodes[1].volts);
 	    drawThickLine(g, src[0], src[1]);
 	    drawThickLine(g, src[1], src[2]);
-	    setVoltageColor(g, volts[2]);
+	    setVoltageColor(g, nodes[2].volts);
 	    drawThickLine(g, drn[0], drn[1]);
 	    drawThickLine(g, drn[1], drn[2]);
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, point1, gatePt);
 	    g.fillPolygon(arrowPoly);
 	    setPowerColor(g, true);
@@ -116,11 +116,11 @@ package com.lushprojects.circuitjs1.client;
 	
 	void doStep() {
 	    super.doStep();
-	    diode.doStep(pnp*(volts[0]-volts[1]));
+	    diode.doStep(pnp*(nodes[0].volts-nodes[1].volts));
 	}
 	
 	void calculateCurrent() {
-	    gateCurrent = pnp*diode.calculateCurrent(pnp*(volts[0]-volts[1]));
+	    gateCurrent = pnp*diode.calculateCurrent(pnp*(nodes[0].volts-nodes[1].volts));
 	}
 
 	boolean showBulk() { return false; }

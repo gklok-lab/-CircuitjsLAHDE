@@ -218,7 +218,7 @@ public class EditCompositeModelDialog extends DialogBox implements MouseDownHand
 	    for (int i = 0; i != postCount; i++) {
 		ExtListEntry pin = model.extList.get(i);
 		chip.setPin(i, pin.pos, pin.side, pin.name);
-		chip.volts[i] = 0;
+		chip.nodes[i].volts = 0;
 		if (i == selectedPin)
 		    chip.pins[i].selected = true;
 	    }

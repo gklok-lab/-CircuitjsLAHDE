@@ -129,13 +129,13 @@ class RelayElm extends CircuitElm {
     void draw(Graphics g) {
 	int i, p;
 	for (i = 0; i != 2; i++) {
-	    setVoltageColor(g, volts[nCoil1+i]);
+	    setVoltageColor(g, nodes[nCoil1+i].volts);
 	    drawThickLine(g, coilLeads[i], coilPosts[i]);
 	}
 	int x = ((flags & FLAG_SWAP_COIL) != 0) ? 1 : 0;
-	setPowerColor(g, coilCurrent * (volts[nCoil1]-volts[nCoil2]));
+	setPowerColor(g, coilCurrent * (nodes[nCoil1].volts-nodes[nCoil2].volts));
 	drawCoil(g, dsign*6, coilLeads[x], coilLeads[1-x],
-		 volts[nCoil1+x], volts[nCoil2-x]);
+		 nodes[nCoil1+x].volts, nodes[nCoil2-x].volts);
 
 	// draw rectangle
 	if ((flags & FLAG_SHOW_BOX) != 0) {
@@ -167,12 +167,12 @@ class RelayElm extends CircuitElm {
 	    int po = p*3;
 	    for (i = 0; i != 3; i++) {
 		// draw lead
-		setVoltageColor(g, volts[nSwitch0+po+i]);
+		setVoltageColor(g, nodes[nSwitch0+po+i].volts);
 		drawThickLine(g, swposts[p][i], swpoles[p][i]);
 	    }
 	    
 	    interpPoint(swpoles[p][1], swpoles[p][2], ptSwitch[p], d_position);
-	    //setVoltageColor(g, volts[nSwitch0]);
+	    //setVoltageColor(g, nodes[nSwitch0].volts);
 	    g.setColor(Color.lightGray);
 	    drawThickLine(g, swpoles[p][0], ptSwitch[p]);
 	    switchCurCount[p] = updateDotCount(switchCurrent[p],
@@ -305,7 +305,7 @@ class RelayElm extends CircuitElm {
 	    startIterationOld();
 	    return;
 	}
-	ind.startIteration(volts[nCoil1]-volts[nCoil3]);
+	ind.startIteration();
 	double absCurrent = Math.abs(coilCurrent);
 	
 	if (onState) {
@@ -335,7 +335,7 @@ class RelayElm extends CircuitElm {
     }
     
     void startIterationOld() {
-	ind.startIteration(volts[nCoil1]-volts[nCoil3]);
+	ind.startIteration();
 
 	// magic value to balance operate speed with reset speed not at all realistically
 	double magic = 1.3;
@@ -360,8 +360,7 @@ class RelayElm extends CircuitElm {
     boolean nonLinear() { return true; }
 
     void doStep() {
-	double voltdiff = volts[nCoil1]-volts[nCoil3];
-	ind.doStep(voltdiff);
+	ind.doStep();
 	int p;
 	for (p = 0; p != poleCount*3; p += 3) {
 	    sim.stampResistor(nodes[nSwitch0+p], nodes[nSwitch1+p],
@@ -370,9 +369,13 @@ class RelayElm extends CircuitElm {
 			      i_position == 1 ? r_on : r_off);
 	}
     }
+    
+    void stepFinished() {
+	ind.stepFinished();
+    }
+    
     void calculateCurrent() {
-	double voltdiff = volts[nCoil1]-volts[nCoil3];
-	coilCurrent = ind.calculateCurrent(voltdiff);
+	coilCurrent = ind.current;
 
 	// actually this isn't correct, since there is a small amount
 	// of current through the switch when off
@@ -382,7 +385,7 @@ class RelayElm extends CircuitElm {
 		switchCurrent[p] = 0;
 	    else
 		switchCurrent[p] =
-		    (volts[nSwitch0+p*3]-volts[nSwitch1+p*3+i_position])/r_on;
+		    (nodes[nSwitch0+p*3].volts-nodes[nSwitch1+p*3+i_position].volts)/r_on;
 	}
     }
     void getInfo(String arr[]) {
@@ -399,7 +402,7 @@ class RelayElm extends CircuitElm {
 	    arr[ln++] = "I" + (i+1) + " = " + getCurrentDText(switchCurrent[i]);
 	arr[ln++] = sim.LS("coil I") + " = " + getCurrentDText(coilCurrent);
 	arr[ln++] = sim.LS("coil Vd") + " = " +
-	    getVoltageDText(volts[nCoil1] - volts[nCoil2]);
+	    getVoltageDText(nodes[nCoil1].volts - nodes[nCoil2].volts);
     }
     public EditInfo getEditInfo(int n) {
 	if (n == 0)

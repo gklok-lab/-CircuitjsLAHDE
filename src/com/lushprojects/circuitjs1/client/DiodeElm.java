@@ -119,16 +119,16 @@ class DiodeElm extends CircuitElm {
 	
     void reset() {
 	diode.reset();
-	volts[0] = volts[1] = curcount = 0;
+	nodes[0].volts = nodes[1].volts = curcount = 0;
 	if (hasResistance)
-	    volts[2] = 0;
+	    nodes[2].volts = 0;
     }
 	
     void drawDiode(Graphics g) {
 	setBbox(point1, point2, hs);
 
-	double v1 = volts[0];
-	double v2 = volts[1];
+	double v1 = nodes[0].volts;
+	double v2 = nodes[1].volts;
 
 	draw2Leads(g);
 
@@ -154,10 +154,10 @@ class DiodeElm extends CircuitElm {
 	    diode.stamp(nodes[0], nodes[1]);
     }
     void doStep() {
-	diode.doStep(volts[0]-volts[diodeEndNode]);
+	diode.doStep(nodes[0].volts-nodes[diodeEndNode].volts);
     }
     void calculateCurrent() {
-	current = diode.calculateCurrent(volts[0]-volts[diodeEndNode]);
+	current = diode.calculateCurrent(nodes[0].volts-nodes[diodeEndNode].volts);
     }
     void getInfo(String arr[]) {
 	if (model.oldStyle)

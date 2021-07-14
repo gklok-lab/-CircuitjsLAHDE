@@ -65,7 +65,7 @@ package com.lushprojects.circuitjs1.client;
 	    flags |= (s == 1) ? FLAG_SMALL : 0;
 	}
 	String dump() {
-	    return super.dump() + " " + inputCount + " " + volts[inputCount] + " " + highVoltage;
+	    return super.dump() + " " + inputCount + " " + nodes[inputCount].volts + " " + highVoltage;
 	}
 	Point inPosts[], inGates[];
 	boolean inputStates[];
@@ -92,7 +92,7 @@ package com.lushprojects.circuitjs1.client;
 		    i0++;
 		inPosts[i] = interpPoint(point1, point2, 0, hs*i0);
 		inGates[i] = interpPoint(lead1,  lead2,  0, hs*i0);
-		volts[i] = (lastOutput ^ isInverting()) ? 5 : 0;
+//		nodes[i].volts = (lastOutput ^ isInverting()) ? 5 : 0;
 	    }
 	    hs2 = gwidth*(inputCount/2+1);
 	    setBbox(point1, point2, hs2);
@@ -113,10 +113,10 @@ package com.lushprojects.circuitjs1.client;
 	void draw(Graphics g) {
 	    int i;
 	    for (i = 0; i != inputCount; i++) {
-		setVoltageColor(g, volts[i]);
+		setVoltageColor(g, nodes[i].volts);
 		drawThickLine(g, inPosts[i], inGates[i]);
 	    }
-	    setVoltageColor(g, volts[inputCount]);
+	    setVoltageColor(g, nodes[inputCount].volts);
 	    drawThickLine(g, lead2, point2);
 	    g.setColor(needsHighlight() ? selectColor : lightGrayColor);
 	    drawThickPolygon(g, gatePoly);
@@ -149,7 +149,7 @@ package com.lushprojects.circuitjs1.client;
 	abstract String getGateName();
 	void getInfo(String arr[]) {
 	    arr[0] = getGateName();
-	    arr[1] = "Vout = " + getVoltageText(volts[inputCount]);
+	    arr[1] = "Vout = " + getVoltageText(nodes[inputCount].volts);
 	    arr[2] = "Iout = " + getCurrentText(getCurrent());
 	}
 	void stamp() {
@@ -158,8 +158,8 @@ package com.lushprojects.circuitjs1.client;
 	boolean hasSchmittInputs() { return (flags & FLAG_SCHMITT) != 0; }
 	boolean getInput(int x) {
 	    if (!hasSchmittInputs())
-		return volts[x] > highVoltage*.5;
-	    boolean res = volts[x] > highVoltage*(inputStates[x] ? .35 : .55);
+		return nodes[x].volts > highVoltage*.5;
+	    boolean res = nodes[x].volts > highVoltage*(inputStates[x] ? .35 : .55);
 	    inputStates[x] = res;
 	    return res;
 	}

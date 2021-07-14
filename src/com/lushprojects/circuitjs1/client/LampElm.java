@@ -98,8 +98,8 @@ package com.lushprojects.circuitjs1.client;
 	}
 	
 	void draw(Graphics g) {
-	    double v1 = volts[0];
-	    double v2 = volts[1];
+	    double v1 = nodes[0].volts;
+	    double v2 = nodes[1].volts;
 	    setBbox(point1, point2, 4);
 	    adjustBbox(bulb.x-bulbR, bulb.y-bulbR,
 		       bulb.x+bulbR, bulb.y+bulbR);
@@ -132,7 +132,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 
 	void calculateCurrent() {
-	    current = (volts[0]-volts[1])/resistance;
+	    current = (nodes[0].volts-nodes[1].volts)/resistance;
 	    if (resistance == 0)
 		current = 0;
 //	    sim.console("lampcc " + current + " " + resistance);

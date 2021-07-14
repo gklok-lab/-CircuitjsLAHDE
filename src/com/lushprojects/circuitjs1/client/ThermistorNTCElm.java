@@ -113,8 +113,8 @@ class ThermistorNTCElm extends CircuitElm implements Command, MouseWheelHandler 
 	int i;
 	//int ox = 0;
 	int hs=6; //is this a width 
-	double v1 = volts[0];
-	double v2 = volts[1];
+	double v1 = nodes[0].volts;
+	double v2 = nodes[1].volts;
 	setBbox(point1, point2, hs); //the two points that are there when the device is being created
 	draw2Leads(g); //from point1 to lead1 and lead1 to point2 (lead1&2 are on the body) 
 	setPowerColor(g, true);
@@ -161,7 +161,7 @@ class ThermistorNTCElm extends CircuitElm implements Command, MouseWheelHandler 
     }
 
     void calculateCurrent() {
-	current = (volts[0]-volts[1])/resistance;
+	current = (nodes[0].volts-nodes[1].volts)/resistance;
     }
     void stamp() {
 	temperature = temprFromSliderPos(); //e.g. 190 - 40 for range -40 to +150

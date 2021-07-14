@@ -96,19 +96,19 @@ package com.lushprojects.circuitjs1.client;
 	double lastOutputVoltage;
 	
 	void startIteration() {
-	    lastOutputVoltage = volts[1];
+	    lastOutputVoltage = nodes[1].volts;
 	}
 	void doStep() {
-	    double out = volts[0] > highVoltage*.5 ? 0 : highVoltage;
+	    double out = nodes[0].volts > highVoltage*.5 ? 0 : highVoltage;
 	    double maxStep = slewRate * sim.timeStep * 1e9;
 	    out = Math.max(Math.min(lastOutputVoltage+maxStep, out), lastOutputVoltage-maxStep);
 	    sim.updateVoltageSource(sim.groundNode, nodes[1], voltSource, out);
 	}
-	double getVoltageDiff() { return volts[0]; }
+	double getVoltageDiff() { return nodes[0].volts; }
 	void getInfo(String arr[]) {
 	    arr[0] = "inverter";
-	    arr[1] = "Vi = " + getVoltageText(volts[0]);
-	    arr[2] = "Vo = " + getVoltageText(volts[1]);
+	    arr[1] = "Vi = " + getVoltageText(nodes[0].volts);
+	    arr[2] = "Vo = " + getVoltageText(nodes[1].volts);
 	}
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0)

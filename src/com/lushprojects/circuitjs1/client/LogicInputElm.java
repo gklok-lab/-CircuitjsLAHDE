@@ -63,7 +63,7 @@ package com.lushprojects.circuitjs1.client;
 		s = "" + position;
 	    setBbox(point1, lead1, 0);
 	    drawCenteredText(g, s, x2, y2, true);
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, point1, lead1);
 	    updateDotCount();
 	    drawDots(g, point1, lead1, -curcount);
@@ -91,13 +91,13 @@ package com.lushprojects.circuitjs1.client;
 	    sim.updateVoltageSource(sim.groundNode, nodes[0], voltSource, v);
 	}
 	int getVoltageSourceCount() { return 1; }
-	double getVoltageDiff() { return volts[0]; }
+	double getVoltageDiff() { return nodes[0].volts; }
 	void getInfo(String arr[]) {
 	    arr[0] = "logic input";
 	    arr[1] = (position == 0) ? "low" : "high";
 	    if (isNumeric())
 		arr[1] = "" + position;
-	    arr[1] += " (" + getVoltageText(volts[0]) + ")";
+	    arr[1] += " (" + getVoltageText(nodes[0].volts) + ")";
 	    arr[2] = "I = " + getCurrentText(getCurrent());
 	} 
 	boolean hasGroundConnection(int n1) { return true; }

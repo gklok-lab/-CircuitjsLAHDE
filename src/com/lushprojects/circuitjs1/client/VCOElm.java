@@ -58,8 +58,8 @@ package com.lushprojects.circuitjs1.client;
 	double cCurrent;
 	int cDir;
 	void doStep() {
-	    double vc = volts[3]-volts[2];
-	    double vo = volts[1];
+	    double vc = nodes[3].volts-nodes[2].volts;
+	    double vo = nodes[1].volts;
 	    int dir = (vo < 2.5) ? 1 : -1;
 	    // switch direction of current through cap as we oscillate
 	    if (vo < 2.5 && vc > 4.5) {
@@ -90,7 +90,7 @@ package com.lushprojects.circuitjs1.client;
 	    if (cResistance == 0)
 		return;
 	    double c = cDir*(pins[4].current + pins[5].current) +
-		(volts[3]-volts[2])/cResistance;
+		(nodes[3].volts-nodes[2].volts)/cResistance;
 	    pins[2].current = -c;
 	    pins[3].current = c;
 	    pins[0].current = -pins[4].current;

@@ -25,6 +25,7 @@ class CircuitNode {
     Vector<CircuitNodeLink> links;
     boolean internal;
     int index;
+    double volts;
     CircuitNode() { links = new Vector<CircuitNodeLink>(); }
 }
 

@@ -64,15 +64,15 @@ package com.lushprojects.circuitjs1.client;
 	void draw(Graphics g) {
 	    int i;
 	    for (i = 0; i != 5; i++) {
-		setVoltageColor(g, volts[i]);
+		setVoltageColor(g, nodes[i].volts);
 		drawThickLine(g, ptEnds[i], ptCoil[i]);
 	    }
 	    for (i = 0; i != 4; i++) {
 		if (i == 1)
 		    continue;
-		setPowerColor(g, current[i]*(volts[i]-volts[i+1]));
+		setPowerColor(g, current[i]*(nodes[i].volts-nodes[i+1].volts));
 		drawCoil(g, i > 1 ? -6 : 6,
-			 ptCoil[i], ptCoil[i+1], volts[i], volts[i+1]);
+			 ptCoil[i], ptCoil[i+1], nodes[i].volts, nodes[i+1].volts);
 	    }
 	    g.setColor(needsHighlight() ? selectColor : lightGrayColor);
 	    for (i = 0; i != 4; i += 2) {
@@ -127,8 +127,8 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getPostCount() { return 5; }
 	void reset() {
-	    current[0] = current[1] = current[2] = current[3] = volts[0] = volts[1] = volts[2] =
-		volts[3] = volts[4] = curcount[0] = curcount[1] = curcount[2] = 0;
+	    current[0] = current[1] = current[2] = current[3] = nodes[0].volts = nodes[1].volts = nodes[2].volts =
+		nodes[3].volts = nodes[4].volts = curcount[0] = curcount[1] = curcount[2] = 0;
 	    // need to set current-source values here in case one of the nodes is node 0.  In that case
 	    // calculateCurrent() may get called (from setNodeVoltage()) when analyzing circuit, before
 	    // startIteration() gets called
@@ -192,9 +192,9 @@ package com.lushprojects.circuitjs1.client;
 	}
 	boolean isTrapezoidal() { return (flags & Inductor.FLAG_BACK_EULER) == 0; }
 	void startIteration() {
-	    voltdiff[0] = volts[0]-volts[1];
-	    voltdiff[1] = volts[2]-volts[3];
-	    voltdiff[2] = volts[3]-volts[4];
+	    voltdiff[0] = nodes[0].volts-nodes[1].volts;
+	    voltdiff[1] = nodes[2].volts-nodes[3].volts;
+	    voltdiff[2] = nodes[3].volts-nodes[4].volts;
 	    int i, j;
 	    for (i = 0; i != 3; i++) {
 		curSourceValue[i] = current[i];
@@ -210,9 +210,9 @@ package com.lushprojects.circuitjs1.client;
 	    sim.stampCurrentSource(nodes[3], nodes[4], curSourceValue[2]);
  	}
 	void calculateCurrent() {
-	    voltdiff[0] = volts[0]-volts[1];
-	    voltdiff[1] = volts[2]-volts[3];
-	    voltdiff[2] = volts[3]-volts[4];
+	    voltdiff[0] = nodes[0].volts-nodes[1].volts;
+	    voltdiff[1] = nodes[2].volts-nodes[3].volts;
+	    voltdiff[2] = nodes[3].volts-nodes[4].volts;
 	    int i, j;
 	    for (i = 0; i != 3; i++) {
 		current[i] = curSourceValue[i];
@@ -227,9 +227,9 @@ package com.lushprojects.circuitjs1.client;
 	    arr[1] = "L = " + getUnitText(inductance, "H");
 	    arr[2] = "Ratio = " + ratio;
 	    //arr[3] = "I1 = " + getCurrentText(current1);
-	    arr[3] = "Vd1 = " + getVoltageText(volts[0]-volts[2]);
+	    arr[3] = "Vd1 = " + getVoltageText(nodes[0].volts-nodes[2].volts);
 	    //arr[5] = "I2 = " + getCurrentText(current2);
-	    arr[4] = "Vd2 = " + getVoltageText(volts[1]-volts[3]);
+	    arr[4] = "Vd2 = " + getVoltageText(nodes[1].volts-nodes[3].volts);
 	}
 	@Override double getCurrentIntoNode(int n) {
 	    if (n == 0)

@@ -63,22 +63,21 @@ class Inductor {
     }
     boolean nonLinear() { return false; }
 
-    void startIteration(double voltdiff) {
+    void startIteration() {
+	double voltdiff = nodes[0].volts-nodes[1].volts;
 	if (isTrapezoidal())
 	    curSourceValue = voltdiff/compResistance+current;
 	else // backward euler
 	    curSourceValue = current;
     }
     
-    double calculateCurrent(double voltdiff) {
-	// we check compResistance because this might get called
-	// before stamp(), which sets compResistance, causing
-	// infinite current
-	if (compResistance > 0)
-	    current = voltdiff/compResistance + curSourceValue;
-	return current;
+    void stepFinished() {
+	double voltdiff = nodes[0].volts-nodes[1].volts;
+	current = voltdiff/compResistance + curSourceValue;
     }
-    void doStep(double voltdiff) {
+    
+    void doStep() {
+	double voltdiff = nodes[0].volts-nodes[1].volts;
 	sim.stampCurrentSource(nodes[0], nodes[1], curSourceValue);
     }
 }

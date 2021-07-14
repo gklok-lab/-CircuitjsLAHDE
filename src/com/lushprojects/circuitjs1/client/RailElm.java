@@ -54,7 +54,7 @@ class RailElm extends VoltageElm {
             w = dn*.8;
 	lead1 = interpPoint(point1, point2, 1-w/dn);
 	setBbox(point1, point2, circleSize);
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	drawThickLine(g, point1, lead1);
 	drawRail(g);
 	drawPosts(g);
@@ -89,7 +89,7 @@ class RailElm extends VoltageElm {
 	drawLabeledNode(g, s, point1, lead1);
     }
     
-    double getVoltageDiff() { return volts[0]; }
+    double getVoltageDiff() { return nodes[0].volts; }
     void stamp() {
 	if (waveform == WF_DC)
 	    sim.stampVoltageSource(sim.groundNode, nodes[0], voltSource, getVoltage());

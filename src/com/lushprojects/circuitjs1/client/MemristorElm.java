@@ -61,8 +61,8 @@ class MemristorElm extends CircuitElm {
 	int segments = 6;
 	int i;
 	int ox = 0;
-	double v1 = volts[0];
-	double v2 = volts[1];
+	double v1 = nodes[0].volts;
+	double v2 = nodes[1].volts;
 	int hs = 2+(int) (8*(1-dopeWidth/totalWidth));
 	setBbox(point1, point2, hs);
 	draw2Leads(g);
@@ -92,7 +92,7 @@ class MemristorElm extends CircuitElm {
     
     boolean nonLinear() { return true; }
     void calculateCurrent() {
-	current = (volts[0]-volts[1])/resistance;
+	current = (nodes[0].volts-nodes[1].volts)/resistance;
     }
     void reset() {
 	dopeWidth = 0;

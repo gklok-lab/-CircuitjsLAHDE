@@ -125,7 +125,7 @@ class WattmeterElm extends CircuitElm {
 	    curcounts[i] = updateDotCount(currents[i], curcounts[i]);
 	double flip = 1;
 	for (i = 0; i != 4; i++) {
-	    setVoltageColor(g, volts[i]);
+	    setVoltageColor(g, nodes[i].volts);
 	    drawThickLine(g, posts[i], inner[i]);
 	    drawDots(g, posts[i], inner[i], curcounts[i/2]*flip);
 	    flip *= -1;
@@ -177,5 +177,5 @@ class WattmeterElm extends CircuitElm {
     }
     boolean canViewInScope() { return true; }
     double getCurrent() { return currents[1]; }
-    double getVoltageDiff() { return volts[2]-volts[0]; }
+    double getVoltageDiff() { return nodes[2].volts-nodes[0].volts; }
 }

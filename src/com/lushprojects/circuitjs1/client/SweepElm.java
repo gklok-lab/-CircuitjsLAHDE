@@ -54,7 +54,7 @@ class SweepElm extends CircuitElm {
     }
     void draw(Graphics g) {
 	setBbox(point1, point2, circleSize);
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	drawThickLine(g, point1, lead1);
 	g.setColor(needsHighlight() ? selectColor : Color.gray);
 	setPowerColor(g, false);
@@ -150,13 +150,13 @@ class SweepElm extends CircuitElm {
 	sim.updateVoltageSource(sim.groundNode, nodes[0], voltSource, v);
     }
 	
-    double getVoltageDiff() { return volts[0]; }
+    double getVoltageDiff() { return nodes[0].volts; }
     int getVoltageSourceCount() { return 1; }
     boolean hasGroundConnection(int n1) { return true; }
     void getInfo(String arr[]) {
 	arr[0] = "sweep " + (((flags & FLAG_LOG) == 0) ? "(linear)" : "(log)");
 	arr[1] = "I = " + getCurrentDText(getCurrent());
-	arr[2] = "V = " + getVoltageText(volts[0]);
+	arr[2] = "V = " + getVoltageText(nodes[0].volts);
 	arr[3] = "f = " + getUnitText(frequency, "Hz");
 	arr[4] = "range = " + getUnitText(minF, "Hz") + " .. " +
 	    getUnitText(maxF, "Hz");

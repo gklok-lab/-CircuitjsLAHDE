@@ -113,11 +113,11 @@ class ProbeElm extends CircuitElm {
 	boolean selected = needsHighlight();
 	double len = (selected || sim.dragElm == this || mustShowVoltage()) ? 16 : dn-32;
 	calcLeads((int) len);
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	if (selected)
 	    g.setColor(selectColor);
 	drawThickLine(g, point1, lead1);
-	setVoltageColor(g, volts[1]);
+	setVoltageColor(g, nodes[1].volts);
 	if (selected)
 	    g.setColor(selectColor);
 	drawThickLine(g, lead2, point2);

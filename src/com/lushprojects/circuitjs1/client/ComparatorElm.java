@@ -41,9 +41,9 @@ public class ComparatorElm extends CompositeElm {
 	
 	void draw(Graphics g) {
 	    setBbox(point1, point2, opheight*2);
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    drawThickLine(g, in1p[0], in1p[1]);
-	    setVoltageColor(g, volts[1]);
+	    setVoltageColor(g, nodes[1].volts);
 	    drawThickLine(g, in2p[0], in2p[1]);
 	    g.setColor(needsHighlight() ? selectColor : lightGrayColor);
 	    setPowerColor(g, true);
@@ -52,7 +52,7 @@ public class ComparatorElm extends CompositeElm {
 	    drawCenteredText(g, "-", textp[0].x, textp[0].y-2, true);
 	    drawCenteredText(g, "+", textp[1].x, textp[1].y  , true);
 	    drawCenteredText(g, "\u2265?", textp[2].x, textp[2].y  , true);
-	    setVoltageColor(g, volts[2]);
+	    setVoltageColor(g, nodes[2].volts);
 	    drawThickLine(g, lead2, point2);
 	    curcount = updateDotCount(-getCurrentIntoNode(2), curcount);
 	    drawDots(g, point2, lead2, curcount);
@@ -90,7 +90,7 @@ public class ComparatorElm extends CompositeElm {
     
     void getInfo(String arr[]) {
 	 arr[0] = "Comparator";
-	    arr[1] = "V+ = " + getVoltageText(volts[1]);
-	    arr[2] = "V- = " + getVoltageText(volts[0]);
+	    arr[1] = "V+ = " + getVoltageText(nodes[1].volts);
+	    arr[2] = "V- = " + getVoltageText(nodes[0].volts);
     }
 }

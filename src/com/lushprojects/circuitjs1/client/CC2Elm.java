@@ -43,8 +43,8 @@ package com.lushprojects.circuitjs1.client;
 	}
 	void getInfo(String arr[]) {
 	    arr[0] = (gain == 1) ? "CCII+~" : "CCII-~"; // ~ is for localization
-	    arr[1] = "X,Y = " + getVoltageText(volts[0]);
-	    arr[2] = "Z = " + getVoltageText(volts[2]);
+	    arr[1] = "X,Y = " + getVoltageText(nodes[0].volts);
+	    arr[2] = "Z = " + getVoltageText(nodes[2].volts);
 	    arr[3] = "I = " + getCurrentText(pins[0].current);
 	}
 	//boolean nonLinear() { return true; }

@@ -142,7 +142,7 @@ package com.lushprojects.circuitjs1.client;
     Polygon arrowPoly;
     void draw(Graphics g) {
         super.draw(g);//BC required for highlighting
-        setVoltageColor(g, volts[0]);
+        setVoltageColor(g, nodes[0].volts);
         drawThickLine(g, point1, point2);
         g.fillPolygon(arrowPoly);
         doDots(g);
@@ -180,7 +180,7 @@ package com.lushprojects.circuitjs1.client;
         }    
     }
     double getPower() { return 0; }
-    double getVoltageDiff() { return volts[0]; }
+    double getVoltageDiff() { return nodes[0].volts; }
     
     // do not optimize out, even though isWireEquivalent() is true
     // (because we need current calculated every timestep)    

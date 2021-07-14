@@ -76,7 +76,7 @@ package com.lushprojects.circuitjs1.client;
 	
 	void stepFinished() {
 	    boolean oldState = poweredState;
-	    poweredState = (volts[0]-volts[1] > 2.5);
+	    poweredState = (nodes[0].volts-nodes[1].volts > 2.5);
 	    if (oldState != poweredState)
 		lastTransition = sim.t;
 	    if (sim.t > lastTransition + (poweredState ? onDelay : offDelay))
@@ -84,8 +84,8 @@ package com.lushprojects.circuitjs1.client;
 	}
 	
 	void draw(Graphics g) {
-	    pins[0].current = -(volts[0]-volts[1])/vinResistance;
-	    pins[2].current = -(volts[2]-volts[3])/resistance;
+	    pins[0].current = -(nodes[0].volts-nodes[1].volts)/vinResistance;
+	    pins[2].current = -(nodes[2].volts-nodes[3].volts)/resistance;
 	    pins[1].current = -pins[0].current;
 	    pins[3].current = -pins[2].current;
 	    drawChip(g);

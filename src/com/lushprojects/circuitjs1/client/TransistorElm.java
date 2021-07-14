@@ -50,9 +50,9 @@ class TransistorElm extends CircuitElm {
 	    try {
 		lastvbe = new Double(st.nextToken()).doubleValue();
 		lastvbc = new Double(st.nextToken()).doubleValue();
-		volts[0] = 0;
-		volts[1] = -lastvbe;
-		volts[2] = -lastvbc;
+		nodes[0].volts = 0;
+		nodes[1].volts = -lastvbe;
+		nodes[2].volts = -lastvbc;
 		beta = new Double(st.nextToken()).doubleValue();
 		modelName = CustomLogicModel.unescape(st.nextToken());
 	    } catch (Exception e) {
@@ -68,13 +68,13 @@ class TransistorElm extends CircuitElm {
 	}
 	boolean nonLinear() { return true; }
 	void reset() {
-	    volts[0] = volts[1] = volts[2] = 0;
+	    nodes[0].volts = nodes[1].volts = nodes[2].volts = 0;
 	    lastvbc = lastvbe = curcount_c = curcount_e = curcount_b = 0;
 	}
 	int getDumpType() { return 't'; }
 	String dump() {
-	    return super.dump() + " " + pnp + " " + (volts[0]-volts[1]) + " " +
-		(volts[0]-volts[2]) + " " + beta + " " + CustomLogicModel.escape(modelName);
+	    return super.dump() + " " + pnp + " " + (nodes[0].volts-nodes[1].volts) + " " +
+		(nodes[0].volts-nodes[2].volts) + " " + beta + " " + CustomLogicModel.escape(modelName);
 	}
 	
 	    public void updateModels() {
@@ -96,16 +96,16 @@ class TransistorElm extends CircuitElm {
 	    setBbox(point1, point2, 16);
 	    setPowerColor(g, true);
 	    // draw collector
-	    setVoltageColor(g, volts[1]);
+	    setVoltageColor(g, nodes[1].volts);
 	    drawThickLine(g, coll[0], coll[1]);
 	    // draw emitter
-	    setVoltageColor(g, volts[2]);
+	    setVoltageColor(g, nodes[2].volts);
 	    drawThickLine(g, emit[0], emit[1]);
 	    // draw arrow
 	    g.setColor(lightGrayColor);
 	    g.fillPolygon(arrowPoly);
 	    // draw base
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    if (sim.powerCheckItem.getState())
 		g.setColor(Color.gray);
 	    drawThickLine(g, point1, base);
@@ -117,7 +117,7 @@ class TransistorElm extends CircuitElm {
 	    curcount_e = updateDotCount(-ie, curcount_e);
 	    drawDots(g, emit[1], emit[0], curcount_e);
 	    // draw base rectangle
-	    setVoltageColor(g, volts[0]);
+	    setVoltageColor(g, nodes[0].volts);
 	    setPowerColor(g, true);
 	    g.fillPolygon(rectPoly);
 
@@ -138,7 +138,7 @@ class TransistorElm extends CircuitElm {
 	
 	int getPostCount() { return 3; }
 	double getPower() {
-	    return (volts[0]-volts[2])*ib + (volts[1]-volts[2])*ic;
+	    return (nodes[0].volts-nodes[2].volts)*ib + (nodes[1].volts-nodes[2].volts)*ic;
 	}
 
 	Point rect[], coll[], emit[], base;
@@ -204,8 +204,8 @@ class TransistorElm extends CircuitElm {
 	    sim.stampNonLinear(nodes[2]);
 	}
 	void doStep() {
-	    double vbc = pnp*(volts[0]-volts[1]); // typically negative
-	    double vbe = pnp*(volts[0]-volts[2]); // typically positive
+	    double vbc = pnp*(nodes[0].volts-nodes[1].volts); // typically negative
+	    double vbe = pnp*(nodes[0].volts-nodes[2].volts); // typically positive
 	    if (Math.abs(vbc-lastvbc) > .01 || // .01
 		Math.abs(vbe-lastvbe) > .01)
 		sim.converged = false;
@@ -369,9 +369,9 @@ class TransistorElm extends CircuitElm {
 	
 	void getInfo(String arr[]) {
 	    arr[0] = sim.LS("transistor") + " (" + ((pnp == -1) ? "PNP" : "NPN") + ", " + model.name + ", \u03b2=" + showFormat.format(beta) + ")";
-	    double vbc = volts[0]-volts[1];
-	    double vbe = volts[0]-volts[2];
-	    double vce = volts[1]-volts[2];
+	    double vbc = nodes[0].volts-nodes[1].volts;
+	    double vbe = nodes[0].volts-nodes[2].volts;
+	    double vce = nodes[1].volts-nodes[2].volts;
 	    if (vbc*pnp > .2)
 		arr[1] = vbe*pnp > .2 ? "saturation" : "reverse active";
 	    else
@@ -390,9 +390,9 @@ class TransistorElm extends CircuitElm {
 	    case Scope.VAL_IB: return ib;
 	    case Scope.VAL_IC: return ic;
 	    case Scope.VAL_IE: return ie;
-	    case Scope.VAL_VBE: return volts[0]-volts[2];
-	    case Scope.VAL_VBC: return volts[0]-volts[1];
-	    case Scope.VAL_VCE: return volts[1]-volts[2];
+	    case Scope.VAL_VBE: return nodes[0].volts-nodes[2].volts;
+	    case Scope.VAL_VBC: return nodes[0].volts-nodes[1].volts;
+	    case Scope.VAL_VCE: return nodes[1].volts-nodes[2].volts;
 	    case Scope.VAL_POWER: return getPower(); 
 	    }
 	    return 0;

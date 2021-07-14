@@ -180,7 +180,7 @@ class AudioInputElm extends RailElm {
 		arr[1] = "no file loaded";
 		return;
 	    }
-	    arr[1] = "V = " + getVoltageText(volts[0]);
+	    arr[1] = "V = " + getVoltageText(nodes[0].volts);
 	    arr[2] = "pos = " + getUnitText(timeOffset, "s");
 	    double dur = data.length() / (double)samplingRate;
 	    arr[3] = "dur = " + getUnitText(dur, "s");

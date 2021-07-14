@@ -109,7 +109,7 @@ class SwitchElm extends CircuitElm {
 	    arr[2] = "Vd = " + getVoltageDText(getVoltageDiff());
 	} else {
 	    arr[1] = "closed";
-	    arr[2] = "V = " + getVoltageText(volts[0]);
+	    arr[2] = "V = " + getVoltageText(nodes[0].volts);
 	    arr[3] = "I = " + getCurrentDText(getCurrent());
 	}
     }

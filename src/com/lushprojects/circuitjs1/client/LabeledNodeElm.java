@@ -110,7 +110,7 @@ class LabeledNodeElm extends CircuitElm {
     }
     
     void draw(Graphics g) {
-	setVoltageColor(g, volts[0]);
+	setVoltageColor(g, nodes[0].volts);
 	drawThickLine(g, point1, lead1);
 	g.setColor(needsHighlight() ? selectColor : whiteColor);
 	setPowerColor(g, false);
@@ -124,11 +124,11 @@ class LabeledNodeElm extends CircuitElm {
     }
     double getCurrentIntoNode(int n) { return -current; }
     void setCurrent(int x, double c) { current = c; }
-    double getVoltageDiff() { return volts[0]; }
+    double getVoltageDiff() { return nodes[0].volts; }
     void getInfo(String arr[]) {
 	arr[0] = text;
 	arr[1] = "I = " + getCurrentText(getCurrent());
-	arr[2] = "V = " + getVoltageText(volts[0]);
+	arr[2] = "V = " + getVoltageText(nodes[0].volts);
     }
 
     public EditInfo getEditInfo(int n) {

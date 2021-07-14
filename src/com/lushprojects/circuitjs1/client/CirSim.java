@@ -2005,10 +2005,6 @@ MouseOutHandler, MouseWheelHandler {
 		    CircuitNode cn = getCircuitNode(n);
 		    cn.links.addElement(cnl);
 		    ce.setNode(j, cn);
-		    // if it's the ground node, make sure the node voltage is 0,
-		    // cause it may not get set later
-		    if (n == 0)
-			ce.setNodeVoltage(j, 0);
 		}
 	    }
 	    for (j = 0; j != inodes; j++) {
@@ -2870,8 +2866,10 @@ MouseOutHandler, MouseWheelHandler {
 		scopeElmArr[i].stepScope();
 	    callTimeStepHook();
 	    // save last node voltages so we can restart the next iteration if necessary
-	    for (i = 0; i != lastNodeVoltages.length; i++)
-		lastNodeVoltages[i] = nodeVoltages[i];
+	    if (adjustTimeStep) {
+		for (i = 0; i != lastNodeVoltages.length; i++)
+		    lastNodeVoltages[i] = nodeVoltages[i];
+	    }
 //	    console("set lastrightside at " + t + " " + lastNodeVoltages);
 		
 	    tm = System.currentTimeMillis();
@@ -2921,10 +2919,7 @@ MouseOutHandler, MouseWheelHandler {
 	for (j = 0; j != nv.length; j++) {
 	    double res = nv[j];
 	    CircuitNode cn = getCircuitNode(j+1);
-	    for (k = 0; k != cn.links.size(); k++) {
-		CircuitNodeLink cnl = cn.links.elementAt(k);
-		cnl.elm.setNodeVoltage(cnl.num, res);
-	    }
+	    cn.volts = res;
 	}
     }
     
@@ -2937,6 +2932,8 @@ MouseOutHandler, MouseWheelHandler {
 	//for (i = 0; i != wireInfoList.size(); i++)
 	 //   wireInfoList.get(i).wire.setCurrent(-1, 1.23);
 	
+	for (i = 0; i != elmArr.length; i++)
+	    elmArr[i].calculateCurrent();
 	for (i = 0; i != wireInfoList.size(); i++) {
 	    WireInfo wi = wireInfoList.get(i);
 	    double cur = 0;
