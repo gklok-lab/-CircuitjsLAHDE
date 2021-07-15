@@ -1036,4 +1036,18 @@ public abstract class CircuitElm implements Editable {
 	y2 = oldy;
 	setPoints();
     }
+
+    void updateDigitalOutput(CircuitNode cn, VoltageSource vs, double val) {
+	if (cn.volts == val)
+	    return;
+	cn.volts = val;
+	int i;
+	for (i = 0; i != cn.links.size(); i++) {
+	    CircuitNodeLink cnl = cn.links.get(i);
+	    CircuitElm ce = cnl.elm;
+	    if (ce == this || ce.isWireEquivalent() || ce.isGraphicElm())
+		continue;
+	    sim.addToUpdateList(cnl.elm);
+	}
+    }
 }

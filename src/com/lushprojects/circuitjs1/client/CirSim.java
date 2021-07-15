@@ -219,6 +219,7 @@ MouseOutHandler, MouseWheelHandler {
 //    Vector setupList;
     CircuitElm dragElm, menuElm, stopElm;
     CircuitElm elmArr[];
+    CircuitElm sourceElmArr[];
     ScopeElm scopeElmArr[];
     private CircuitElm mouseElm=null;
     boolean didSwitch = false;
@@ -2290,6 +2291,7 @@ MouseOutHandler, MouseWheelHandler {
 	// also copy ScopeElms to an array to avoid a second pass over entire list of elms during simulation
 	int scopeElmCount = 0;
 	int elmArrCount = 0;
+	int sourceElmCount = 0;
 	for (i = 0; i != elmList.size(); i++) {
 	    CircuitElm ce = elmList.get(i);
 	    if (ce instanceof ScopeElm)
@@ -2300,14 +2302,20 @@ MouseOutHandler, MouseWheelHandler {
 	
 	elmArr = new CircuitElm[elmArrCount];
 	scopeElmArr = new ScopeElm[scopeElmCount];
-	int j = 0, k = 0;
+	sourceElmArr = new CircuitElm[0];
+	int j = 0, k = 0, p = 0;
 	for (i = 0; i != elmList.size(); i++) {
 	    CircuitElm ce = elmList.get(i);
 	    if (ce instanceof ScopeElm)
 		scopeElmArr[j++] = (ScopeElm) ce;
 	    if (!ce.isRemovableWire() && !ce.isGraphicElm())
 		elmArr[k++] = ce;
+	    if (ce instanceof VoltageElm && ((VoltageElm)ce).isDigitalSource())
+		sourceElmArr[p++] = ce;
 	}
+	updateList = new CircuitElm[0];
+	for (i = 0; i != elmArr.length; i++)
+	    updateList[i] = elmArr[i];
 
 	needsStamp = false;
     }
@@ -2613,6 +2621,17 @@ MouseOutHandler, MouseWheelHandler {
 	n2.volts = v;
     }
     
+    CircuitElm updateList[];
+    
+    void addToUpdateList(CircuitElm elm) {
+	int i;
+	for (i = 0; i != updateList.length; i++) {
+	    if (updateList[i] == elm)
+		return;
+	}
+	updateList[i] = elm;
+    }
+    
     void stampResistor(CircuitNode n1, CircuitNode n2, double r) {
 	double r0 = 1/r;
 	if (Double.isNaN(r0) || Double.isInfinite(r0)) {
@@ -2743,7 +2762,7 @@ MouseOutHandler, MouseWheelHandler {
 	boolean debugprint = dumpMatrix;
 	dumpMatrix = false;
 	long steprate = (long) (160*getIterCount());
-	steprate *= 20; // take this out, it maxes out the simulation speed
+	steprate *= 100; // take this out, it maxes out the simulation speed
 	long tm = System.currentTimeMillis();
 	long lit = lastIterTime;
 	if (lit == 0) {
@@ -2774,8 +2793,12 @@ MouseOutHandler, MouseWheelHandler {
 	    }
 	    
 	    int i, j, subiter;
-	    for (i = 0; i != elmArr.length; i++)
-		elmArr[i].startIteration();
+	    for (i = 0; i != sourceElmArr.length; i++)
+		addToUpdateList(sourceElmArr[i]);
+	    CircuitElm elms[] = updateList;
+	    updateList = new CircuitElm[0];
+	    for (i = 0; i != elms.length; i++)
+		elms[i].startIteration();
 	    steps++;
 	    /*
 	    int subiterCount = (adjustTimeStep && timeStep/2 > minTimeStep) ? 100 : 5000;
@@ -2860,10 +2883,8 @@ MouseOutHandler, MouseWheelHandler {
 	    else
 		goodIterations = 0;
 		*/
-	    for (i = 0; i != elmArr.length; i++)
-		elmArr[i].doStep();
-//	    for (i = 0; i != elmArr.length; i++)
-//		elmArr[i].stepFinished();
+	    for (i = 0; i != elms.length; i++)
+		elms[i].doStep();
 	    
 	    t += timeStep;
 	    timeStepAccum += timeStep;
@@ -2872,8 +2893,8 @@ MouseOutHandler, MouseWheelHandler {
 		timeStepAccum -= maxTimeStep;
 		timeStepCount++;
 	    }
-	    for (i = 0; i != elmArr.length; i++)
-		elmArr[i].stepFinished();
+//	    for (i = 0; i != elmArr.length; i++)
+//		elmArr[i].stepFinished();
 	    if (!delayWireProcessing)
 		calcWireCurrents();
 	    for (i = 0; i != scopeCount; i++)

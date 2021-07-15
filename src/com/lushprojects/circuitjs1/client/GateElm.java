@@ -185,7 +185,8 @@ package com.lushprojects.circuitjs1.client;
 	    
 	    lastOutput = f;
 	    double res = f ? highVoltage : 0;
-	    sim.updateVoltageSource(sim.groundNode, nodes[inputCount], voltSource, res);
+//	    sim.updateVoltageSource(sim.groundNode, nodes[inputCount], voltSource, res);
+	    updateDigitalOutput(nodes[inputCount], voltSource, res);
 	}
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0)

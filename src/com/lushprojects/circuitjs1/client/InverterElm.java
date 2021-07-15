@@ -101,8 +101,10 @@ package com.lushprojects.circuitjs1.client;
 	void doStep() {
 	    double out = nodes[0].volts > highVoltage*.5 ? 0 : highVoltage;
 	    double maxStep = slewRate * sim.timeStep * 1e9;
+	    maxStep = 100;
 	    out = Math.max(Math.min(lastOutputVoltage+maxStep, out), lastOutputVoltage-maxStep);
-	    sim.updateVoltageSource(sim.groundNode, nodes[1], voltSource, out);
+//	    sim.updateVoltageSource(sim.groundNode, nodes[1], voltSource, out);
+	    updateDigitalOutput(nodes[1], voltSource, out);
 	}
 	double getVoltageDiff() { return nodes[0].volts; }
 	void getInfo(String arr[]) {

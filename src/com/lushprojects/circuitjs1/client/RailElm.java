@@ -97,8 +97,10 @@ class RailElm extends VoltageElm {
 	    sim.stampVoltageSource(sim.groundNode, nodes[0], voltSource);
     }
     void doStep() {
-	if (waveform != WF_DC)
-	    sim.updateVoltageSource(sim.groundNode, nodes[0], voltSource, getVoltage());
+	if (waveform != WF_DC) {
+	    updateDigitalOutput(nodes[0], voltSource, getVoltage());
+//	    sim.updateVoltageSource(sim.groundNode, nodes[0], voltSource, getVoltage());
+	}
     }
     boolean hasGroundConnection(int n1) { return true; }
     int getShortcut() { return 'V'; }

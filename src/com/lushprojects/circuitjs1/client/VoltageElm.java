@@ -115,6 +115,9 @@ class VoltageElm extends CircuitElm {
 	if (waveform == WF_NOISE)
 	    noiseValue = (sim.random.nextDouble()*2-1) * maxVoltage + bias;
     }
+    
+    boolean isDigitalSource() { return waveform != WF_DC; }
+    
     double getVoltage() {
 	if (waveform != WF_DC && sim.dcAnalysisFlag)
 	    return bias;

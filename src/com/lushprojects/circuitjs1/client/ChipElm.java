@@ -251,8 +251,9 @@ abstract class ChipElm extends CircuitElm {
 	    for (i = 0; i != getPostCount(); i++) {
 		Pin p = pins[i];
 		if (p.output)
-		    sim.updateVoltageSource(sim.groundNode, nodes[i], p.voltSource,
-					p.value ? 5 : 0);
+		    updateDigitalOutput(nodes[i], p.voltSource, p.value ? 5 : 0);
+//		    sim.updateVoltageSource(sim.groundNode, nodes[i], p.voltSource,
+//					p.value ? 5 : 0);
 	    }
 	}
 	void reset() {

@@ -88,7 +88,15 @@ package com.lushprojects.circuitjs1.client;
 	    double v = (position == 0) ? loV : hiV;
 	    if (isTernary())
 		v = position * 2.5;
-	    sim.updateVoltageSource(sim.groundNode, nodes[0], voltSource, v);
+	    updateDigitalOutput(nodes[0], voltSource, v);
+//	    sim.updateVoltageSource(sim.groundNode, nodes[0], voltSource, v);
+	}
+	void toggle() {
+	    super.toggle();
+	    double v = (position == 0) ? loV : hiV;
+	    if (isTernary())
+		v = position * 2.5;
+	    updateDigitalOutput(nodes[0], voltSource, v);
 	}
 	int getVoltageSourceCount() { return 1; }
 	double getVoltageDiff() { return nodes[0].volts; }

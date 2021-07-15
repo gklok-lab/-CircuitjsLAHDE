@@ -129,6 +129,7 @@ package com.lushprojects.circuitjs1.client;
 	    }
 	}
 	int getShortcut() { return 'o'; }
+	boolean isGraphicElm() { return true; }
 	
 //    void drawHandles(Graphics g, Color c) {
 //    	g.setColor(c);
