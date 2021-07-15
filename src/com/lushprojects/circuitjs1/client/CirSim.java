@@ -1359,6 +1359,7 @@ MouseOutHandler, MouseWheelHandler {
 	}
 	g.fillRect(0, 0, canvasWidth, canvasHeight);
 	myrunstarttime=System.currentTimeMillis();
+	double startT = t;
 	if (simRunning) {
 	    if (needsStamp)
 		console("needsStamp while simRunning?");
@@ -1372,6 +1373,7 @@ MouseOutHandler, MouseWheelHandler {
 	    }
 	    myruntime+=System.currentTimeMillis()-myrunstarttime;
 	}
+	double stopT = t;
 	long sysTime = System.currentTimeMillis();
 		if (simRunning) {
 			
@@ -1564,7 +1566,8 @@ MouseOutHandler, MouseWheelHandler {
 	frames++;
 	
 	g.setColor(Color.white);
-//	g.drawString("Framerate: " + CircuitElm.showFormat.format(framerate), 10, 10);
+	g.drawString("Rate: " + CircuitElm.showFormat.format((stopT-startT)*1e3/(myruntime*.001)), 10, 10);
+	myruntime = 0;
 //	g.drawString("Steprate: " + CircuitElm.showFormat.format(steprate),  10, 30);
 //	g.drawString("Steprate/iter: " + CircuitElm.showFormat.format(steprate/getIterCount()),  10, 50);
 //	g.drawString("iterc: " + CircuitElm.showFormat.format(getIterCount()),  10, 70);
@@ -2784,6 +2787,7 @@ MouseOutHandler, MouseWheelHandler {
 	boolean goodIteration = true;
 	
 	for (iter = 1; ; iter++) {
+	    /*
 	    if (goodIterations >= 3 && timeStep < maxTimeStep && goodIteration) {
 		// things are going well, double the time step
 		timeStep = Math.min(timeStep*2, maxTimeStep);
@@ -2791,14 +2795,15 @@ MouseOutHandler, MouseWheelHandler {
 		stampCircuit();
 		goodIterations = 0;
 	    }
+	    */
 	    
 	    int i, j, subiter;
 	    for (i = 0; i != sourceElmArr.length; i++)
 		addToUpdateList(sourceElmArr[i]);
 	    CircuitElm elms[] = updateList;
 	    updateList = new CircuitElm[0];
-	    for (i = 0; i != elms.length; i++)
-		elms[i].startIteration();
+//	    for (i = 0; i != elms.length; i++)
+//		elms[i].startIteration();
 	    steps++;
 	    /*
 	    int subiterCount = (adjustTimeStep && timeStep/2 > minTimeStep) ? 100 : 5000;
@@ -2887,26 +2892,29 @@ MouseOutHandler, MouseWheelHandler {
 		elms[i].doStep();
 	    
 	    t += timeStep;
+	    /*
 	    timeStepAccum += timeStep;
 	    goodIteration = true;
 	    if (timeStepAccum >= maxTimeStep) {
 		timeStepAccum -= maxTimeStep;
 		timeStepCount++;
 	    }
+	    */
+	    timeStepCount++;
 //	    for (i = 0; i != elmArr.length; i++)
 //		elmArr[i].stepFinished();
-	    if (!delayWireProcessing)
-		calcWireCurrents();
+//	    if (!delayWireProcessing)
+//		calcWireCurrents();
 	    for (i = 0; i != scopeCount; i++)
 	    	scopes[i].timeStep();
 	    for (i=0; i != scopeElmArr.length; i++)
 		scopeElmArr[i].stepScope();
 	    callTimeStepHook();
 	    // save last node voltages so we can restart the next iteration if necessary
-	    if (adjustTimeStep) {
+/*	    if (adjustTimeStep) {
 		for (i = 0; i != lastNodeVoltages.length; i++)
 		    lastNodeVoltages[i] = nodeVoltages[i];
-	    }
+	    }*/
 //	    console("set lastrightside at " + t + " " + lastNodeVoltages);
 		
 	    tm = System.currentTimeMillis();
