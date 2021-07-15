@@ -239,15 +239,16 @@ abstract class ChipElm extends CircuitElm {
 		    sim.stampVoltageSource(sim.groundNode, nodes[i], p.voltSource);
 	    }
 	}
-	void execute() {}
+	boolean execute() { return false; }
 	void doStep() {
 	    int i;
-	    for (i = 0; i != getPostCount(); i++) {
+/*	    for (i = 0; i != getPostCount(); i++) {
 		Pin p = pins[i];
 		if (!p.output)
 		    p.value = nodes[i].volts > 2.5;
-	    }
-	    execute();
+	    }*/
+	    if (!execute())
+		return;
 	    for (i = 0; i != getPostCount(); i++) {
 		Pin p = pins[i];
 		if (p.output)

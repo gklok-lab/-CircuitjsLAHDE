@@ -2605,6 +2605,7 @@ MouseOutHandler, MouseWheelHandler {
 	stampMatrix(vn, n2, 1);
 	stampRightSide(vn, v);
 	n2.volts = v;
+	n2.high = (v > 2.5);
 	stampMatrix(n1, vn, 1);
 	stampMatrix(n2, vn, -1);
     }
@@ -2921,14 +2922,16 @@ MouseOutHandler, MouseWheelHandler {
 	    lit = tm;
 	    // Check whether enough time has elapsed to perform an *additional* iteration after
 	    // those we have already completed.  But limit total computation time to 50ms (20fps)
+	    if ((timeStepCount & 255) != 0)
+		continue;
 	    if ((timeStepCount-timeStepCountAtFrameStart)*1000 >= steprate*(tm-lastIterTime) || (tm-lastFrameTime > 50))
 		break;
 	    if (!simRunning)
 		break;
 	} // for (iter = 1; ; iter++)
 	lastIterTime = lit;
-	if (delayWireProcessing)
-	    calcWireCurrents();
+//	if (delayWireProcessing)
+//	    calcWireCurrents();
 //	System.out.println((System.currentTimeMillis()-lastFrameTime)/(double) iter);
     }
 

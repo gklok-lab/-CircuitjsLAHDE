@@ -63,22 +63,23 @@ package com.lushprojects.circuitjs1.client;
 	    nodes[2].volts = 5;
 	    pins[2].value = true;
         }
-	void execute() {
-	    if (pins[3].value && !lastClock) {
-		pins[1].value =  pins[0].value;
-		pins[2].value = !pins[0].value;
+	boolean execute() {
+	    if (nodes[3].high && !lastClock) {
+		pins[1].value =  nodes[0].high;
+		pins[2].value = !nodes[0].high;
 	    }
-	    if(hasSet() && pins[5].value)
+	    if(hasSet() && nodes[5].high)
 		{
 		pins[1].value = true;
 		pins[2].value = false;
 		}
-	    if(hasReset() && pins[4].value)
+	    if(hasReset() && nodes[4].high)
 		{
 		pins[1].value = false;
 		pins[2].value = true;
 	    }
-	    lastClock = pins[3].value;
+	    lastClock = nodes[3].high;
+	    return true;
 	}
 	int getDumpType() { return 155; }
 	public EditInfo getEditInfo(int n) {

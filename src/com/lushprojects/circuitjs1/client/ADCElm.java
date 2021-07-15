@@ -40,7 +40,7 @@ class ADCElm extends ChipElm {
 	pins[bits+1] = new Pin(sizeY-1, SIDE_W, "V+");
 	allocNodes();
     }
-    void execute() {
+    boolean execute() {
 	int imax = (1<<bits)-1;
 	// if we round, the half-flash doesn't work
 	double val = imax*nodes[bits].volts/nodes[bits+1].volts; // + .5;
@@ -49,6 +49,7 @@ class ADCElm extends ChipElm {
 	int i;
 	for (i = 0; i != bits; i++)
 	    pins[i].value = ((ival & (1<<i)) != 0);
+	return true;
     }
     int getVoltageSourceCount() { return bits; }
     int getPostCount() { return bits+2; }

@@ -55,12 +55,13 @@ class LatchElm extends ChipElm {
 	allocNodes();
     }
     boolean lastLoad = false;
-    void execute() {
+    boolean execute() {
 	int i;
 	if (pins[loadPin].value && !lastLoad)
 	    for (i = 0; i != bits; i++)
 		pins[i+bits].value = pins[i].value;
 	lastLoad = pins[loadPin].value;
+	return true;
     }
     int getVoltageSourceCount() { return bits; }
     int getPostCount() { return bits*2+1; }

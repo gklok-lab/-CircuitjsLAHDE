@@ -95,7 +95,7 @@ class PisoShiftElm extends ChipElm {
 	int getPostCount() { return (hasNewBhvr() ? 4 : 3) + bits; }
 	int getVoltageSourceCount() { return 1; }
 	
-	void execute() {
+	boolean execute() {
 		//LOAD raised
 		if (pins[0].value != loadState) {
 			loadState = pins[0].value;
@@ -126,6 +126,7 @@ class PisoShiftElm extends ChipElm {
 				pins[2].value = data[dataIndex];
 			}
 		}
+		return true;
 	}
 	
 	public EditInfo getEditInfo(int n) {

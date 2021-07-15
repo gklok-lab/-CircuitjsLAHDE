@@ -128,20 +128,21 @@ package com.lushprojects.circuitjs1.client;
 	}
 	boolean hasUpDown() { return (flags & FLAG_UP_DOWN) != 0; }
 	int getVoltageSourceCount() { return bits; }
-	void execute() {
-	    if (pins[0].value && !lastClock) {
+	boolean execute() {
+	    boolean changed = false;
+	    if (nodes[0].high && !lastClock) {
 		int i;
 		int value = 0;
 		
 		// get direction
 		int dir = 1;
-		if (hasUpDown() && pins[bits+2].value)
+		if (hasUpDown() && nodes[bits+2].high)
 		    dir = -1;
 		
 		// get current value
 		int lastBit = 2+bits-1;
 		for (i = 0; i != bits; i++)
-		    if (pins[lastBit-i].value)
+		    if (nodes[lastBit-i].high)
 			value |= 1<<i;
 		
 		// update value
@@ -152,13 +153,16 @@ package com.lushprojects.circuitjs1.client;
 		// convert value to binary
 		for (i = 0; i != bits; i++)
 		    pins[lastBit-i].value = (value & (1<<i)) != 0;
+		changed = true;
 	    }
-	    if (!pins[1].value == invertreset) {
+	    if (!nodes[1].high == invertreset) {
 		int i;
 		for (i = 0; i != bits; i++)
 		    pins[i+2].value = false;
+		changed = true;
 	    }
-	    lastClock = pins[0].value;
+	    lastClock = nodes[0].high;
+	    return changed;
 	}
 	int getDumpType() { return 164; }
     }

@@ -79,7 +79,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getVoltageSourceCount() {return 7;}
 
-	void execute() {
+	boolean execute() {
 	int input=0;
 	if(pins[7].value)input+=8;
 	if(pins[8].value)input+=4;
@@ -90,6 +90,7 @@ package com.lushprojects.circuitjs1.client;
 		{
 		pins[i].value=symbols[input][i];
 		}
+		return true;
 	}
 	int getDumpType() { return 197; }
 

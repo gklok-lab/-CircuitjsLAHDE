@@ -63,7 +63,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getVoltageSourceCount() { return outputCount; }
 
-	void execute() {
+	boolean execute() {
 	    int val = 0;
 	    int i;
 	    for (i = 0; i != selectBitCount; i++)
@@ -72,6 +72,7 @@ package com.lushprojects.circuitjs1.client;
 	    for (i = 0; i != outputCount; i++)
 		pins[i].value = false;
 	    pins[val].value = pins[qPin].value;
+	    return true;
 	}
 
 	public EditInfo getEditInfo(int n) {

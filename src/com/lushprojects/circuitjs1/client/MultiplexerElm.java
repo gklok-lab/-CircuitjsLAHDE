@@ -71,13 +71,14 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getVoltageSourceCount() {return 1;}
 
-	void execute() {
+	boolean execute() {
 	    int selectedValue=0;
 	    int i;
 	    for (i = 0; i != selectBitCount; i++)
 		if (pins[outputCount+i].value)
 		    selectedValue |= 1<<i;
 	    pins[outputCount+selectBitCount].value=pins[selectedValue].value;
+	    return true;
 	}
 	
 	int getDumpType() { return 184; }

@@ -72,7 +72,7 @@ class SipoShiftElm extends ChipElm {
 	int getPostCount() { return 2 + bits; }
 	int getVoltageSourceCount() { return bits; }
 	
-	void execute() {
+	boolean execute() {
 		if (pins[1].value != clockstate) {
 			clockstate = pins[1].value;
 			if (clockstate && bits > 0) {
@@ -82,6 +82,7 @@ class SipoShiftElm extends ChipElm {
 				pins[2].value = pins[0].value; //Load
 			}
 		}
+		return true;
 	}
 	
 	public EditInfo getEditInfo(int n) {

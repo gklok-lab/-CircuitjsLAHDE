@@ -63,7 +63,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getVoltageSourceCount() { return 2; }
 
-	void execute() {
+	boolean execute() {
 
 			if(pins[0].value&&prevInputValue!=pins[0].value&&(retriggerable||!triggered)){
 			lastRisingEdge=sim.t;
@@ -79,6 +79,7 @@ package com.lushprojects.circuitjs1.client;
 			triggered=false;
 			}
 		prevInputValue=pins[0].value;
+		return true;
 	   	}
 	String dump(){
 	   return super.dump() + " " + retriggerable + " " + delay;

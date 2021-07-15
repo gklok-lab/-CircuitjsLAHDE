@@ -52,32 +52,36 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getPostCount() { return 5 + (hasReset() ? 1:0); }
 	int getVoltageSourceCount() { return 2; }
-	void execute() {
+	boolean execute() {
 	    boolean transition;
 	    if (positiveEdgeTriggered())
-		transition = pins[1].value && !lastClock;
+		transition = nodes[1].high && !lastClock;
 	    else
-		transition = !pins[1].value && lastClock;
+		transition = !nodes[1].high && lastClock;
+	    boolean changed = false;
 	    if (transition) {
-		boolean q = pins[3].value;
-		if (pins[0].value) {
-		    if (pins[2].value)
+		boolean q = nodes[3].high;
+		if (nodes[0].high) {
+		    if (nodes[2].high)
 			q = !q;
 		    else
 			q = true;
-		} else if (pins[2].value)
+		} else if (nodes[2].high)
 		    q = false;
 		pins[3].value = q;
 		pins[4].value = !q;
+		changed = true;
 	    }
-	    lastClock = pins[1].value;
+	    lastClock = nodes[1].high;
 	    
 	    if(hasReset()){
-	    	if(pins[5].value){
+	    	if(nodes[5].high){
 	    		pins[3].value = false;
 	    		pins[4].value = true;
+	    		changed = true;
 	    	}
 	    }
+	    return changed;
 	}
 	int getDumpType() { return 156; }
 	

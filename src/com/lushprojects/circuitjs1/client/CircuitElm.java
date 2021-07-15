@@ -1041,6 +1041,7 @@ public abstract class CircuitElm implements Editable {
 	if (cn.volts == val)
 	    return;
 	cn.volts = val;
+	cn.high = val > 2.5;
 	int i;
 	for (i = 0; i != cn.links.size(); i++) {
 	    CircuitNodeLink cnl = cn.links.get(i);

@@ -66,13 +66,13 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getPostCount() { return hasClockInhibit() ? bits+3 : bits+2; }
 	int getVoltageSourceCount() { return bits; }
-	void execute() {
+	boolean execute() {
 	    int i;
 	    
 	    // if we just loaded then the nodes[].volts array is likely to be all zeroes, which might force us to do a reset, so defer execution until the next iteration
 	    if (justLoaded) {
 		justLoaded = false;
-		return;
+		return false;
 	    }
 	    
 	    boolean running = true;
@@ -98,6 +98,7 @@ package com.lushprojects.circuitjs1.client;
 		pins[2].value = true;
 	    }
 	    lastClock = pins[0].value;
+	    return true;
 	}
 	public EditInfo getEditInfo(int n) {
 	    if (n < 2)

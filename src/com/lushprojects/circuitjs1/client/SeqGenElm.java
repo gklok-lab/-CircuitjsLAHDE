@@ -116,7 +116,7 @@ class SeqGenElm extends ChipElm {
 		}
 	}
 	
-	void execute() {
+	boolean execute() {
 		if (hasReset() && pins[2].value) {
 			// Suspended state (RESET raised)
 			bitPosition = 0;
@@ -131,6 +131,7 @@ class SeqGenElm extends ChipElm {
 					nextBit();
 			}
 		}
+		return true;
 	}
 	int getDumpType() { return 188; }
 	

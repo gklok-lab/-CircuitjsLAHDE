@@ -148,7 +148,7 @@ public class CustomLogicElm extends ChipElm {
 	}
     }
 
-    void execute() {
+    boolean execute() {
 	int i;
 	for (i = 0; i != model.rulesLeft.size(); i++) {
 	    // check for a match
@@ -214,6 +214,7 @@ public class CustomLogicElm extends ChipElm {
 		lastValues[j] = pins[j].value;
 	    break;
 	}
+	return true;
     }
     
     public EditInfo getEditInfo(int n) {

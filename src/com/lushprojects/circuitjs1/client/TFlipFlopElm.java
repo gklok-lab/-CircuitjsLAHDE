@@ -60,7 +60,7 @@ package com.lushprojects.circuitjs1.client;
             nodes[2].volts = 5;
             pins[2].value = true;
         }
-	void execute() {
+	boolean execute() {
 	    if (pins[3].value && !lastClock)
 	    {
 	    	if(pins[0].value) //if T = 1
@@ -80,6 +80,7 @@ package com.lushprojects.circuitjs1.client;
 	    }
 	    pins[2].value = !pins[1].value;
 	    lastClock = pins[3].value;
+	    return true;
 	}
 	int getDumpType() { return 193; }
 	public EditInfo getEditInfo(int n) {

@@ -46,10 +46,11 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getVoltageSourceCount() {return 2;}
 
-	void execute() {
+	boolean execute() {
 	
 	pins[0].value=pins[2].value^pins[3].value;
 	pins[1].value=pins[2].value&&pins[3].value;
+	return true;
 	}
 	int getDumpType() { return 195; }
 
