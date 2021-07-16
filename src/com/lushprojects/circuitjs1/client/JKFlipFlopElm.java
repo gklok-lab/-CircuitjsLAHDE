@@ -52,6 +52,9 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getPostCount() { return 5 + (hasReset() ? 1:0); }
 	int getVoltageSourceCount() { return 2; }
+	
+	boolean n0value, n2value;
+	
 	boolean execute() {
 	    boolean transition;
 	    if (positiveEdgeTriggered())
@@ -61,18 +64,20 @@ package com.lushprojects.circuitjs1.client;
 	    boolean changed = false;
 	    if (transition) {
 		boolean q = nodes[3].high;
-		if (nodes[0].high) {
-		    if (nodes[2].high)
+		if (n0value) {
+		    if (n2value)
 			q = !q;
 		    else
 			q = true;
-		} else if (nodes[2].high)
+		} else if (n2value)
 		    q = false;
 		pins[3].value = q;
 		pins[4].value = !q;
 		changed = true;
 	    }
 	    lastClock = nodes[1].high;
+	    n0value = nodes[0].high;
+	    n2value = nodes[2].high;
 	    
 	    if(hasReset()){
 	    	if(nodes[5].high){
