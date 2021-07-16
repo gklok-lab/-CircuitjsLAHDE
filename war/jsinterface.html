@@ -28,6 +28,7 @@ var iframe = document.getElementById("circuitFrame");
 
 var sim;
 var freq, ampl;
+var vsense;
 
 function round(x) {
   return Math.round(x*1000)/1000;
@@ -39,8 +40,12 @@ function didUpdate(sim) {
   info.innerHTML = "time = " + round(sim.getTime()) + "<br>running = " + sim.isRunning();
 
   // get voltage of labeled node "vsense"
-  var vsense = sim.getNodeVoltage("vsense");
-  info.innerHTML += "<br>V(vsense) = " + round(vsense);
+  if (vsense == null) {
+    vsense = sim.getNode("vsense");
+    if (vsense == null)
+      return;
+  }
+  info.innerHTML += "<br>V(vsense) = " + round(vsense.getVoltage());
 
   freq = parseFloat(document.getElementById("freq").value);
   ampl = parseFloat(document.getElementById("ampl").value);

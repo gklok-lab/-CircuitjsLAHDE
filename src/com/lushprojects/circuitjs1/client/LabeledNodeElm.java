@@ -103,6 +103,8 @@ class LabeledNodeElm extends CircuitElm {
     boolean isRemovableWire() { return true; }
     
     static CircuitNode getByName(String n) {
+	if (labelList == null)
+	    return null;
 	LabelEntry le = labelList.get(n);
 	if (le == null)
 	    return null;

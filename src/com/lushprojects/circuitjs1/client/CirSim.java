@@ -6175,10 +6175,21 @@ MouseOutHandler, MouseWheelHandler {
 	
 	double getLabeledNodeVoltage(String name) {
 	    CircuitNode node = LabeledNodeElm.getByName(name);
-	    if (node == null || node == groundNode)
-		return 0;
-	    // subtract one because ground is not included in nodeVoltages[]
-	    return nodeVoltages[node.index-1];
+	    return node.volts;
+	}
+	
+	native void addGetVoltage(CircuitNode node) /*-{
+	    node.getVoltage = function () {
+	        return this.@com.lushprojects.circuitjs1.client.CircuitNode::volts;
+	    };
+	}-*/;
+	
+	CircuitNode getLabeledNode(String name) {
+	    CircuitNode node = LabeledNodeElm.getByName(name);
+	    if (node == null)
+		return null;
+	    addGetVoltage(node);
+	    return node;
 	}
 	
 	void setExtVoltage(String name, double v) {
@@ -6200,7 +6211,8 @@ MouseOutHandler, MouseWheelHandler {
 	        getTime: $entry(function() { return that.@com.lushprojects.circuitjs1.client.CirSim::t; } ),
 	        isRunning: $entry(function() { return that.@com.lushprojects.circuitjs1.client.CirSim::simIsRunning()(); } ),
 	        getNodeVoltage: $entry(function(n) { return that.@com.lushprojects.circuitjs1.client.CirSim::getLabeledNodeVoltage(Ljava/lang/String;)(n); } ),
-	        setExtVoltage: $entry(function(n, v) { that.@com.lushprojects.circuitjs1.client.CirSim::setExtVoltage(Ljava/lang/String;D)(n, v); } )
+	        setExtVoltage: $entry(function(n, v) { that.@com.lushprojects.circuitjs1.client.CirSim::setExtVoltage(Ljava/lang/String;D)(n, v); } ),
+	        getNode: $entry(function(n) { return that.@com.lushprojects.circuitjs1.client.CirSim::getLabeledNode(Ljava/lang/String;)(n); } ),
 	    };
 	    var hook = $wnd.oncircuitjsloaded;
 	    if (hook)
