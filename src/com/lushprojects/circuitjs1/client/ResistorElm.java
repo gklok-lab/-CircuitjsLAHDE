@@ -91,7 +91,6 @@ import com.google.gwt.canvas.dom.client.CanvasGradient;
 
 	void calculateCurrent() {
 	    current = (nodes[0].volts-nodes[1].volts)/resistance;
-	    sim.debugger();
 	    //System.out.print(this + " res current set to " + current + "\n");
 	}
 	void stamp() {
