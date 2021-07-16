@@ -2030,6 +2030,22 @@ MouseOutHandler, MouseWheelHandler {
         voltageSourceElms = new CircuitElm[vscount];
         voltageSources = new VoltageSource[vscount];
         groundNode = nodeList.get(0);
+        
+        makeOutputLists();
+    }
+   
+    void makeOutputLists() {
+	int i;
+	for (i = 0; i != nodeList.size(); i++) {
+	    CircuitNode cn = nodeList.get(i);
+	    cn.outputElms = new CircuitElm[0];
+	    int j, k;
+	    for (j = k = 0; j != cn.links.size(); j++) {
+		CircuitElm ce = cn.links.get(j).elm;
+	        if (!ce.isRemovableWire() && !ce.isGraphicElm())
+	            cn.outputElms[k++] = ce;
+	    }
+	}
     }
     
     Vector<Integer> unconnectedNodes;

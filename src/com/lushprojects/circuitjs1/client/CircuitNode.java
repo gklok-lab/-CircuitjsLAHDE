@@ -23,6 +23,7 @@ import java.util.Vector;
 
 class CircuitNode {
     Vector<CircuitNodeLink> links;
+    CircuitElm outputElms[];
     boolean internal;
     int index;
     double volts;

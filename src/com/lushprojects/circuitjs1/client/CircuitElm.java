@@ -1043,12 +1043,12 @@ public abstract class CircuitElm implements Editable {
 	cn.volts = val;
 	cn.high = val > 2.5;
 	int i;
-	for (i = 0; i != cn.links.size(); i++) {
-	    CircuitNodeLink cnl = cn.links.get(i);
-	    CircuitElm ce = cnl.elm;
-	    if (ce == this || ce.isWireEquivalent() || ce.isGraphicElm())
+	CircuitElm elms[] = cn.outputElms;
+	for (i = 0; i != elms.length; i++) {
+	    CircuitElm ce = elms[i];
+	    if (ce == this)
 		continue;
-	    sim.addToUpdateList(cnl.elm);
+	    sim.addToUpdateList(ce);
 	}
     }
 }
