@@ -172,6 +172,8 @@ package com.lushprojects.circuitjs1.client;
 	    if (isInverting())
 		f = !f;
 	    
+/*
+       // This won't work in digital simulation because method is only called when inputs change.
 	    // detect oscillation (using same strategy as Atanua)
 	    if (lastOutput == !f) {
 		if (oscillationCount++ > 50) {
@@ -182,6 +184,7 @@ package com.lushprojects.circuitjs1.client;
 		}
 	    } else
 		oscillationCount = 0;
+*/
 	    
 	    lastOutput = f;
 	    double res = f ? highVoltage : 0;
