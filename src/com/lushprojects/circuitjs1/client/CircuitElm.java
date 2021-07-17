@@ -162,6 +162,10 @@ public abstract class CircuitElm implements Editable {
     void allocNodes() {
 	int n = getPostCount() + getInternalNodeCount();
 	nodes = new CircuitNode[n];
+	int i;
+	// use ground as placeholder so they're not null
+	for (i = 0; i != n; i++)
+	    nodes[i] = sim.groundNode;
     }
     
     // dump component state for export/undo
