@@ -37,7 +37,7 @@ package com.lushprojects.circuitjs1.client;
 		{true,false,false,true,true,true,false},//C
 		{false,true,true,true,true,false,true},//D
 		{true,false,false,true,true,true,true},//E
-		{true,false,false,false,true,true,true},//F
+		{false,false,false,false,false,false,false},//F
 };
 
 	boolean hasReset() {return false;}
@@ -81,10 +81,10 @@ package com.lushprojects.circuitjs1.client;
 
 	boolean execute() {
 	int input=0;
-	if(pins[7].value)input+=8;
-	if(pins[8].value)input+=4;
-	if(pins[9].value)input+=2;
-	if(pins[10].value)input+=1;
+	if(nodes[7].high)input+=8;
+	if(nodes[8].high)input+=4;
+	if(nodes[9].high)input+=2;
+	if(nodes[10].high)input+=1;
 
 		for(int i=0;i<7;i++)
 		{

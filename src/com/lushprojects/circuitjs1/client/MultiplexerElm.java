@@ -75,9 +75,9 @@ package com.lushprojects.circuitjs1.client;
 	    int selectedValue=0;
 	    int i;
 	    for (i = 0; i != selectBitCount; i++)
-		if (pins[outputCount+i].value)
+		if (nodes[outputCount+i].high)
 		    selectedValue |= 1<<i;
-	    pins[outputCount+selectBitCount].value=pins[selectedValue].value;
+	    pins[outputCount+selectBitCount].value=nodes[selectedValue].high;
 	    return true;
 	}
 	
