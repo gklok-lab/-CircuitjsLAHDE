@@ -89,7 +89,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getVoltageSourceCount() {return 7;}
 
-	void execute() {
+	boolean execute() {
 	    int input=0;
 	    if(nodes[7].high)input+=8;
 	    if(nodes[8].high)input+=4;
@@ -105,6 +105,7 @@ package com.lushprojects.circuitjs1.client;
 		for(int i=0;i<7;i++)
 		    writeOutput(i, symbols[input][i]);
 	    }
+	    return false;
 	}
 	
         public EditInfo getEditInfo(int n) {

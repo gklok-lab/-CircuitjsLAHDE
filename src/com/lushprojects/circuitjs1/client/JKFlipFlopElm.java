@@ -61,11 +61,11 @@ package com.lushprojects.circuitjs1.client;
 	
 	boolean justLoaded;
 	
-	void execute() {
+	boolean execute() {
             // if we just loaded, the terminals might be at 0V, which might force us to do a reset, so defer execution until the next iteration
             if (justLoaded) {
                 justLoaded = false;
-                return;
+                return false;
             }
             	    
 	    boolean transition;
@@ -95,7 +95,10 @@ package com.lushprojects.circuitjs1.client;
 	    	    writeOutput(3, false);
 	    }
 	    
-	    writeOutput(4, !nodes[3].high);
+	    if (nodes[4].high == nodes[3].high) {
+		writeOutput(4, !nodes[3].high);
+		changed = true;
+	    }
 	    return changed;
 	}
 	int getDumpType() { return 156; }

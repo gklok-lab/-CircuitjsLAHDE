@@ -62,7 +62,7 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getVoltageSourceCount() { return bits+1; }
 
-	void execute() {
+	boolean execute() {
 	    int i;
 	    int c = nodes[carryIn].high ? 1 : 0;
 	    for (i = 0; i != bits; i++) {
@@ -71,6 +71,7 @@ package com.lushprojects.circuitjs1.client;
 		writeOutput(i+bits*2, ((v & 1) == 1));
 	    }
 	    writeOutput(carryOut, (c == 1));
+	    return true;
 	}
 	int getDumpType() { return 196; }
 	boolean needsBits() { return (flags & FLAG_BITS) != 0; }

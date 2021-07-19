@@ -73,6 +73,7 @@ package com.lushprojects.circuitjs1.client;
 	    pins[load] = new Pin(bits+1, SIDE_E, "LOAD");
 	    pins[load].bubble = true;
 	    pins[ent] = new Pin(bits+2, SIDE_E, "EnT");
+	    allocNodes();
 	}
 	int getPostCount() {
 	    return bits*2+6;
@@ -99,16 +100,16 @@ package com.lushprojects.circuitjs1.client;
 	
 	boolean carry;
 	
-	void execute() {
-	    if (pins[clk].value && !lastClock) {
-		if (pins[enp].value && pins[ent].value) {
+	boolean execute() {
+	    if (nodes[clk].high && !lastClock) {
+		if (nodes[enp].high && nodes[ent].high) {
 		    int i;
 		    int value = 0;
 
 		    // get current value
 		    int lastBit = bits-1;
 		    for (i = 0; i != bits; i++)
-			if (pins[lastBit-i].value)
+			if (nodes[lastBit-i].high)
 			    value |= 1<<i;
 
 		    // update value
@@ -123,20 +124,22 @@ package com.lushprojects.circuitjs1.client;
 		    carry = (value == realmod-1);
 		}
 		
-		if (!pins[load].value) {
+		if (!nodes[load].high) {
 		    int i;
 		    for (i = 0; i != bits; i++)
-			writeOutput(i, pins[i+bits].value);
+			writeOutput(i, nodes[i+bits].high);
 		}
 	    }
-	    if (!pins[clr].value) {
+	    if (!nodes[clr].high) {
 		int i;
 		for (i = 0; i != bits; i++)
 		    writeOutput(i, false);
 	    }
 	    
-	    lastClock = pins[clk].value;
-	    writeOutput(rco, carry && pins[ent].value);
+	    lastClock = nodes[clk].high;
+	    boolean rc = carry && nodes[ent].high;
+	    writeOutput(rco, rc);
+	    return false;
 	}
 	int getDumpType() { return 421; }
     }

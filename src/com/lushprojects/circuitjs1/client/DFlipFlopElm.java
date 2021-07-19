@@ -35,7 +35,6 @@ package com.lushprojects.circuitjs1.client;
 			    StringTokenizer st) {
 	    super(xa, ya, xb, yb, f, st);
 	    pins[2].value = !pins[1].value;
-	    justLoaded = true;
 	}
 	String getChipName() { return "D flip-flop"; }
 	void setupPins() {
@@ -70,7 +69,7 @@ package com.lushprojects.circuitjs1.client;
 	    nodes[2].volts = 5;
 	    pins[2].value = true;
         }
-	void execute() {
+	boolean execute() {
 	    if (nodes[3].high && !lastClock)
 		writeOutput(1, nodes[0].high);
 	    if(hasSet() && nodes[5].high != invertSetReset())
@@ -79,6 +78,7 @@ package com.lushprojects.circuitjs1.client;
 		writeOutput(1, false);
 	    writeOutput(2, !nodes[1].high);
 	    lastClock = nodes[3].high;
+	    return false;
 	}
 	int getDumpType() { return 155; }
 	public EditInfo getEditInfo(int n) {

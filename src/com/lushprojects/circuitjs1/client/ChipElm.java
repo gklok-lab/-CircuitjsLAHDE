@@ -284,8 +284,10 @@ abstract class ChipElm extends CircuitElm {
 	}
 	
 	void writeOutput(int n, boolean value) {
+	    Pin p = pins[n];
 	    if (!pins[n].output)
 		sim.console("pin " + n + " is not an output!");
+	    updateDigitalOutput(nodes[n], p.voltSource, value ? 5 : 0);
 	    pins[n].value = value;
 	}
 	
