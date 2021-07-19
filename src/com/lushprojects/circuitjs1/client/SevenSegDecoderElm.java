@@ -37,10 +37,11 @@ package com.lushprojects.circuitjs1.client;
 		{true,false,false,true,true,true,false},//C
 		{false,true,true,true,true,false,true},//D
 		{true,false,false,true,true,true,true},//E
-		{false,false,false,false,false,false,false},//F
-};
+		{true,false,false,false,true,true,true},//F
+	};
+	static final int FLAG_ENABLE = (1<<1);
+	static final int FLAG_BLANK_F = (1<<2);
 
-	boolean hasReset() {return false;}
 	public SevenSegDecoderElm(int xx, int yy) { super(xx, yy); }
 	public SevenSegDecoderElm(int xa, int ya, int xb, int yb, int f,
 			    StringTokenizer st) {
@@ -72,26 +73,65 @@ package com.lushprojects.circuitjs1.client;
 	    pins[5].output=true;
 	    pins[6] = new Pin(6, SIDE_E, "g");
 	    pins[6].output=true;
+	    
+	    if (hasBlank()) {
+		pins[11] = new Pin(4, SIDE_W, "BI");
+		pins[11].bubble = true; 
+	    }
+	    allocNodes();
 	}
 
+	boolean hasBlank() { return (flags & FLAG_ENABLE) != 0; }
+	boolean blankOnF() { return (flags & FLAG_BLANK_F) != 0; }
+	
 	int getPostCount() {
-	    return 11;
+	    return hasBlank() ? 12 : 11;
 	}
 	int getVoltageSourceCount() {return 7;}
 
-	boolean execute() {
-	int input=0;
-	if(nodes[7].high)input+=8;
-	if(nodes[8].high)input+=4;
-	if(nodes[9].high)input+=2;
-	if(nodes[10].high)input+=1;
-
+	void execute() {
+	    int input=0;
+	    if(nodes[7].high)input+=8;
+	    if(nodes[8].high)input+=4;
+	    if(nodes[9].high)input+=2;
+	    if(nodes[10].high)input+=1;
+	    boolean en = true;
+	    if (hasBlank() && !nodes[11].high)
+		en = false;
+	    if (!en || (input == 15 && blankOnF())) {
+		for (int i = 0; i != 7; i++)
+		    writeOutput(i, false);
+	    } else {
 		for(int i=0;i<7;i++)
-		{
-		pins[i].value=symbols[input][i];
-		}
-		return true;
+		    writeOutput(i, symbols[input][i]);
+	    }
 	}
+	
+        public EditInfo getEditInfo(int n) {
+            if (n == 2) {
+                EditInfo ei = new EditInfo("", 0, -1, -1);
+                ei.checkbox = new Checkbox("Blank Pin", hasBlank());
+                return ei;
+            }
+            if (n == 3) {
+                EditInfo ei = new EditInfo("", 0, -1, -1);
+                ei.checkbox = new Checkbox("Blank on 1111", blankOnF());
+                return ei;        	
+            }
+            return super.getEditInfo(n);
+        }
+        public void setEditValue(int n, EditInfo ei) {
+            if (n == 2) {
+        	flags = ei.changeFlag(flags, FLAG_ENABLE);
+        	setupPins();
+        	setPoints();
+        	return;
+            }
+            if (n == 3)
+        	flags = ei.changeFlag(flags, FLAG_BLANK_F);
+            super.setEditValue(n, ei);
+        }
+
 	int getDumpType() { return 197; }
 
     }

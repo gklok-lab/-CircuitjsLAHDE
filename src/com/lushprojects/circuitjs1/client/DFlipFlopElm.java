@@ -22,8 +22,11 @@ package com.lushprojects.circuitjs1.client;
     class DFlipFlopElm extends ChipElm {
 	final int FLAG_RESET = 2;
 	final int FLAG_SET = 4;
+	final int FLAG_INVERT_SET_RESET = 8;
 	boolean hasReset() { return (flags & FLAG_RESET) != 0 || hasSet(); }
 	boolean hasSet() { return (flags & FLAG_SET) != 0; }
+	boolean invertSetReset() { return (flags & FLAG_INVERT_SET_RESET) != 0; }
+	
 	public DFlipFlopElm(int xx, int yy) {
             super(xx, yy);
 	    pins[2].value = !pins[1].value;
@@ -32,6 +35,7 @@ package com.lushprojects.circuitjs1.client;
 			    StringTokenizer st) {
 	    super(xa, ya, xb, yb, f, st);
 	    pins[2].value = !pins[1].value;
+	    justLoaded = true;
 	}
 	String getChipName() { return "D flip-flop"; }
 	void setupPins() {
@@ -47,11 +51,14 @@ package com.lushprojects.circuitjs1.client;
 	    pins[3] = new Pin(1, SIDE_W, "");
 	    pins[3].clock = true;
            if (!hasSet()) {
-            if (hasReset())
+            if (hasReset()) {
                pins[4] = new Pin(2, SIDE_W, "R");
+               pins[4].bubble = invertSetReset();
+            }
            } else {
                pins[5] = new Pin(2, SIDE_W, "S");
                pins[4] = new Pin(2, SIDE_E, "R");
+               pins[4].bubble = pins[5].bubble = invertSetReset();
             }
 	}
 	int getPostCount() {
@@ -63,23 +70,15 @@ package com.lushprojects.circuitjs1.client;
 	    nodes[2].volts = 5;
 	    pins[2].value = true;
         }
-	boolean execute() {
-	    if (nodes[3].high && !lastClock) {
-		pins[1].value =  nodes[0].high;
-		pins[2].value = !nodes[0].high;
-	    }
-	    if(hasSet() && nodes[5].high)
-		{
-		pins[1].value = true;
-		pins[2].value = false;
-		}
-	    if(hasReset() && nodes[4].high)
-		{
-		pins[1].value = false;
-		pins[2].value = true;
-	    }
+	void execute() {
+	    if (nodes[3].high && !lastClock)
+		writeOutput(1, nodes[0].high);
+	    if(hasSet() && nodes[5].high != invertSetReset())
+		writeOutput(1, true);
+	    if(hasReset() && nodes[4].high != invertSetReset())
+		writeOutput(1, false);
+	    writeOutput(2, !nodes[1].high);
 	    lastClock = nodes[3].high;
-	    return true;
 	}
 	int getDumpType() { return 155; }
 	public EditInfo getEditInfo(int n) {
@@ -91,6 +90,11 @@ package com.lushprojects.circuitjs1.client;
 	    if (n == 3) {
 		EditInfo ei = new EditInfo("", 0, -1, -1);
 		ei.checkbox = new Checkbox("Set Pin", hasSet());
+		return ei;
+	    }
+	    if (n == 4) {
+		EditInfo ei = new EditInfo("", 0, -1, -1);
+		ei.checkbox = new Checkbox("Invert Set/Reset", invertSetReset());
 		return ei;
 	    }
 	    return super.getEditInfo(n);
@@ -112,6 +116,11 @@ package com.lushprojects.circuitjs1.client;
 		    flags &= ~FLAG_SET;
 		setupPins();
 		allocNodes();
+		setPoints();
+	    }
+	    if (n == 4) {
+		flags = ei.changeFlag(flags, FLAG_INVERT_SET_RESET);
+		setupPins();
 		setPoints();
 	    }
 	    super.setEditValue(n, ei);
