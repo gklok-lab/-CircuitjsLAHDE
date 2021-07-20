@@ -2262,6 +2262,8 @@ MouseOutHandler, MouseWheelHandler {
 	
 	timeStep = maxTimeStep;
 	needsStamp = true;
+	
+	callAnalyzeHook();
     }
 
     // stamp the matrix, meaning populate the matrix as required to simulate the circuit (for all linear elements, at least)
@@ -6225,6 +6227,12 @@ MouseOutHandler, MouseWheelHandler {
 	
 	native void callUpdateHook() /*-{
 	    var hook = $wnd.CircuitJS1.onupdate;
+	    if (hook)
+	    	hook($wnd.CircuitJS1);
+	}-*/;
+
+	native void callAnalyzeHook() /*-{
+	    var hook = $wnd.CircuitJS1.onanalyze;
 	    if (hook)
 	    	hook($wnd.CircuitJS1);
 	}-*/;
