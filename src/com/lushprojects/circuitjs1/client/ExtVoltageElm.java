@@ -36,7 +36,13 @@ package com.lushprojects.circuitjs1.client;
 	void drawRail(Graphics g) {
 	    drawRailText(g, name);
 	}
-	void setVoltage(double v) { if (!Double.isNaN(v)) voltage = v; }
+	void setVoltage(double v) {
+	    if (!Double.isNaN(v)) {
+		updateDigitalOutput(nodes[0], voltSource, v);
+		voltage = v;
+		
+	    }
+	}
 	String getName() { return name; }
 	
 	double getVoltage() {
@@ -62,5 +68,9 @@ package com.lushprojects.circuitjs1.client;
 	void getInfo(String arr[]) {
 	    super.getInfo(arr);
 	    arr[0] = sim.LS("ext. voltage") + " (" + name + ")";
+	}
+	
+	boolean isDigitalSource() {
+	    return false;
 	}
     }
