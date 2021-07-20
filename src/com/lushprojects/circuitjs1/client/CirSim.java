@@ -646,7 +646,7 @@ MouseOutHandler, MouseWheelHandler {
 	l.addStyleName("topSpace");
 
 	// was max of 140
-	verticalPanel.add( speedBar = new Scrollbar(Scrollbar.HORIZONTAL, 3, 1, 0, 260));
+	verticalPanel.add( speedBar = new Scrollbar(Scrollbar.HORIZONTAL, 3, 1, 0, 380));
 
 	verticalPanel.add( l = new Label(LS("Current Speed")));
 	l.addStyleName("topSpace");
@@ -2783,13 +2783,13 @@ MouseOutHandler, MouseWheelHandler {
 	boolean debugprint = dumpMatrix;
 	dumpMatrix = false;
 	long steprate = (long) (160*getIterCount());
-	steprate *= 100; // take this out, it maxes out the simulation speed
 	long tm = System.currentTimeMillis();
 	long lit = lastIterTime;
 	if (lit == 0) {
 	    lastIterTime = tm;
 	    return;
 	}
+	int timeStepMask = (steprate < 300) ? 0 : 255;
 	
 	// Check if we don't need to run simulation (for very slow simulation speeds).
 	// If the circuit changed, do at least one iteration to make sure everything is consistent.
@@ -2939,7 +2939,7 @@ MouseOutHandler, MouseWheelHandler {
 	    lit = tm;
 	    // Check whether enough time has elapsed to perform an *additional* iteration after
 	    // those we have already completed.  But limit total computation time to 50ms (20fps)
-	    if ((timeStepCount & 255) != 0)
+	    if ((timeStepCount & timeStepMask) != 0)
 		continue;
 	    if ((timeStepCount-timeStepCountAtFrameStart)*1000 >= steprate*(tm-lastIterTime) || (tm-lastFrameTime > 50))
 		break;
