@@ -78,26 +78,33 @@ package com.lushprojects.circuitjs1.client;
 	}
 	int getVoltageSourceCount() { return 1; }
 	void stamp() {
-	    sim.stampVoltageSource(0, nodes[1], voltSource);
+	    sim.stampVoltageSource(sim.groundNode, nodes[1], voltSource);
 	}
 	
 	double delayEndTime;
 	
 	void doStep() {
-	    boolean inState = volts[0] > highVoltage*.5;
-	    boolean outState = volts[1] > highVoltage*.5;
+	    boolean inState = nodes[0].volts > highVoltage*.5;
+	    boolean outState = nodes[1].volts > highVoltage*.5;
 	    if (inState != outState) {
-		if (sim.t >= delayEndTime)
+		if (delayEndTime == 0)
+		    delayEndTime = sim.t + delay;
+		if (sim.t >= delayEndTime) {
 		    outState = inState;
+		    delayEndTime = 0;
+		} else
+		    sim.addToUpdateList(this);
 	    } else
-		delayEndTime = sim.t + delay;
-	    sim.updateVoltageSource(0, nodes[1], voltSource, outState ? 5 : 0);
+		delayEndTime = 0;
+//	    sim.updateVoltageSource(0, nodes[1], voltSource, outState ? 5 : 0);
+	    updateDigitalOutput(nodes[1], voltSource, outState ? 5 : 0);
 	}
-	double getVoltageDiff() { return volts[0]; }
+	double getVoltageDiff() { return nodes[0].volts; }
 	void getInfo(String arr[]) {
-	    arr[0] = sim.LS("buffer, delay = ") + getUnitText(delay, "s");
-	    arr[1] = "Vi = " + getVoltageText(volts[0]);
-	    arr[2] = "Vo = " + getVoltageText(volts[1]);
+	    arr[0] = "buffer";
+	    arr[1] = sim.LS("delay = ") + getUnitText(delay, "s");
+	    arr[2] = "Vi = " + getVoltageText(nodes[0].volts);
+	    arr[3] = "Vo = " + getVoltageText(nodes[1].volts);
 	}
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0)
