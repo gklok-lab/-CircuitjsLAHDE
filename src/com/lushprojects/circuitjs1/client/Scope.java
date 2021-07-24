@@ -451,7 +451,9 @@ class Scope {
 	    plots.add(new ScopePlot(ce, UNITS_V, VAL_VOLTAGE, getManScaleFromMaxScale(UNITS_V, false)));
 	    
 	    // create plot for current if applicable
-	    if (ce != null && !(ce instanceof OutputElm ||
+	    if (ce != null &&
+		    sim.dotsCheckItem.getState() &&
+		    !(ce instanceof OutputElm ||
 		    ce instanceof LogicOutputElm ||
 		    ce instanceof AudioOutputElm ||
 		    ce instanceof ProbeElm))
@@ -635,9 +637,9 @@ class Scope {
     void clear2dView() {
     	if (imageContext!=null) {
     		if (sim.printableCheckItem.getState()) {
-    			imageContext.setFillStyle("#ffffff");
+    			imageContext.setFillStyle("#eee");
     		} else {
-    			imageContext.setFillStyle("#000000");
+    			imageContext.setFillStyle("#111");
     		}
     		imageContext.fillRect(0, 0, rect.width-1, rect.height-1);
     	}

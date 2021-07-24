@@ -68,7 +68,7 @@ abstract class ChipElm extends CircuitElm {
 	}
 	void drawChip(Graphics g) {
 	    int i;
-	    Font oldfont = g.getFont();
+	    g.save();
 	    Font f = new Font("normal", 0, 10*csize);
 //	    FontMetrics fm = g.getFontMetrics();
 	    boolean hasVertical = false;
@@ -133,7 +133,7 @@ abstract class ChipElm extends CircuitElm {
 	    if (clockPointsX != null)
 		g.drawPolyline(clockPointsX, clockPointsY, 3);
 	    drawPosts(g);
-	    g.setFont(oldfont);
+	    g.restore();
 	}
 	int rectPointsX[], rectPointsY[];
 	int clockPointsX[], clockPointsY[];

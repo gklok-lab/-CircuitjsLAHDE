@@ -980,15 +980,18 @@ public abstract class CircuitElm implements Editable {
 	return ((x1 == y1 && x2 == y2) || (x1 == y2 && x2 == y1));
     }
     boolean needsHighlight() { 
-	return mouseElmRef==this || selected || sim.plotYElm == this ||
+	return mouseElmRef==this || selected || sim.plotYElm == this || sim.matchesMouseElm(this) ||
 		// Test if the current mouseElm is a ScopeElm and, if so, does it belong to this elm
 		(mouseElmRef instanceof ScopeElm && ((ScopeElm) mouseElmRef).elmScope.getElm()==this); 
     }
     boolean isSelected() { return selected; }
     boolean canShowValueInScope(int v) { return false; }
     void setSelected(boolean x) { selected = x; }
-    void selectRect(Rectangle r) {
-	selected = r.intersects(boundingBox);
+    void selectRect(Rectangle r, boolean add) {
+	if (r.intersects(boundingBox))
+	    selected = true;
+	else if (!add)
+	    selected = false;
     }
     static int abs(int x) { return x < 0 ? -x : x; }
     static int sign(int x) { return (x < 0) ? -1 : (x == 0) ? 0 : 1; }

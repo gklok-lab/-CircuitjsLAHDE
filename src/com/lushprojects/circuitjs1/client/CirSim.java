@@ -331,6 +331,8 @@ MouseOutHandler, MouseWheelHandler {
     	int h = (int) ((double)height * scopeHeightFraction);
     	/*if (h < 128 && winSize.height > 300)
 		  h = 128;*/
+    	if (scopeCount == 0)
+    	    h = 0;
     	circuitArea = new Rectangle(0, 0, width, height-h);
     }
     
@@ -374,6 +376,7 @@ MouseOutHandler, MouseWheelHandler {
 	String negativeColor = null;
 	String selectColor = null;
 	String currentColor = null;
+	String mouseModeReq = null;
 
 	try {
 	    //baseURL = applet.getDocumentBase().getFile();
@@ -403,6 +406,7 @@ MouseOutHandler, MouseWheelHandler {
 	    negativeColor = qp.getValue("negativeColor");
 	    selectColor = qp.getValue("selectColor");
 	    currentColor = qp.getValue("currentColor");
+	    mouseModeReq = qp.getValue("mouseMode");
 	} catch (Exception e) { }
 
 	boolean euroSetting = false;
@@ -729,8 +733,8 @@ MouseOutHandler, MouseWheelHandler {
 	    }
 	}
 
-
-
+	if (mouseModeReq != null)
+	    menuPerformed("main", mouseModeReq);
 
 	enableUndoRedo();
 	enablePaste();
@@ -1056,6 +1060,7 @@ MouseOutHandler, MouseWheelHandler {
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Tristate Buffer"), "TriStateElm"));
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Schmitt Trigger"), "SchmittElm"));
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Schmitt Trigger (Inverting)"), "InvertingSchmittElm"));
+    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Delay Buffer"), "DelayBufferElm"));
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add CCII+"), "CC2Elm"));
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add CCII-"), "CC2NegElm"));
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Comparator (Hi-Z/GND output)"), "ComparatorElm"));
@@ -1235,6 +1240,7 @@ MouseOutHandler, MouseWheelHandler {
     
     void centreCircuit() {
 	Rectangle bounds = getCircuitBounds();
+    	setCircuitArea();
 	
     	double scale = 1;
     	
@@ -1402,9 +1408,7 @@ MouseOutHandler, MouseWheelHandler {
 	   
 	
 	int i;
-//	Font oldfont = g.getFont();
-	Font oldfont = CircuitElm.unitsFont;
-	g.setFont(oldfont);
+	g.setFont(CircuitElm.unitsFont);
 	
 	// this causes bad behavior on Chrome 55
 //	g.clipRect(0, 0, circuitArea.width, circuitArea.height);
@@ -1487,17 +1491,54 @@ MouseOutHandler, MouseWheelHandler {
 
 	
 	cvcontext.setTransform(scale, 0, 0, scale, 0, 0);
+	
+	drawBottomArea(g);
 
-	if (printableCheckItem.getState())
-	    g.setColor(Color.white);
-	else
-	    g.setColor(Color.black);
-	g.fillRect(0, circuitArea.height, circuitArea.width, canvasHeight-circuitArea.height);
-//	g.restore();
-	g.setFont(oldfont);
+	if (stopElm != null && stopElm != mouseElm)
+	    stopElm.setMouseElm(false);
+	frames++;
+	
+	g.setColor(Color.white);
+	g.drawString("Rate: " + CircuitElm.showFormat.format((stopT-startT)*1e3/(myruntime*.001)), 10, 10);
+	myruntime = 0;
+//	g.drawString("Framerate: " + CircuitElm.showFormat.format(framerate), 10, 10);
+//	g.drawString("Steprate: " + CircuitElm.showFormat.format(steprate),  10, 30);
+//	g.drawString("Steprate/iter: " + CircuitElm.showFormat.format(steprate/getIterCount()),  10, 50);
+//	g.drawString("iterc: " + CircuitElm.showFormat.format(getIterCount()),  10, 70);
+//	g.drawString("Frames: "+ frames,10,90);
+//	g.drawString("ms per frame (other): "+ CircuitElm.showFormat.format((mytime-myruntime-mydrawtime)/myframes),10,110);
+//	g.drawString("ms per frame (sim): "+ CircuitElm.showFormat.format((myruntime)/myframes),10,130);
+//	g.drawString("ms per frame (draw): "+ CircuitElm.showFormat.format((mydrawtime)/myframes),10,150);
+	
+	// if we did DC analysis, we need to re-analyze the circuit with that flag cleared. 
+	if (dcAnalysisFlag) {
+	    dcAnalysisFlag = false;
+	    analyzeFlag = true;
+	}
+
+	lastFrameTime = lastTime;
+	mytime=mytime+System.currentTimeMillis()-mystarttime;
+	myframes++;
+	callUpdateHook();
+    }
+
+    void drawBottomArea(Graphics g) {
+	int leftX = 0;
+	int h = 0;
+	if (stopMessage == null && scopeCount == 0) {
+	    leftX = max(canvasWidth-infoWidth, 0);
+	    int h0 = (int) (canvasHeight * scopeHeightFraction);
+	    h = (mouseElm == null) ? 70 : h0;
+	}
+	if (stopMessage != null && circuitArea.height > canvasHeight-30)
+	    h = 30;
+	g.setColor(printableCheckItem.getState() ? "#eee" : "#111");
+	g.fillRect(leftX, circuitArea.height-h, circuitArea.width, canvasHeight-circuitArea.height+h);
+	g.setFont(CircuitElm.unitsFont);
 	int ct = scopeCount;
 	if (stopMessage != null)
 	    ct = 0;
+	int i;
 	for (i = 0; i != ct; i++)
 	    scopes[i].draw(g);
 	if (mouseWasOverSplitter) {
@@ -1509,7 +1550,7 @@ MouseOutHandler, MouseWheelHandler {
 	g.setColor(CircuitElm.whiteColor);
 
 	if (stopMessage != null) {
-	    g.drawString(stopMessage, 10, circuitArea.height-10);
+	    g.drawString(stopMessage, 10, canvasHeight-10);
 	} else {
 	    // in JS it doesn't matter how big this is, there's no out-of-bounds exception
 	    String info[] = new String[10];
@@ -1542,10 +1583,10 @@ MouseOutHandler, MouseWheelHandler {
 		else
 		    info[i] = s;
 	    }
-	    int x = 0;
+	    int x = leftX + 5;
 	    if (ct != 0)
 		x = scopes[ct-1].rightEdge() + 20;
-	    x = max(x, canvasWidth*2/3);
+//	    x = max(x, canvasWidth*2/3);
 	  //  x=cv.getCoordinateSpaceWidth()*2/3;
 	    
 	    // count lines of data
@@ -1558,42 +1599,19 @@ MouseOutHandler, MouseWheelHandler {
 	    if (savedFlag)
 		info[i++] = "(saved)";
 
-	    int ybase = circuitArea.height;
+	    int ybase = circuitArea.height-h;
 	    for (i = 0; info[i] != null; i++)
 		g.drawString(info[i], x, ybase+15*(i+1));
 	}
-	if (stopElm != null && stopElm != mouseElm)
-	    stopElm.setMouseElm(false);
-	frames++;
-	
-	g.setColor(Color.white);
-	g.drawString("Rate: " + CircuitElm.showFormat.format((stopT-startT)*1e3/(myruntime*.001)), 10, 10);
-	myruntime = 0;
-//	g.drawString("Steprate: " + CircuitElm.showFormat.format(steprate),  10, 30);
-//	g.drawString("Steprate/iter: " + CircuitElm.showFormat.format(steprate/getIterCount()),  10, 50);
-//	g.drawString("iterc: " + CircuitElm.showFormat.format(getIterCount()),  10, 70);
-//	g.drawString("Frames: "+ frames,10,90);
-//	g.drawString("ms per frame (other): "+ CircuitElm.showFormat.format((mytime-myruntime-mydrawtime)/myframes),10,110);
-//	g.drawString("ms per frame (sim): "+ CircuitElm.showFormat.format((myruntime)/myframes),10,130);
-//	g.drawString("ms per frame (draw): "+ CircuitElm.showFormat.format((mydrawtime)/myframes),10,150);
-	
-	// if we did DC analysis, we need to re-analyze the circuit with that flag cleared. 
-	if (dcAnalysisFlag) {
-	    dcAnalysisFlag = false;
-	    analyzeFlag = true;
-	}
-
-	lastFrameTime = lastTime;
-	mytime=mytime+System.currentTimeMillis()-mystarttime;
-	myframes++;
-	callUpdateHook();
     }
-
+    
     Color getBackgroundColor() {
 	if (printableCheckItem.getState())
 	    return Color.white;
 	return Color.black;
     }
+    
+    int oldScopeCount = -1;
     
     void setupScopes() {
     	int i;
@@ -1653,6 +1671,10 @@ MouseOutHandler, MouseWheelHandler {
     		row++;
     		if (!r.equals(s.rect))
     			s.setRect(r);
+    	}
+    	if (oldScopeCount != scopeCount) {
+    	    setCircuitArea();
+    	    oldScopeCount = scopeCount;
     	}
     }
     
@@ -3991,7 +4013,7 @@ MouseOutHandler, MouseWheelHandler {
     		break;
     	case MODE_SELECT:
     		if (mouseElm == null)
-    		    selectArea(gx, gy);
+    		    selectArea(gx, gy, e.isShiftKeyDown());
     		else if (!noEditCheckItem.getState()) {
     		    // wait short delay before dragging.  This is to fix problem where switches were accidentally getting
     		    // dragged when tapped on mobile devices
@@ -4194,7 +4216,7 @@ MouseOutHandler, MouseWheelHandler {
 	needAnalyze();
     }
     
-    void selectArea(int x, int y) {
+    void selectArea(int x, int y, boolean add) {
     	int x1 = min(x, initDragGridX);
     	int x2 = max(x, initDragGridX);
     	int y1 = min(y, initDragGridY);
@@ -4203,7 +4225,7 @@ MouseOutHandler, MouseWheelHandler {
     	int i;
     	for (i = 0; i != elmList.size(); i++) {
     		CircuitElm ce = getElm(i);
-    		ce.selectRect(selectedArea);
+    		ce.selectRect(selectedArea, add);
     	}
     }
 
@@ -4229,6 +4251,16 @@ MouseOutHandler, MouseWheelHandler {
     	}
     }
 
+    boolean matchesMouseElm(CircuitElm ce) {
+	if (mouseElm == null)
+	    return false;
+	if (ce instanceof LabeledNodeElm && mouseElm instanceof LabeledNodeElm &&
+		ce.getNode(0) == mouseElm.getNode(0)) {
+	    return true;
+	}
+	return false;
+    }
+    
     void removeZeroLengthElements() {
     	int i;
     	boolean changed = false;
@@ -4245,6 +4277,8 @@ MouseOutHandler, MouseWheelHandler {
     
     boolean mouseIsOverSplitter(int x, int y) {
     	boolean isOverSplitter;
+    	if (scopeCount == 0)
+    	    return false;
     	isOverSplitter =((x>=0) && (x<circuitArea.width) && 
     			(y>=circuitArea.height-5) && (y<circuitArea.height));
     	if (isOverSplitter!=mouseWasOverSplitter){
@@ -5553,6 +5587,7 @@ MouseOutHandler, MouseWheelHandler {
     	case 419: return new DecimalDisplayElm(x1, y1, x2, y2, f, st);
     	case 420: return new WattmeterElm(x1, y1, x2, y2, f, st);
     	case 421: return new Counter2Elm(x1, y1, x2, y2, f, st);
+    	case 422: return new DelayBufferElm(x1, y1, x2, y2, f, st);
         }
     	return null;
     }
@@ -5811,6 +5846,8 @@ MouseOutHandler, MouseWheelHandler {
 		return (CircuitElm) new WattmeterElm(x1, y1);
     	if (n=="Counter2Elm")
 		return (CircuitElm) new Counter2Elm(x1, y1);
+    	if (n=="DelayBufferElm")
+		return (CircuitElm) new DelayBufferElm(x1, y1);
     	
     	// handle CustomCompositeElm:modelname
     	if (n.startsWith("CustomCompositeElm:")) {
