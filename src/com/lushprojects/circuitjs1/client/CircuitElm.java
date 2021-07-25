@@ -502,8 +502,16 @@ public abstract class CircuitElm implements Editable {
     // number of internal nodes (nodes not visible in UI that are needed for implementation)
     int getInternalNodeCount() { return 0; }
     
-    // notify this element that its pth node is n.  This value n can be passed to stampMatrix()
-    void setNode(int p, CircuitNode n) { nodes[p] = n; }
+    // notify this element that its pth node is n.  This object n can be passed to stampMatrix()
+    void setNode(int p, CircuitNode n) {
+	double v = 0;
+	if (nodes[p] != null)
+	    v = nodes[p].volts;
+	nodes[p] = n;
+	// preserve old node voltages
+	n.volts = v;
+	n.high = (v > 2.5);
+    }
     
     // notify this element that its nth voltage source is v.  This value v can be passed to stampVoltageSource(), etc and will be passed back in calls to setCurrent()
     void setVoltageSource(int n, VoltageSource v) {
