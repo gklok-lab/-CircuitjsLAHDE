@@ -275,7 +275,7 @@ package com.lushprojects.circuitjs1.client;
 
 	void setColor(Graphics g, int p) {
 	    if (diodeDirection == 0) {
-		g.setColor(pins[p].value ? Color.red :
+		g.setColor(nodes[p].high ? Color.red :
 		       sim.printableCheckItem.getState() ? Color.white : darkred);
 		return;
 	    }
