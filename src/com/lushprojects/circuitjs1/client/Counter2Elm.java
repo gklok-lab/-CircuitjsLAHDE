@@ -103,10 +103,11 @@ package com.lushprojects.circuitjs1.client;
 	int getVoltageSourceCount() { return bits+1; }
 	
 	boolean carry;
+	boolean enabled;
 	
 	boolean execute() {
 	    if (nodes[clk].high && !lastClock) {
-		if (nodes[enp].high && nodes[ent].high) {
+		if (enabled) {
 		    int i;
 		    int value = 0;
 
@@ -134,6 +135,7 @@ package com.lushprojects.circuitjs1.client;
 			writeOutput(i, nodes[i+bits].high);
 		}
 	    }
+	    enabled = (nodes[enp].high && nodes[ent].high);
 	    if (!nodes[clr].high) {
 		int i;
 		for (i = 0; i != bits; i++)
