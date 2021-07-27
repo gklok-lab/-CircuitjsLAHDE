@@ -1758,7 +1758,7 @@ MouseOutHandler, MouseWheelHandler {
     }
     
     Vector<CircuitNode> nodeList;
-    CircuitNode groundNode;
+    CircuitNode groundNode = new CircuitNode();
     Vector<Point> postDrawList = new Vector<Point>();
     Vector<Point> badConnectionList = new Vector<Point>();
     CircuitElm voltageSourceElms[];
@@ -2285,6 +2285,7 @@ MouseOutHandler, MouseWheelHandler {
 	timeStep = maxTimeStep;
 	needsStamp = true;
 	
+	updateList = new CircuitElm[0];
 	callAnalyzeHook();
     }
 
