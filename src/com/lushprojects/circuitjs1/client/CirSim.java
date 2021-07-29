@@ -967,68 +967,68 @@ MouseOutHandler, MouseWheelHandler {
     // this is called twice, once for the Draw menu, once for the right mouse popup menu
     public void composeMainMenu(MenuBar mainMenuBar, int num) {
     	mainMenuBar.addItem(getClassCheckItem(LS("Add Wire"), "WireElm"));
-    	mainMenuBar.addItem(getClassCheckItem(LS("Add Resistor"), "ResistorElm"));
+    	//mainMenuBar.addItem(getClassCheckItem(LS("Add Resistor"), "ResistorElm"));
 
     	MenuBar passMenuBar = new MenuBar(true);
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Capacitor"), "CapacitorElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Capacitor (polarized)"), "PolarCapacitorElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Inductor"), "InductorElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Capacitor"), "CapacitorElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Capacitor (polarized)"), "PolarCapacitorElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Inductor"), "InductorElm"));
     	passMenuBar.addItem(getClassCheckItem(LS("Add Switch"), "SwitchElm"));
     	passMenuBar.addItem(getClassCheckItem(LS("Add Push Switch"), "PushSwitchElm"));
     	passMenuBar.addItem(getClassCheckItem(LS("Add SPDT Switch"), "Switch2Elm"));
     	passMenuBar.addItem(getClassCheckItem(LS("Add Make-Before-Break Switch"), "MBBSwitchElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Potentiometer"), "PotElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Transformer"), "TransformerElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Tapped Transformer"), "TappedTransformerElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Transmission Line"), "TransLineElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Relay"), "RelayElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Memristor"), "MemristorElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Spark Gap"), "SparkGapElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Fuse"), "FuseElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Custom Transformer"), "CustomTransformerElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Crystal"), "CrystalElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Photoresistor"), "LDRElm"));
-    	passMenuBar.addItem(getClassCheckItem(LS("Add Thermistor"), "ThermistorNTCElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Potentiometer"), "PotElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Transformer"), "TransformerElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Tapped Transformer"), "TappedTransformerElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Transmission Line"), "TransLineElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Relay"), "RelayElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Memristor"), "MemristorElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Spark Gap"), "SparkGapElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Fuse"), "FuseElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Custom Transformer"), "CustomTransformerElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Crystal"), "CrystalElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Photoresistor"), "LDRElm"));
+    	//passMenuBar.addItem(getClassCheckItem(LS("Add Thermistor"), "ThermistorNTCElm"));
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Passive Components")), passMenuBar);
 
     	MenuBar inputMenuBar = new MenuBar(true);
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Ground"), "GroundElm"));
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Voltage Source (2-terminal)"), "DCVoltageElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add A/C Voltage Source (2-terminal)"), "ACVoltageElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add A/C Voltage Source (2-terminal)"), "ACVoltageElm"));
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Voltage Source (1-terminal)"), "RailElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add A/C Voltage Source (1-terminal)"), "ACRailElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add A/C Voltage Source (1-terminal)"), "ACRailElm"));
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Square Wave Source (1-terminal)"), "SquareRailElm"));
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Clock"), "ClockElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add A/C Sweep"), "SweepElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add A/C Sweep"), "SweepElm"));
     	inputMenuBar.addItem(getClassCheckItem(LS("Add Variable Voltage"), "VarRailElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add Antenna"), "AntennaElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add AM Source"), "AMElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add FM Source"), "FMElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add Current Source"), "CurrentElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add Noise Generator"), "NoiseElm"));
-    	inputMenuBar.addItem(getClassCheckItem(LS("Add Audio Input"), "AudioInputElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add Antenna"), "AntennaElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add AM Source"), "AMElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add FM Source"), "FMElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add Current Source"), "CurrentElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add Noise Generator"), "NoiseElm"));
+    	//inputMenuBar.addItem(getClassCheckItem(LS("Add Audio Input"), "AudioInputElm"));
     	inputMenuBar.addItem(getClassCheckItem(LS("Add External Voltage (JavaScript)"), "ExtVoltageElm"));
 
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Inputs and Sources")), inputMenuBar);
     	
     	MenuBar outputMenuBar = new MenuBar(true);
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Analog Output"), "OutputElm"));
-    	outputMenuBar.addItem(getClassCheckItem(LS("Add LED"), "LEDElm"));
-    	outputMenuBar.addItem(getClassCheckItem(LS("Add Lamp"), "LampElm"));
+    	//outputMenuBar.addItem(getClassCheckItem(LS("Add LED"), "LEDElm"));
+    	//outputMenuBar.addItem(getClassCheckItem(LS("Add Lamp"), "LampElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Text"), "TextElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Box"), "BoxElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Voltmeter/Scobe Probe"), "ProbeElm"));
-    	outputMenuBar.addItem(getClassCheckItem(LS("Add Ohmmeter"), "OhmMeterElm"));
+    	//outputMenuBar.addItem(getClassCheckItem(LS("Add Ohmmeter"), "OhmMeterElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Labeled Node"), "LabeledNodeElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Test Point"), "TestPointElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Ammeter"), "AmmeterElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Decimal Display"), "DecimalDisplayElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Data Export"), "DataRecorderElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Audio Output"), "AudioOutputElm"));
-    	outputMenuBar.addItem(getClassCheckItem(LS("Add LED Array"), "LEDArrayElm"));
+    	//outputMenuBar.addItem(getClassCheckItem(LS("Add LED Array"), "LEDArrayElm"));
     	outputMenuBar.addItem(getClassCheckItem(LS("Add Stop Trigger"), "StopTriggerElm"));
-    	outputMenuBar.addItem(getClassCheckItem(LS("Add DC Motor"), "DCMotorElm"));
-    	outputMenuBar.addItem(getClassCheckItem(LS("Add Wattmeter"), "WattmeterElm"));
+    	//outputMenuBar.addItem(getClassCheckItem(LS("Add DC Motor"), "DCMotorElm"));
+    	//outputMenuBar.addItem(getClassCheckItem(LS("Add Wattmeter"), "WattmeterElm"));
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Outputs and Labels")), outputMenuBar);
     	
     	MenuBar activeMenuBar = new MenuBar(true);
@@ -1049,29 +1049,29 @@ MouseOutHandler, MouseWheelHandler {
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Tunnel Diode"), "TunnelDiodeElm"));
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Triode"), "TriodeElm"));
     	activeMenuBar.addItem(getClassCheckItem(LS("Add Unijunction Transistor"), "UnijunctionElm"));
-    	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Active Components")), activeMenuBar);
+    	//mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Active Components")), activeMenuBar);
 
     	MenuBar activeBlocMenuBar = new MenuBar(true);
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Op Amp (ideal, - on top)"), "OpAmpElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Op Amp (ideal, + on top)"), "OpAmpSwapElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Op Amp (real)"), "OpAmpRealElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Analog Switch (SPST)"), "AnalogSwitchElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Analog Switch (SPDT)"), "AnalogSwitch2Elm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Tristate Buffer"), "TriStateElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Op Amp (ideal, - on top)"), "OpAmpElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Op Amp (ideal, + on top)"), "OpAmpSwapElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Op Amp (real)"), "OpAmpRealElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Analog Switch (SPST)"), "AnalogSwitchElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Analog Switch (SPDT)"), "AnalogSwitch2Elm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Tristate Buffer"), "TriStateElm"));
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Schmitt Trigger"), "SchmittElm"));
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Schmitt Trigger (Inverting)"), "InvertingSchmittElm"));
     	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Delay Buffer"), "DelayBufferElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add CCII+"), "CC2Elm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add CCII-"), "CC2NegElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Comparator (Hi-Z/GND output)"), "ComparatorElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add OTA (LM13700 style)"), "OTAElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Voltage-Controlled Voltage Source"), "VCVSElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Voltage-Controlled Current Source"), "VCCSElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Current-Controlled Voltage Source"), "CCVSElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Current-Controlled Current Source"), "CCCSElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Optocoupler"), "OptocouplerElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Time Delay Relay"), "TimeDelayRelayElm"));
-    	activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Subcircuit Instance"), "CustomCompositeElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add CCII+"), "CC2Elm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add CCII-"), "CC2NegElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Comparator (Hi-Z/GND output)"), "ComparatorElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add OTA (LM13700 style)"), "OTAElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Voltage-Controlled Voltage Source"), "VCVSElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Voltage-Controlled Current Source"), "VCCSElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Current-Controlled Voltage Source"), "CCVSElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Current-Controlled Current Source"), "CCCSElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Optocoupler"), "OptocouplerElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Time Delay Relay"), "TimeDelayRelayElm"));
+    	//activeBlocMenuBar.addItem(getClassCheckItem(LS("Add Subcircuit Instance"), "CustomCompositeElm"));
     	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Active Building Blocks")), activeBlocMenuBar);
     	
     	MenuBar gateMenuBar = new MenuBar(true);
@@ -1113,7 +1113,7 @@ MouseOutHandler, MouseWheelHandler {
     	achipMenuBar.addItem(getClassCheckItem(LS("Add ADC"), "ADCElm"));
     	achipMenuBar.addItem(getClassCheckItem(LS("Add VCO"), "VCOElm"));
     	achipMenuBar.addItem(getClassCheckItem(LS("Add Monostable"), "MonostableElm"));
-    	mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Analog and Hybrid Chips")), achipMenuBar);
+    	//mainMenuBar.addItem(SafeHtmlUtils.fromTrustedString(CheckboxMenuItem.checkBoxHtml+LS("&nbsp;</div>Analog and Hybrid Chips")), achipMenuBar);
     	
     	if (subcircuitMenuBar == null)
     	    subcircuitMenuBar = new MenuBar[2];
@@ -1499,8 +1499,8 @@ MouseOutHandler, MouseWheelHandler {
 	frames++;
 	
 	g.setColor(Color.white);
-	g.drawString("Rate: " + CircuitElm.showFormat.format((stopT-startT)*1e3/(myruntime*.001)), 10, 10);
-	myruntime = 0;
+//	g.drawString("Rate: " + CircuitElm.showFormat.format((stopT-startT)*1e3/(myruntime*.001)), 10, 10);
+//	myruntime = 0;
 //	g.drawString("Framerate: " + CircuitElm.showFormat.format(framerate), 10, 10);
 //	g.drawString("Steprate: " + CircuitElm.showFormat.format(steprate),  10, 30);
 //	g.drawString("Steprate/iter: " + CircuitElm.showFormat.format(steprate/getIterCount()),  10, 50);
