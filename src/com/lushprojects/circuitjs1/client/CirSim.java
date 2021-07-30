@@ -2814,7 +2814,7 @@ MouseOutHandler, MouseWheelHandler {
 	    lastIterTime = tm;
 	    return;
 	}
-	int timeStepMask = (steprate < 300) ? 0 : 255;
+	int timeStepMask = (steprate < 10000) ? 0 : 255;
 	
 	// Check if we don't need to run simulation (for very slow simulation speeds).
 	// If the circuit changed, do at least one iteration to make sure everything is consistent.
