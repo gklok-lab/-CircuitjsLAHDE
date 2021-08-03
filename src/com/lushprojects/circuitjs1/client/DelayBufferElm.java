@@ -20,21 +20,28 @@
 package com.lushprojects.circuitjs1.client;
 
     class DelayBufferElm extends CircuitElm {
-	double delay;
-	static final double highVoltage = 5;
+	double delay, threshold, highVoltage;
 	
 	public DelayBufferElm(int xx, int yy) {
 	    super(xx, yy);
 	    noDiagonal = true;
+	    threshold = 2.5;
+	    highVoltage = 5;
 	}
 	public DelayBufferElm(int xa, int ya, int xb, int yb, int f,
 			      StringTokenizer st) {
 	    super(xa, ya, xb, yb, f);
 	    noDiagonal = true;
 	    delay = Double.parseDouble(st.nextToken());
+	    threshold = 2.5;
+	    highVoltage = 5;
+	    try {
+		threshold = Double.parseDouble(st.nextToken());
+		highVoltage = Double.parseDouble(st.nextToken());
+	    } catch (Exception e) {}
 	}
 	String dump() {
-	    return super.dump() + " " + delay;
+	    return super.dump() + " " + delay + " " + threshold + " " + highVoltage;
 	}
 	
 	int getDumpType() { return 422; }
@@ -84,8 +91,8 @@ package com.lushprojects.circuitjs1.client;
 	double delayEndTime;
 	
 	void doStep() {
-	    boolean inState = nodes[0].volts > highVoltage*.5;
-	    boolean outState = nodes[1].volts > highVoltage*.5;
+	    boolean inState = nodes[0].volts > threshold;
+	    boolean outState = nodes[1].volts > threshold;
 	    if (inState != outState) {
 		if (delayEndTime == 0)
 		    delayEndTime = sim.t + delay;
@@ -95,9 +102,9 @@ package com.lushprojects.circuitjs1.client;
 		} else
 		    sim.addToUpdateList(this);
 	    } else
-		delayEndTime = 0;
-//	    sim.updateVoltageSource(0, nodes[1], voltSource, outState ? 5 : 0);
-	    updateDigitalOutput(nodes[1], voltSource, outState ? 5 : 0);
+		delayEndTime = sim.t + delay;
+//	    sim.updateVoltageSource(0, nodes[1], voltSource, outState ? highVoltage : 0);
+	    updateDigitalOutput(nodes[1], voltSource, outState ? highVoltage : 0);
 	}
 	double getVoltageDiff() { return nodes[0].volts; }
 	void getInfo(String arr[]) {
@@ -109,11 +116,19 @@ package com.lushprojects.circuitjs1.client;
 	public EditInfo getEditInfo(int n) {
 	    if (n == 0)
 		return new EditInfo("Delay (s)", delay, 0, 0);
+	    if (n == 1)
+		return new EditInfo("Threshold (V)", threshold, 0, 0);
+	    if (n == 2)
+		return new EditInfo("High Voltage", highVoltage, 0, 0);
 	    return null;
 	}
 	public void setEditValue(int n, EditInfo ei) {
 	    if (n == 0)
 		delay = ei.value;
+	    if (n == 1)
+		threshold = ei.value;
+	    if (n == 2)
+		highVoltage = ei.value;
 	}
 	// there is no current path through the inverter input, but there
 	// is an indirect path through the output to ground.

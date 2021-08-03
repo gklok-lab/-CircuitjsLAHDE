@@ -83,21 +83,21 @@ package com.lushprojects.circuitjs1.client;
 	    return true;
 	}
 	int getDumpType() { return 193; }
-	public EditInfo getEditInfo(int n) {
-	    if (n == 2) {
+	public EditInfo getChipEditInfo(int n) {
+	    if (n == 0) {
 		EditInfo ei = new EditInfo("", 0, -1, -1);
 		ei.checkbox = new Checkbox("Reset Pin", hasReset());
 		return ei;
 	    }
-	    if (n == 3) {
+	    if (n == 1) {
 		EditInfo ei = new EditInfo("", 0, -1, -1);
 		ei.checkbox = new Checkbox("Set Pin", hasSet());
 		return ei;
 	    }
-	    return super.getEditInfo(n);
+	    return super.getChipEditInfo(n);
 	}
-	public void setEditValue(int n, EditInfo ei) {
-	    if (n == 2) {
+	public void setChipEditValue(int n, EditInfo ei) {
+	    if (n == 0) {
 		if (ei.checkbox.getState())
 		    flags |= FLAG_RESET;
 		else
@@ -106,7 +106,7 @@ package com.lushprojects.circuitjs1.client;
 		allocNodes();
 		setPoints();
 	    }
-	    if (n == 3) {
+	    if (n == 1) {
 		if (ei.checkbox.getState())
 		    flags |= FLAG_SET;
 		else
@@ -115,6 +115,6 @@ package com.lushprojects.circuitjs1.client;
 		allocNodes();
 		setPoints();
 	    }
-	    super.setEditValue(n, ei);
+	    super.setChipEditValue(n, ei);
 	}
     }
