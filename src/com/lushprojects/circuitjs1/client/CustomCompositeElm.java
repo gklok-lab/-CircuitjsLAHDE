@@ -76,7 +76,7 @@ public class CustomCompositeElm extends CompositeElm {
     void draw(Graphics g) {
 	int i;
 	for (i = 0; i != postCount; i++) {
-	    chip.nodes[i].volts = nodes[i].volts;
+	    chip.nodes[i] = nodes[i];
 	    chip.pins[i].current = getCurrentIntoNode(i); 
 	}
 	chip.setSelected(needsHighlight());
