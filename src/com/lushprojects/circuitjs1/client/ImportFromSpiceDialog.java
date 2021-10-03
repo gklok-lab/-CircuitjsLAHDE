@@ -361,8 +361,13 @@ TextArea outputArea;
 			String n3 = st.nextToken();
 			String mod = st.nextToken();
 			double area = 1;
-			if (st.hasMoreTokens())
-			    area = Double.parseDouble(st.nextToken());
+			if (st.hasMoreTokens()) {
+			    String as = st.nextToken();
+			    if (as.startsWith("area="))
+				area = Double.parseDouble(as.substring(5));
+			    else
+				area = Double.parseDouble(as);
+			}
 			TransistorModelImport tm = transistorModels.get(mod);
 			int collector = findNode(n1);
 			int base = findNode(n2);
