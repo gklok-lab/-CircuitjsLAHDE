@@ -498,8 +498,8 @@ TextArea outputArea;
 		return n;
 	    
 	    // create new model from old
-	    TransistorModel tm = TransistorModel.getModelWithName(n);
 	    TransistorModel tm1 = TransistorModel.getModelWithName(tmi.name);
+	    TransistorModel tm = TransistorModel.getModelWithNameOrCopy(n, tm1);
 	    
 	    // adjust parameters as necessary for area
 	    tm.satCur = tm1.satCur*area;
