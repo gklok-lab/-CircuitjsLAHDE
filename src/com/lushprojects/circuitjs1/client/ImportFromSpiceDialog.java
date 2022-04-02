@@ -378,7 +378,7 @@ TextArea outputArea;
 			    elmDump += "ResistorElm " + collector + " " + n + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("0 " + tm.rc*area);
+			    dump += CustomLogicModel.escape("0 " + tm.rc/area);
 			    collector = n;
 			}
 			if (tm.rb > 0) {
@@ -387,7 +387,7 @@ TextArea outputArea;
 			    elmDump += "ResistorElm " + base + " " + n + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("0 " + tm.rb*area);
+			    dump += CustomLogicModel.escape("0 " + tm.rb/area);
 			    base = n;
 			}
 			if (tm.re > 0) {
@@ -396,7 +396,7 @@ TextArea outputArea;
 			    elmDump += "ResistorElm " + emitter + " " + n + "\r";
 			    if (dump.length() > 0)
 				dump += " ";
-			    dump += CustomLogicModel.escape("0 " + tm.re*area);
+			    dump += CustomLogicModel.escape("0 " + tm.re/area);
 			    emitter = n;
 			}
 			if (tm.cje > 0) {
@@ -503,14 +503,14 @@ TextArea outputArea;
 	    
 	    // adjust parameters as necessary for area
 	    tm.satCur = tm1.satCur*area;
-	    tm.invRollOffF = tm1.invRollOffF*area;
+	    tm.invRollOffF = tm1.invRollOffF/area;
 	    tm.BEleakCur = tm1.BEleakCur*area;
-	    tm.invRollOffR = tm1.invRollOffR*area;
+	    tm.invRollOffR = tm1.invRollOffR/area;
 	    tm.BCleakCur = tm1.BCleakCur*area;
 	    tmi.areaModelNames.add(n);
 	    return n;
 	}
-	
+
 	void parseBSource(BetterStringTokenizer st) throws Exception {
 	    String outn1 = st.nextToken();
 	    String outn2 = st.nextToken();
